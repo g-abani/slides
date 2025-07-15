@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comparative Analysis of Agentic Frameworks</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+        }
+        
+        .slide {
+            width: 100vw;
+            height: 100vh;
+            display: none;
+            padding: 60px;
+            box-sizing: border-box;
+            background: white;
+            overflow: auto;
+            position: relative;
+        }
+        
+        .slide.current {
+            display: block;
+        }
+        
+        .slide h1 {
+            color: #2c3e50;
+            font-size: 2.5em;
+            margin-bottom: 30px;
+            text-align: center;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 20px;
+        }
+        
+        .slide h2 {
+            color: #34495e;
+            font-size: 2em;
+            margin-bottom: 25px;
+            border-left: 5px solid #3498db;
+            padding-left: 20px;
+        }
+        
+        .slide h3 {
+            color: #2c3e50;
+            font-size: 1.5em;
+            margin-bottom: 20px;
+        }
+        
+        .slide ul {
+            font-size: 1.2em;
+            line-height: 1.8;
+            margin-left: 20px;
+        }
+        
+        .slide li {
+            margin-bottom: 10px;
+        }
+        
+        .slide strong {
+            color: #e74c3c;
+        }
+        
+        .slide code {
+            background: #f8f9fa;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            color: #e74c3c;
+        }
+        
+        .slide pre {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 20px;
+            border-radius: 8px;
+            font-size: 0.9em;
+            overflow-x: auto;
+            margin: 20px 0;
+        }
+        
+        .slide pre code {
+            background: none;
+            color: inherit;
+            padding: 0;
+        }
+        
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        
+        .comparison-table th,
+        .comparison-table td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        
+        .comparison-table th {
+            background: #3498db;
+            color: white;
+        }
+        
+        .comparison-table tr:nth-child(even) {
+            background: #f9f9f9;
+        }
+        
+        .navigation {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 14px;
+            z-index: 1000;
+        }
+        
+        .navigation button {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 0 10px;
+            padding: 5px 10px;
+            border-radius: 3px;
+        }
+        
+        .navigation button:hover {
+            background: rgba(255,255,255,0.2);
+        }
+        
+        .slide-number {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 15px;
+            font-size: 14px;
+        }
+        
+        .two-column {
+            display: flex;
+            gap: 40px;
+            margin: 20px 0;
+        }
+        
+        .column {
+            flex: 1;
+        }
+        
+        .highlight-box {
+            background: #e8f4f8;
+            border-left: 4px solid #3498db;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .vs-comparison {
+            display: flex;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .vs-item {
+            flex: 1;
+            padding: 20px;
+            border-radius: 8px;
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+        }
+        
+        .vs-item h4 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            text-align: center;
+            font-size: 1.3em;
+        }
+        
+        .langraph {
+            border-color: #27ae60;
+            background: #e8f5e8;
+        }
+        
+        .openai-adk {
+            border-color: #e74c3c;
+            background: #fdf2f2;
+        }
+    </style>
+</head>
+<body>
+    <!-- Slide 1: Title -->
+    <div class="slide current">
+        <h1>Comparative Analysis of Agentic Frameworks</h1>
+        <h2 style="text-align: center; color: #7f8c8d;">LangGraph vs OpenAI ADK</h2>
+        <div style="text-align: center; margin-top: 50px;">
+            <div style="font-size: 1.5em; color: #34495e; margin: 20px 0;">
+                Shaping the Future of AI Applications
+            </div>
+            <div style="font-size: 1.2em; color: #7f8c8d;">
+                A Technical Comparison for Modern AI Development
+            </div>
+        </div>
+        <div class="slide-number">1 / 17</div>
+    </div>
+
+    <!-- Slide 2: Agenda -->
+    <div class="slide">
+        <h1>Agenda</h1>
+        <h2>What We'll Cover Today:</h2>
+        <ul style="font-size: 1.4em; line-height: 2;">
+            <li>What is an AI Agent?</li>
+            <li>What is an Agentic Framework?</li>
+            <li>Leading Agentic Frameworks</li>
+            <li>LangGraph vs OpenAI ADK</li>
+            <li>Feature Comparisons & Use Cases</li>
+            <li>Decision Framework</li>
+        </ul>
+        <div class="highlight-box">
+            <strong>Goal:</strong> Provide practical insights for choosing the right framework for your organization's needs
+        </div>
+        <div class="slide-number">2 / 17</div>
+    </div>
+
+    <!-- Slide 3: What is an AI Agent -->
+    <div class="slide">
+        <h1>What is an AI Agent?</h1>
+        <div class="two-column">
+            <div class="column">
+                <h3>Core Characteristics:</h3>
+                <ul>
+                    <li><strong>Autonomous System:</strong> Can perceive environment and take actions</li>
+                    <li><strong>Goal-Oriented:</strong> Works towards specific objectives</li>
+                    <li><strong>Decision-Making:</strong> Uses reasoning to choose appropriate actions</li>
+                    <li><strong>Tool Usage:</strong> Can interact with external systems and APIs</li>
+                    <li><strong>Memory & State:</strong> Maintains context across interactions</li>
+                </ul>
+            </div>
+            <div class="column">
+                <h3>Key Capabilities:</h3>
+                <ul>
+                    <li>Reactivity & Proactivity</li>
+                    <li>Social Ability</li>
+                    <li>Planning and Reasoning</li>
+                    <li>Environment Interaction</li>
+                    <li>Adaptive Learning</li>
+                </ul>
+            </div>
+        </div>
+        <div class="highlight-box">
+            AI agents represent a paradigm shift from simple chatbots to sophisticated systems that can plan, reason, and execute complex tasks autonomously.
+        </div>
+        <div class="slide-number">3 / 17</div>
+    </div>
+
+    <!-- Slide 4: Need for Agentic Frameworks -->
+    <div class="slide">
+        <h1>Need for Agentic Frameworks</h1>
+        <div class="two-column">
+            <div class="column">
+                <h3>Challenges without Frameworks:</h3>
+                <ul>
+                    <li>Complex orchestration logic</li>
+                    <li>State management across interactions</li>
+                    <li>Tool integration and error handling</li>
+                    <li>Multi-agent coordination</li>
+                    <li>Scalability and monitoring</li>
+                </ul>
+            </div>
+            <div class="column">
+                <h3>Framework Benefits:</h3>
+                <ul>
+                    <li>Standardized patterns for agent development</li>
+                    <li>Built-in orchestration and state management</li>
+                    <li>Simplified tool integration</li>
+                    <li>Production-ready deployment features</li>
+                    <li>Community and ecosystem support</li>
+                </ul>
+            </div>
+        </div>
+        <div class="highlight-box">
+            <strong>Bottom Line:</strong> Frameworks provide proven patterns and reduce development time while ensuring reliability and scalability.
+        </div>
+        <div class="slide-number">4 / 17</div>
+    </div>
+
+    <!-- Slide 5: Leading Frameworks -->
+    <div class="slide">
+        <h1>Leading Agentic Frameworks</h1>
+        <h2>Current Market Landscape</h2>
+        <table class="comparison-table">
+            <tr>
+                <th>Framework</th>
+                <th>Positioning</th>
+                <th>Key Strength</th>
+            </tr>
+            <tr>
+                <td><strong>LangChain</strong></td>
+                <td>Comprehensive LLM application framework</td>
+                <td>Ecosystem breadth</td>
+            </tr>
+            <tr>
+                <td><strong>AutoGen</strong></td>
+                <td>Microsoft's multi-agent conversation framework</td>
+                <td>Research-focused multi-agent</td>
+            </tr>
+            <tr>
+                <td><strong>CrewAI</strong></td>
+                <td>Role-based multi-agent system</td>
+                <td>Business process automation</td>
+            </tr>
+            <tr>
+                <td><strong>LangGraph</strong></td>
+                <td>Graph-based agent orchestration</td>
+                <td>State-based complex workflows</td>
+            </tr>
+            <tr>
+                <td><strong>OpenAI ADK</strong></td>
+                <td>OpenAI's Agent Development Kit</td>
+                <td>Native OpenAI integration</td>
+            </tr>
+        </table>
+        <div class="slide-number">5 / 17</div>
+    </div>
+
+    <!-- Slide 6: LangGraph Overview -->
+    <div class="slide">
+        <h1>LangGraph Overview</h1>
+        <h2>Graph-Based Agent Orchestration</h2>
+        <div class="two-column">
+            <div class="column">
+                <h3>Core Concepts:</h3>
+                <ul>
+                    <li><strong>State-Based Architecture:</strong> Persistent state across interactions</li>
+                    <li><strong>Graph Structure:</strong> Nodes (functions) and edges (transitions)</li>
+                    <li><strong>Conditional Routing:</strong> Dynamic flow control</li>
+                    <li><strong>Checkpointing:</strong> Built-in persistence and recovery</li>
+                </ul>
+            </div>
+            <div class="column">
+                <h3>Key Features:</h3>
+                <ul>
+                    <li><strong>Supervisor Pattern:</strong> Centralized coordination</li>
+                    <li><strong>Swarm Orchestration:</strong> Distributed collaboration</li>
+                    <li><strong>Human-in-the-Loop:</strong> Interactive workflows</li>
+                    <li><strong>Streaming Support:</strong> Real-time updates</li>
+                </ul>
+            </div>
+        </div>
+        <div class="highlight-box">
+            LangGraph takes a graph-theoretical approach to agent orchestration, providing explicit state management and flexible routing for complex, long-running workflows.
+        </div>
+        <div class="slide-number">6 / 17</div>
+    </div>
+
+    <!-- Slide 7: OpenAI ADK Overview -->
+    <div class="slide">
+        <h1>OpenAI ADK Overview</h1>
+        <h2>Native OpenAI Integration</h2>
+        <div class="two-column">
+            <div class="column">
+                <h3>Design Philosophy:</h3>
+                <ul>
+                    <li><strong>Native Integration:</strong> Built for OpenAI models</li>
+                    <li><strong>Simplicity First:</strong> Minimal boilerplate</li>
+                    <li><strong>Production Ready:</strong> Enterprise-grade features</li>
+                    <li><strong>Type Safety:</strong> Full TypeScript support</li>
+                </ul>
+            </div>
+            <div class="column">
+                <h3>Key Features:</h3>
+                <ul>
+                    <li><strong>Assistant API Integration:</strong> Seamless usage</li>
+                    <li><strong>Tool Calling:</strong> Native function calling</li>
+                    <li><strong>Session Management:</strong> Built-in conversation handling</li>
+                    <li><strong>Deployment Tools:</strong> Production utilities</li>
+                </ul>
+            </div>
+        </div>
+        <div class="highlight-box">
+            OpenAI ADK prioritizes developer experience and production readiness with tight integration to OpenAI's ecosystem and minimal complexity.
+        </div>
+        <div class="slide-number">7 / 17</div>
+    </div>
+
+    <!-- Slide 8: Creating an Agent -->
+    <div class="slide">
+        <h1>Feature Comparison: Creating an Agent</h1>
+        <div class="vs-comparison">
+            <div class="vs-item langraph">
+                <h4>LangGraph</h4>
+                <pre><code>import { createReactAgent } from "@langchain/langgraph/prebuilt";
+
+const agentTools = [new TavilySearchResults({ maxResults: 3 })];
+const agentModel = new ChatOpenAI({ temperature: 0 });
+
+// Initialize memory to persist state
+const agentCheckpointer = new MemorySaver();
+const agent = createReactAgent({
+  llm: agentModel,
+  tools: agentTools,
+  checkpointSaver: agentCheckpointer,
+});</code></pre>
+            </div>
+            <div class="vs-item openai-adk">
+                <h4>OpenAI ADK</h4>
+                <pre><code>import { Agent } from 'openai-agents';
+
+const agent = new Agent({
+  name: 'MyAgent',
+  instructions: 'You are a helpful assistant',
+  model: 'gpt-4',
+  tools: [weatherTool, calculatorTool]
+});</code></pre>
+            </div>
+        </div>
+        <div class="highlight-box">
+            <strong>Key Difference:</strong> LangGraph requires explicit state definition and graph construction for maximum control. OpenAI ADK offers straightforward approach with sensible defaults.
+        </div>
+        <div class="slide-number">8 / 17</div>
+    </div>
+
+    <!-- Slide 9: Creating a Tool -->
+    <div class="slide">
+        <h1>Feature Comparison: Creating a Tool</h1>
+        <div class="vs-comparison">
+            <div class="vs-item langraph">
+                <h4>LangGraph Tool</h4>
+                <pre><code>import { tool } from "@langchain/core/tools";
+
+const weatherTool = tool(
+  async ({ location }) => {
+    const response = await fetch(`/api/weather/${location}`);
+    return response.json();
+  },
+  {
+    name: "get_weather",
+    description: "Get current weather for a location",
+    schema: z.object({
+      location: z.string().describe("City name")
+    })
+  }
+);</code></pre>
+            </div>
+            <div class="vs-item openai-adk">
+                <h4>OpenAI ADK Tool</h4>
+                <pre><code>const weatherTool = {
+  type: 'function',
+  function: {
+    name: 'get_weather',
+    description: 'Get current weather for a location',
+    parameters: {
+      type: 'object',
+      properties: {
+        location: { type: 'string', description: 'City name' }
+      },
+      required: ['location']
+    }
+  },
+  handler: async ({ location }) => {
+    const response = await fetch(`/api/weather/${location}`);
+    return response.json();
+  }
+};</code></pre>
+            </div>
+        </div>
+        <div class="slide-number">9 / 17</div>
+    </div>
+
+    <!-- Slide 10: Invoking an Agent -->
+    <div class="slide">
+        <h1>Feature Comparison: Agent Invocation</h1>
+        <div class="vs-comparison">
+            <div class="vs-item langraph">
+                <h4>LangGraph Invocation</h4>
+                <pre><code>// Simple invocation
+const result = await app.invoke({
+  messages: [new HumanMessage("What's the weather in Paris?")]
+});
+
+// Streaming with state updates
+const stream = await app.stream({
+  messages: [new HumanMessage("Plan a trip to Tokyo")]
+});
+
+for await (const chunk of stream) {
+  console.log(chunk);
+}</code></pre>
+            </div>
+            <div class="vs-item openai-adk">
+                <h4>OpenAI ADK Invocation</h4>
+                <pre><code>// Simple invocation
+const response = await agent.run({
+  message: "What's the weather in Paris?",
+  sessionId: "user-123"
+});
+
+// Streaming response
+const stream = await agent.stream({
+  message: "Plan a trip to Tokyo",
+  sessionId: "user-123"
+});
+
+for await (const chunk of stream) {
+  console.log(chunk.content);
+}</code></pre>
+            </div>
+        </div>
+        <div class="slide-number">10 / 17</div>
+    </div>
+
+    <!-- Slide 11: Multi-Agent Use Cases -->
+    <div class="slide">
+        <h1>Multi-Agent Orchestration</h1>
+        <h2>LangGraph Patterns</h2>
+        <div class="two-column">
+            <div class="column">
+                <h3>Supervisor Pattern:</h3>
+                <pre><code>const supervisor = createSupervisor({
+  agents: [flightAssistant, hotelAssistant],
+  llm,
+  prompt: "You manage assistants. Assign work to them, one at a time."
+}).compile();</code></pre>
+            </div>
+            <div class="column">
+                <h3>Swarm Pattern:</h3>
+                <pre><code>const swarm = createSwarm({
+  agents: [flightAssistant, hotelAssistant],
+  defaultActiveAgent: "flight_assistant",
+})</code></pre>
+            </div>
+        </div>
+        <h2>OpenAI ADK Pattern</h2>
+        <pre><code>const triageAgent = new Agent({
+  name: 'triage_agent',
+  instructions: 'Handoff to the appropriate agent based on the language of the request.',
+  handoffs: [spanishAgent, englishAgent],
+});
+
+const result = await run(triageAgent, 'Write a haiku about recursion in programming.');</code></pre>
+        <div class="slide-number">11 / 17</div>
+    </div>
+
+    <!-- Slide 12: Human-in-the-Loop -->
+    <div class="slide">
+        <h1>Human-in-the-Loop Capabilities</h1>
+        <div class="vs-comparison">
+            <div class="vs-item langraph">
+                <h4>LangGraph Approach</h4>
+                <pre><code>// Add interrupt for human review
+workflow.addNode("human_review", async (state) => {
+  return { requires_approval: true };
+});
+
+// Conditional edge with human approval
+workflow.addConditionalEdges(
+  "agent_action",
+  (state) => state.requires_approval ? "human_review" : "continue"
+);
+
+// Resume after approval
+const result = await app.invoke(input, config);
+await app.invoke({ approval: true }, config);</code></pre>
+            </div>
+            <div class="vs-item openai-adk">
+                <h4>OpenAI ADK Approach</h4>
+                <pre><code>const agent = new Agent({
+  name: 'approval_agent',
+  instructions: 'Process requests with human approval',
+  model: 'gpt-4',
+  humanApprovalRequired: true
+});
+
+const response = await agent.run({
+  message: "Transfer $1000 to account 123",
+  sessionId: "user-123",
+  onApprovalRequired: async (context) => {
+    return await requestHumanApproval(context);
+  }
+});</code></pre>
+            </div>
+        </div>
+        <div class="slide-number">12 / 17</div>
+    </div>
+
+    <!-- Slide 13: Observability -->
+    <div class="slide">
+        <h1>Agent Evaluation and Observability</h1>
+        <div class="vs-comparison">
+            <div class="vs-item langraph">
+                <h4>LangGraph Observability</h4>
+                <pre><code>// LangSmith integration
+import { LangSmith } from "langsmith";
+
+const tracer = new LangSmith({
+  projectName: "agent-evaluation"
+});
+
+// Trace agent execution
+const app = workflow.compile({
+  callbacks: [tracer]
+});
+
+// Custom metrics
+workflow.addNode("metrics", async (state) => {
+  await tracer.log({
+    event: "tool_usage",
+    metadata: { tool: state.current_tool }
+  });
+  return state;
+});</code></pre>
+            </div>
+            <div class="vs-item openai-adk">
+                <h4>OpenAI ADK Observability</h4>
+                <pre><code>// Built-in monitoring
+const agent = new Agent({
+  name: 'monitored_agent',
+  model: 'gpt-4',
+  monitoring: {
+    enabled: true,
+    metrics: ['latency', 'token_usage', 'success_rate'],
+    alerts: {
+      errorRate: { threshold: 0.1 },
+      latency: { threshold: 5000 }
+    }
+  }
+});
+
+// Access metrics
+const metrics = await agent.getMetrics({
+  timeRange: '24h'
+});</code></pre>
+            </div>
+        </div>
+        <div class="slide-number">13 / 17</div>
+    </div>
+
+    <!-- Slide 14: MCP Server Integration -->
+    <div class="slide">
+        <h1>MCP Server Integration</h1>
+        <div class="vs-comparison">
+            <div class="vs-item langraph">
+                <h4>LangGraph MCP Server</h4>
+                <pre><code>const client = new MultiServerMCPClient({
+  mcpServers: {
+    "weather": {
+      url: "http://localhost:8000/sse",
+      transport: "sse",
+    }
+  }
+})
+
+const llm = await initChatModel("anthropic:claude-3-7-sonnet-latest");
+const agent = createReactAgent({
+  llm,
+  tools: await client.getTools()
+});</code></pre>
+            </div>
+            <div class="vs-item openai-adk">
+                <h4>OpenAI ADK MCP Server</h4>
+                <pre><code>const mcpServer = new MCPServerStreamableHttp({
+    url: 'https://gitmcp.io/openai/codex',
+    name: 'GitMCP Documentation Server',
+});
+
+agent = Agent(
+    name="Assistant",
+    instructions="Use the tools to achieve the task",
+    mcp_servers=[mcpServer]
+)</code></pre>
+            </div>
+        </div>
+        <div class="slide-number">14 / 17</div>
+    </div>
+
+    <!-- Slide 15: Handoffs -->
+    <div class="slide">
+        <h1>Agent Handoffs</h1>
+        <div class="vs-comparison">
+            <div class="vs-item langraph">
+                <h4>LangGraph Handoff</h4>
+                <pre><code>const transferToHotelAssistant = createHandoffTool({
+  agentName: "hotel_assistant",
+  description: "Transfer user to the hotel-booking assistant.",
+});
+
+const flightAssistant = createReactAgent({
+  llm,
+  tools: [bookFlight, transferToHotelAssistant],
+  prompt: "You are a flight booking assistant",
+  name: "flight_assistant",
+});</code></pre>
+            </div>
+            <div class="vs-item openai-adk">
+                <h4>OpenAI ADK Handoff</h4>
+                <pre><code>import { Agent, handoff } from '@openai/agents';
+
+const billingAgent = new Agent({ name: 'Billing agent' });
+const refundAgent = new Agent({ name: 'Refund agent' });
+
+const triageAgent = Agent.create({
+  name: 'Triage agent',
+  handoffs: [billingAgent, handoff(refundAgent)],
+});</code></pre>
+            </div>
+        </div>
+        <div class="slide-number">15 / 17</div>
+    </div>
+
+    <!-- Slide 16: Decision Framework -->
+    <div class="slide">
+        <h1>When to Choose Each Framework</h1>
+        <div class="two-column">
+            <div class="column">
+                <div class="highlight-box" style="background: #e8f5e8; border-color: #27ae60;">
+                    <h3>Choose LangGraph When:</h3>
+                    <ul>
+                        <li>Complex, multi-step workflows required</li>
+                        <li>Fine-grained state management needed</li>
+                        <li>Custom orchestration patterns</li>
+                        <li>Long-running, stateful processes</li>
+                        <li>Research and experimentation focus</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="column">
+                <div class="highlight-box" style="background: #fdf2f2; border-color: #e74c3c;">
+                    <h3>Choose OpenAI ADK When:</h3>
+                    <ul>
+                        <li>Rapid prototyping and development</li>
+                        <li>Native OpenAI model integration preferred</li>
+                        <li>Production deployment is priority</li>
+                        <li>Limited ML engineering resources</li>
+                        <li>Standard agent patterns sufficient</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <h2>Trade-offs Analysis:</h2>
+        <ul>
+            <li><strong>Flexibility vs Integration:</strong> LangGraph offers more flexibility; ADK provides tighter integration</li>
+            <li><strong>Learning Curve:</strong> LangGraph steeper; ADK more accessible</li>
+            <li><strong>Community:</strong> LangGraph has larger community; ADK has official support</li>
+            <li><strong>Production Readiness:</strong> ADK more production-ready; LangGraph more experimental</li>
+        </ul>
+        <div class="slide-number">16 / 17</div>
+    </div>
+
+    <!-- Slide 17: Q&A -->
+    <div class="slide">
+        <h1>Questions & Discussion</h1>
+        <div class="two-column">
+            <div class="column">
+                <h2>Common Questions:</h2>
+                <ul style="font-size: 1.3em;">
+                    <li>Which framework has better performance?</li>
+                    <li>How do licensing and costs compare?</li>
+                    <li>What about migration between frameworks?</li>
+                    <li>Future roadmap and sustainability?</li>
+                </ul>
+            </div>
+            <div class="column">
+                <h2>Resources:</h2>
+                <ul style="font-size: 1.3em;">
+                    <li><strong>LangGraph:</strong> <a href="https://langchain-ai.github.io/langgraphjs/tutorials/quickstart/">Documentation</a></li>
+                    <li><strong>OpenAI ADK:</strong> <a href="https://openai.github.io/openai-agents-js/guides/agents/">Documentation</a></li>
+                    <li>Community channels and support</li>
+                    <li>Training and consultation services</li>
+                </ul>
+            </div>
+        </div>
+        <div class="highlight-box">
+            <strong>Thank you for your attention!</strong><br>
+            Both frameworks are rapidly evolving - staying informed about updates and best practices is crucial for success.
+        </div>
+        <div class="slide-number">17 / 17</div>
+    </div>
+
+    <!-- Navigation -->
+    <div class="navigation">
+        <button onclick="previousSlide()">← Previous</button>
+        <span id="slideCounter">1 / 17</span>
+        <button onclick="nextSlide()">Next →</button>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+
+        function showSlide(n) {
+            slides[currentSlide].classList.remove('current');
+            currentSlide = (n + totalSlides) % totalSlides;
+            slides[currentSlide].classList.add('current');
+            document.getElementById('slideCounter').textContent = `${currentSlide + 1} / ${totalSlides}`;
+        }
+
+        function nextSlide() {
+            showSlide(currentSlide + 1);
+        }
+
+        function previousSlide() {
+            showSlide(currentSlide - 1);
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', function(event) {
+            switch(event.key) {
+                case 'ArrowRight':
+                case ' ':
+                case 'PageDown':
+                    nextSlide();
+                    break;
+                case 'ArrowLeft':
+                case 'PageUp':
+                    previousSlide();
+                    break;
+                case 'Home':
+                    showSlide(0);
+                    break;
+                case 'End':
+                    showSlide(totalSlides - 1);
+                    break;
+            }
+        });
+
+        // Touch/swipe support for mobile
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        document.addEventListener('touchstart', function(event) {
+            touchStartX = event.changedTouches[0].screenX;
+        });
+
+        document.addEventListener('touchend', function(event) {
+            touchEndX = event.changedTouches[0].screenX;
+            handleSwipe();
+        });
+
+        function handleSwipe() {
+            if (touchEndX < touchStartX - 50) {
+                nextSlide();
+            }
+            if (touchEndX > touchStartX + 50) {
+                previousSlide();
+            }
+        }
+
+        // Click navigation
+        document.addEventListener('click', function(event) {
+            const clickX = event.clientX;
+            const windowWidth = window.innerWidth;
+            
+            if (clickX > windowWidth * 0.7) {
+                nextSlide();
+            } else if (clickX < windowWidth * 0.3) {
+                previousSlide();
+            }
+        });
+
+        // Fullscreen support
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'f' || event.key === 'F11') {
+                event.preventDefault();
+                if (!document.fullscreenElement) {
+                    document.documentElement.requestFullscreen();
+                } else {
+                    document.exitFullscreen();
+                }
+            }
+        });
+
+        // Initialize
+        showSlide(0);
+    </script>
+</body>
+</html>
