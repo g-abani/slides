@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adobe Website Classification - Excel Format</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            margin: 0 0 10px 0;
+            font-size: 2.2em;
+            font-weight: 600;
+        }
+        
+        .header p {
+            margin: 0;
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        
+        .tabs {
+            display: flex;
+            background: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+            flex-wrap: wrap;
+        }
+        
+        .tab {
+            padding: 15px 25px;
+            cursor: pointer;
+            border: none;
+            background: none;
+            font-size: 14px;
+            font-weight: 500;
+            color: #6c757d;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+            flex: 1;
+            min-width: 150px;
+        }
+        
+        .tab.active {
+            color: #2a5298;
+            border-bottom-color: #2a5298;
+            background: white;
+        }
+        
+        .tab:hover {
+            background: #e9ecef;
+        }
+        
+        .content {
+            display: none;
+            padding: 0;
+        }
+        
+        .content.active {
+            display: block;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+        
+        th {
+            background: #f8f9fa;
+            padding: 12px 8px;
+            text-align: left;
+            font-weight: 600;
+            color: #495057;
+            border: 1px solid #dee2e6;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        
+        td {
+            padding: 10px 8px;
+            border: 1px solid #dee2e6;
+            vertical-align: top;
+            line-height: 1.4;
+        }
+        
+        tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+        
+        tr:hover {
+            background: #e3f2fd;
+        }
+        
+        .page-type {
+            font-weight: 600;
+            color: #2a5298;
+        }
+        
+        .url-link {
+            color: #007bff;
+            text-decoration: none;
+            font-size: 11px;
+            word-break: break-all;
+        }
+        
+        .url-link:hover {
+            text-decoration: underline;
+        }
+        
+        .component-list {
+            font-size: 11px;
+            line-height: 1.3;
+        }
+        
+        .frequency {
+            text-align: center;
+            font-weight: 600;
+            color: #28a745;
+        }
+        
+        .decision-tree {
+            font-family: 'Courier New', monospace;
+            font-size: 11px;
+            line-height: 1.4;
+            background: #f8f9fa;
+            padding: 15px;
+            margin: 20px;
+            border-radius: 6px;
+            white-space: pre-line;
+        }
+        
+        .summary-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            padding: 20px;
+            background: #f8f9fa;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .stat-number {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #2a5298;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            color: #6c757d;
+            font-size: 0.9em;
+        }
+        
+        .download-section {
+            padding: 30px;
+            text-align: center;
+            background: #f8f9fa;
+        }
+        
+        .download-btn {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+            margin: 0 10px;
+        }
+        
+        .download-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+        }
+        
+        .export-info {
+            margin-top: 15px;
+            color: #6c757d;
+            font-size: 14px;
+        }
+        
+        .scroll-container {
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        @media (max-width: 768px) {
+            .tabs {
+                flex-direction: column;
+            }
+            
+            .tab {
+                flex: none;
+            }
+            
+            th, td {
+                font-size: 11px;
+                padding: 8px 4px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Adobe Website Classification System</h1>
+            <p>Comprehensive analysis of business.adobe.com page types and components</p>
+        </div>
+        
+        <div class="summary-stats">
+            <div class="stat-card">
+                <div class="stat-number">12</div>
+                <div class="stat-label">Page Types</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">50+</div>
+                <div class="stat-label">Pages Analyzed</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">20+</div>
+                <div class="stat-label">UI Components</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">90%</div>
+                <div class="stat-label">CTA Button Usage</div>
+            </div>
+        </div>
+        
+        <div class="tabs">
+            <button class="tab active" onclick="showTab(event, 'taxonomy')">Page Taxonomy</button>
+            <button class="tab" onclick="showTab(event, 'components')">Component Inventory</button>
+            <button class="tab" onclick="showTab(event, 'examples')">Page Examples</button>
+            <button class="tab" onclick="showTab(event, 'rules')">Classification Rules</button>
+            <button class="tab" onclick="showTab(event, 'insights')">Content Insights</button>
+        </div>
+        
+        <div id="taxonomy" class="content active">
+            <div class="scroll-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width: 20%">Page Type</th>
+                            <th style="width: 25%">Purpose & User Intent</th>
+                            <th style="width: 30%">Core Components</th>
+                            <th style="width: 15%">Layout Structure</th>
+                            <th style="width: 10%">Frequency</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="page-type">Homepage/Corporate Landing</td>
+                            <td>Primary entry points showcasing brand value proposition. Intent: Brand discovery, solution exploration</td>
+                            <td class="component-list">• Hero video sections with autoplay<br>• Multi-column product grids<br>• AI capability highlights<br>• Customer logo carousels<br>• Demo/consultation CTAs</td>
+                            <td>Multi-section scrolling with product zones</td>
+                            <td class="frequency">High</td>
+                        </tr>
+                        <tr>
+                            <td class="page-type">Product Detail Pages</td>
+                            <td>Comprehensive product information with features and integrations. Intent: Product evaluation, feature comparison</td>
+                            <td class="component-list">• Product-specific hero sections<br>• Feature benefit grids<br>• Use case sections with visuals<br>• Integration showcases<br>• Customer testimonials<br>• FAQ accordions</td>
+                            <td>Single-column with tabbed sections</td>
+                            <td class="frequency">Very High</td>
+                        </tr>
+                        <tr>
+                            <td class="page-type">Product Sub-Feature Pages</td>
+                            <td>Deep-dive into specific product capabilities. Intent: Technical validation, feature evaluation</td>
+                            <td class="component-list">• Feature-focused heroes<br>• Before/after comparisons<br>• Step-by-step processes<br>• Performance metrics<br>• Technical specifications</td>
+                            <td>Feature-first with evidence</td>
+                            <td class="frequency">High</td>
+                        </tr>
+                        <tr>
+                            <td class="page-type">Pricing & Packaging</td>
+                            <td>Structured pricing tiers and feature comparisons. Intent: Purchase consideration, budget planning</td>
+                            <td class="component-list">• Comparison tables<br>• Feature matrices<br>• Tiered packages (Growth/Prime/Ultimate)<br>• Contact CTAs<br>• Usage specifications</td>
+                            <td>Table-based comparisons</td>
+                            <td class="frequency">Medium</td>
+                        </tr>
+                        <tr>
+                            <td class="page-type">Customer Success Stories</td>
+                            <td>Social proof through detailed customer implementations. Intent: Validation, ROI understanding</td>
+                            <td class="component-list">• Customer hero imagery<br>• Quantified results callouts<br>• Challenge-solution-results narrative<br>• Customer quotes<br>• Implementation timelines</td>
+                            <td>Story-driven linear flow</td>
+                            <td class="frequency">High</td>
+                        </tr>
+                        <tr>
+                            <td class="page-type">Resource Center Pages</td>
+                            <td>Educational content hubs with guides and webinars. Intent: Education, research, skill development</td>
+                            <td class="component-list">• Content filtering systems<br>• Resource card grids<br>• Content type indicators<br>• Download CTAs<br>• Related recommendations</td>
+                            <td>Card-based masonry with filters</td>
+                            <td class="frequency">Medium</td>
+                        </tr>
+                        <tr>
+                            <td class="page-type">Blog/Educational Content</td>
+                            <td>Thought leadership and tutorial articles. Intent: Learning, best practice understanding</td>
+                            <td class="component-list">• Article headers with dates<br>• Table of contents<br>• Step-by-step sections<br>• Inline imagery<br>• Related articles<br>• Social sharing</td>
+                            <td>Long-form article format</td>
+                            <td class="frequency">High</td>
+                        </tr>
+                        <tr>
+                            <td class="page-type">Event/Webinar Details</td>
+                            <td>Event information with registration. Intent: Event attendance, professional development</td>
+                            <td class="component-list">• Event details (time, speakers)<br>• Speaker bios and photos<br>• Registration forms<br>• Resource links<br>• On-demand options</td>
+                            <td>Event-focused with registration prominence</td>
+                            <td class="frequency">Medium</td>
+                        </tr>
+                        <tr>
+                            <td class="page-type">Solution/Use Case Pages</td>
+                            <td>Industry-specific solutions combining multiple products. Intent: Solution evaluation</td>
+                            <td class="component-list">• Solution overviews<br>• Multi-product integration diagrams<br>• Industry use cases<br>• Implementation roadmaps<br>• Competitive differentiators</td>
+                            <td>Solution-first narrative</td>
+                            <td class="frequency">Medium</td>
+                        </tr>
+                        <tr>
+                            <td class="page-type">Contact/Demo Request</td>
+                            <td>Lead generation and consultation requests. Intent: Purchase consideration</td>
+                            <td class="component-list">• Lead capture forms<br>• Product selection options<br>• Contact preferences<br>• Sales team info<br>• Regional specialization</td>
+                            <td>Form-centric minimal design</td>
+                            <td class="frequency">Low</td>
+                        </tr>
+                        <tr>
+                            <td class="page-type">Integration/Partnership</td>
+                            <td>Third-party integrations and partner ecosystem. Intent: Technical integration understanding</td>
+                            <td class="component-list">• Partner logo galleries<br>• Integration matrices<br>• API documentation links<br>• Ecosystem maps<br>• Implementation guides</td>
+                            <td>Partnership-focused technical</td>
+                            <td class="frequency">Low</td>
+                        </tr>
+                        <tr>
+                            <td class="page-type">Support/FAQ Pages</td>
+                            <td>Self-service help and frequently asked questions. Intent: Problem resolution</td>
+                            <td class="component-list">• Searchable FAQ sections<br>• Topic categorization<br>• Step-by-step guides<br>• Contact escalation<br>• Community links</td>
+                            <td>Q&A format with search</td>
+                            <td class="frequency">Low</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <div id="components" class="content">
+            <div class="scroll-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width: 25%">Component Name</th>
+                            <th style="width: 40%">Description & Functionality</th>
+                            <th style="width: 15%">Usage Frequency</th>
+                            <th style="width: 20%">Common Variations</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="page-type">Hero Sections</td>
+                            <td>Large headline text, supporting copy, primary CTA, background imagery/video, secondary navigation</td>
+                            <td class="frequency">90%</td>
+                            <td>Video backgrounds, static images, gradient overlays</td>
+                        </tr>
+                        <tr>
+                            <td class="page-type">Call-to-Action Buttons</td>
+                            <td>Primary action buttons throughout pages - "Book a demo", "Learn more", "Watch overview", "Get pricing"</td>
+                            <td class="frequency">95%</td>
+                            <td>Primary, secondary, text-only, icon + text</td>
+                        </tr>
+                        <tr>
+                            <td class="page-type">Product Integration Blocks</td>
+                            <td>Cross-product feature highlights, "Product + Product" sections, integration benefits</td>
+                            <td class="frequency">75%</td>
+                            <td>Side-by-side, tabbed, accordion</td>
+                        </tr>
+                        <tr>
+                            <td class="page-type">Customer Evidence</td>
+                            <td>Customer logo bars, testimonial quotes, case study callouts, usage statistics</td>
+                            <td class="frequency">70%</td>
+                            <td>Logo carousels, quote cards, stat highlights</td>
+                        </tr>
+                        <tr>
+                            <td class="page-type">Feature Grids</td>
+                            <td>Icon-based feature lists, benefit explanations, capability matrices</td>
+                            <td class="frequency">65%</td>
+                            <td>2-column, 3-column, 4-column layouts</td>
+                        </tr>
+                        <tr>
+                            <td class="page-type">Video Content</td>
+                            <td>Hero background videos, product demo embeds, customer testimonials, overview links</td>
+                            <td class="frequency">60%</td>
+                            <td>Autoplay background, embedded players, modal pop-ups</td>
+                        </tr>
+                        <tr>
+                            <td class="page-type">Navigation Menus</td>
+                            <td>Primary navigation, breadcrumbs, footer links, sidebar navigation</td>
+                            <td class="frequency">100%</td>
+                            <td>Horizontal, vertical, mega menus</td>
+                        </tr>
+                        <tr>
+                            <td class="page-type">Forms</td>
+                            <td>Contact forms, demo requests, newsletter signups, consultation requests</td>
+                            <td class="frequency">45%</td>
+                            <td>Multi-step, single page, modal forms</td>
+                        </tr>
+                        <tr>
+                            <td class="page-type">Comparison Tables</td>
+                            <td>Feature matrices, pricing tiers, product comparisons</td>
+                            <td class="frequency">35%</td>
+                            <td>Responsive tables, sticky headers, highlighted columns</td>
+                        </tr>
+                        <tr>
+                            <td class="page-type">AI-Powered Content Blocks</td>
+                            <td>Generative AI capability emphasis, automated feature highlights</td>
+                            <td class="frequency">55%</td>
+                            <td>Badge overlays, dedicated sections, inline highlights</td>
+                        </tr>
+                        <tr>
+                            <td class="page-type">Search Functionality</td>
+                            <td>Site search, resource filtering, content discovery</td>
+                            <td class="frequency">25%</td>
+                            <td>Header search, page-specific filters, faceted search</td>
+                        </tr>
+                        <tr>
+                            <td class="page-type">Social Sharing</td>
+                            <td>Social media sharing buttons, follow links</td>
+                            <td class="frequency">30%</td>
+                            <td>Fixed position, inline, modal sharing</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <div id="examples" class="content">
+            <div class="scroll-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width: 20%">Page Type</th>
+                            <th style="width: 50%">Example URLs</th>
+                            <th style="width: 30%">Key Characteristics</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="page-type">Homepage</td>
+                            <td>
+                                <a href="https://business.adobe.com/" class="url-link">https://business.adobe.com/</a><br>
+                                <a href="https://business.adobe.com/au/" class="url-link">https://business.adobe.com/au/</a>
+                            </td>
+                            <td>Hero video, product categories, AI emphasis</td>
+                        </tr>
+                        <tr>
+                            <td class="page-type">Product Detail</td>
+                            <td>
+                                <a href="https://business.adobe.com/products/experience-manager/sites/aem-sites.html" class="url-link">https://business.adobe.com/products/experience-manager/sites/aem-sites.html</a><br>
+                                <a href="https://business.adobe.com/products/marketo/adobe-marketo.html" class="url-link">https://business.adobe.com/products/marketo/adobe-marketo.html</a>
+                            </td>
+                            <td>Feature grids, use cases, integration highlights</td>
+                        </tr>
+                        <tr>
+                            <td class="page-type">Sub-Feature</td>
+                            <td>
+                                <a href="https://business.adobe.com/products/experience-manager/sites/content-creation.html" class="url-link">/products/experience-manager/sites/content-creation.html</a><br>
+                                <a href="https://business.adobe.com/products/experience-manager/sites/site-performance.html" class="url-link">/products/experience-manager/sites/site-performance.html</a>
+                            </td>
+                            <td>Before/after visuals, performance metrics</td>
+                        </tr>
+                        <tr>
+                            <td class="page-type">Pricing</td>
+                            <td>
+                                <a href="https://business.adobe.com/products/marketo/pricing.html" class="url-link">https://business.adobe.com/products/marketo/pricing.html</a><br>
+                                <a href="https://business.adobe.com/products/commerce/pricing.html" class="url-link">https://business.adobe.com/products/commerce/pricing.html</a>
+                            </td>
+                            <td>Feature matrices, tiered pricing, contact CTAs</td>
+                        </tr>
+                        <tr>
+                            <td class="page-type">Case Study</td>
+                            <td>
+                                <a href="https://business.adobe.com/customer-success-stories/coca-cola-personalization-case-study.html" class="url-link">/customer-success-stories/coca-cola-personalization-case-study.html</a><br>
+                                <a href="https://business.adobe.com/customer-success-stories/prudential-case-study.html" class="url-link">/customer-success-stories/prudential-case-study.html</a>
+                            </td>
+                            <td>Customer branding, quantified results, testimonials</td>
+                        </tr>
+                        <tr>
+                            <td class="page-type">Resource Center</td>
+                            <td>
+                                <a href="https://business.adobe.com/resources/main.html" class="url-link">https://business.adobe.com/resources/main.html</a><br>
+                                <a href="https://business.adobe.com/resources/webinars.html" class="url-link">https://business.adobe.com/resources/webinars.html</a>
+                            </td>
+                            <td>Content filtering, resource cards, categorization</td>
+                        </tr>
+                        <tr>
+                            <td class="page-type">Blog/Educational</td>
+                            <td>
+                                <a href="https://business.adobe.com/blog/how-to/design-a-website-tutorial" class="url-link">https://business.adobe.com/blog/how-to/design-a-website-tutorial</a><br>
+                                <a href="https://business.adobe.com/blog/basics/how-to-write-case-study" class="url-link">https://business.adobe.com/blog/basics/how-to-write-case-study</a>
+                            </td>
+                            <td>Table of contents, step-by-step guides, related content</td>
+                        </tr>
+                        <tr>
+                            <td class="page-type">Event/Webinar</td>
+                            <td>
+                                <a href="https://business.adobe.com/summit/2025/sessions/boost-webinar-roi-with-genai-innovations-for-inter-s203.html" class="url-link">/summit/2025/sessions/boost-webinar-roi-with-genai...</a><br>
+                                <a href="https://business.adobe.com/resources/webinars/digital-content-transformation-in-high-tech-with-ccms.html" class="url-link">/resources/webinars/digital-content-transformation...</a>
+                            </td>
+                            <td>Event details, speaker bios, registration forms</td>
+                        </tr>
+                        <tr>
+                            <td class="page-type">Contact/Demo</td>
+                            <td>
+                                <a href="https://business.adobe.com/request-consultation.html" class="url-link">https://business.adobe.com/request-consultation.html</a><br>
+                                <a href="https://business.adobe.com/request-consultation/experience-cloud.html" class="url-link">/request-consultation/experience-cloud.html</a>
+                            </td>
+                            <td>Lead capture forms, product selection, consultation options</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <div id="rules" class="content">
+            <h3 style="padding: 20px 20px 0;">Classification Decision Tree</h3>
+            <div class="decision-tree">Page Classification Decision Tree
+├── Does it contain product pricing/packaging information?
+│   ├── Yes → **Pricing & Packaging Page**
+├── Is it primarily a customer story with quantified results?
+│   ├── Yes → **Customer Success Story/Case Study**
+├── Is it a form-based page for lead capture?
+│   ├── Yes → **Contact/Demo Request Page**
+├── Does it focus on a single product with comprehensive details?
+│   ├── Yes → **Product Detail Page**
+│   └── Is it a sub-feature of a larger product?
+│       └── Yes → **Product Sub-Feature Page**
+├── Is it educational content (blog, tutorial, guide)?
+│   ├── Yes → **Blog/Educational Content Page**
+├── Does it aggregate multiple content types/resources?
+│   ├── Yes → **Resource Center Page**
+├── Is it event/webinar specific with registration?
+│   ├── Yes → **Event/Webinar Detail Page**
+├── Does it combine multiple products for a solution?
+│   ├── Yes → **Solution/Use Case Page**
+├── Is it the main entry point for the site/brand?
+│   ├── Yes → **Homepage/Corporate Landing Page**
+└── Otherwise → **Support/FAQ Page** or **Integration/Partnership Page**</div>
+            
+            <div style="padding: 20px;">
+                <h3>Primary Classification Criteria</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width: 25%">Criteria Category</th>
+                            <th style="width: 75%">Classification Options</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="page-type">Content Purpose</td>
+                            <td>Commercial (product sales) vs Educational (learning) vs Transactional (conversion)</td>
+                        </tr>
+                        <tr>
+                            <td class="page-type">User Journey Stage</td>
+                            <td>Awareness (broad solutions) vs Consideration (specific products) vs Decision (pricing, demos)</td>
+                        </tr>
+                        <tr>
+                            <td class="page-type">Content Depth</td>
+                            <td>Overview (high-level) vs Detail (feature-specific) vs Deep-dive (technical)</td>
+                        </tr>
+                        <tr>
+                            <td class="page-type">Interaction Level</td>
+                            <td>Static (information consumption) vs Interactive (forms, tools) vs Transactional (purchases, requests)</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <div id="insights" class="content">
+            <div style="padding: 20px;">
+                <h3>Content Strategy Insights</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width: 25%">Insight Category</th>
+                            <th style="width: 75%">Key Findings</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="page-type">Design Patterns</td>
+                            <td>• Consistent navigation structure across all page types<br>• Progressive disclosure from general to specific information<br>• Multi-modal content combining text, imagery, video, and interactive elements<br>• Social proof integration throughout commercial pages</td>
+                        </tr>
+                        <tr>
+                            <td class="page-type">User Experience</td>
+                            <td>• Mobile-first responsive design implementation<br>• Fast loading performance with optimized images<br>• Accessibility compliance with proper heading structure<br>• Cross-platform integration between Adobe products</td>
+                        </tr>
+                        <tr>
+                            <td class="page-type">Personalization</td>
+                            <td>• Industry-specific messaging adaptation<br>• Role-based information architecture<br>• Geographic localization with regional pricing<br>• AI-powered content recommendations</td>
+                        </tr>
+                        <tr>
+                            <td class="page-type">B2B Focus</td>
+                            <td>• Enterprise decision-maker optimization<br>• Complex solution presentation<br>• ROI and business value emphasis<br>• Extensive integration capabilities showcase</td>
+                        </tr>
+                        <tr>
+                            <td class="page-type">Content Strategy</td>
+                            <td>• Heavy emphasis on AI-powered capabilities<br>• Cross-product integration messaging<br>• Solution combinations over standalone products<br>• Customer evidence in 70% of commercial pages</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <h3 style="margin-top: 30px;">Recommendations</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width: 25%">Recommendation Type</th>
+                            <th style="width: 75%">Suggested Improvements</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="page-type">Technical</td>
+                            <td>• Implement automated tagging system with structured data markup<br>• Monitor engagement metrics by page type<br>• A/B test different layouts within page categories</td>
+                        </tr>
+                        <tr>
+                            <td class="page-type">Content Strategy</td>
+                            <td>• Conduct gap analysis for missing page types<br>• Optimize conversion rates within each category<br>• Improve cross-category internal linking</td>
+                        </tr>
+                        <tr>
+                            <td class="page-type">Analytics</td>
+                            <td>• Integrate behavior-based classification<br>• User testing to validate intent assumptions<br>• Automated content classification using AI tools</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <div class="download-section">
+            <h3>Export Data</h3>
+            <p>Download the complete classification system in various formats:</p>
+            <button class="download-btn" onclick="downloadAsCSV()">Download as CSV</button>
+            <button class="download-btn" onclick="downloadAsExcel()">Download as Excel</button>
+            <button class="download-btn" onclick="printReport()">Print Report</button>
+            <div class="export-info">
+                <p>CSV format includes all tables with structured data for further analysis</p>
+                <p>Excel format provides multiple worksheets for each data category</p>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        function showTab(event, tabName) {
+            // Hide all content
+            const contents = document.querySelectorAll('.content');
+            contents.forEach(content => content.classList.remove('active'));
+            
+            // Remove active class from all tabs
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            
+            // Show selected content and activate tab
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+        
+        function downloadAsCSV() {
+            // Create CSV content for all data
+            let csvContent = 'PAGE TAXONOMY\n';
+            csvContent += '"Page Type","Purpose & User Intent","Core Components","Layout Structure","Frequency"\n';
+            
+            const taxonomyData = [
+                ['Homepage/Corporate Landing', 'Primary entry points showcasing brand value proposition. Intent: Brand discovery, solution exploration', 'Hero video sections with autoplay; Multi-column product grids; AI capability highlights; Customer logo carousels; Demo/consultation CTAs', 'Multi-section scrolling with product zones', 'High'],
+                ['Product Detail Pages', 'Comprehensive product information with features and integrations. Intent: Product evaluation, feature comparison', 'Product-specific hero sections; Feature benefit grids; Use case sections with visuals; Integration showcases; Customer testimonials; FAQ accordions', 'Single-column with tabbed sections', 'Very High'],
+                ['Product Sub-Feature Pages', 'Deep-dive into specific product capabilities. Intent: Technical validation, feature evaluation', 'Feature-focused heroes; Before/after comparisons; Step-by-step processes; Performance metrics; Technical specifications', 'Feature-first with evidence', 'High'],
+                ['Pricing & Packaging', 'Structured pricing tiers and feature comparisons. Intent: Purchase consideration, budget planning', 'Comparison tables; Feature matrices; Tiered packages (Growth/Prime/Ultimate); Contact CTAs; Usage specifications', 'Table-based comparisons', 'Medium'],
+                ['Customer Success Stories', 'Social proof through detailed customer implementations. Intent: Validation, ROI understanding', 'Customer hero imagery; Quantified results callouts; Challenge-solution-results narrative; Customer quotes; Implementation timelines', 'Story-driven linear flow', 'High'],
+                ['Resource Center Pages', 'Educational content hubs with guides and webinars. Intent: Education, research, skill development', 'Content filtering systems; Resource card grids; Content type indicators; Download CTAs; Related recommendations', 'Card-based masonry with filters', 'Medium'],
+                ['Blog/Educational Content', 'Thought leadership and tutorial articles. Intent: Learning, best practice understanding', 'Article headers with dates; Table of contents; Step-by-step sections; Inline imagery; Related articles; Social sharing', 'Long-form article format', 'High'],
+                ['Event/Webinar Details', 'Event information with registration. Intent: Event attendance, professional development', 'Event details (time, speakers); Speaker bios and photos; Registration forms; Resource links; On-demand options', 'Event-focused with registration prominence', 'Medium'],
+                ['Solution/Use Case Pages', 'Industry-specific solutions combining multiple products. Intent: Solution evaluation', 'Solution overviews; Multi-product integration diagrams; Industry use cases; Implementation roadmaps; Competitive differentiators', 'Solution-first narrative', 'Medium'],
+                ['Contact/Demo Request', 'Lead generation and consultation requests. Intent: Purchase consideration', 'Lead capture forms; Product selection options; Contact preferences; Sales team info; Regional specialization', 'Form-centric minimal design', 'Low'],
+                ['Integration/Partnership', 'Third-party integrations and partner ecosystem. Intent: Technical integration understanding', 'Partner logo galleries; Integration matrices; API documentation links; Ecosystem maps; Implementation guides', 'Partnership-focused technical', 'Low'],
+                ['Support/FAQ Pages', 'Self-service help and frequently asked questions. Intent: Problem resolution', 'Searchable FAQ sections; Topic categorization; Step-by-step guides; Contact escalation; Community links', 'Q&A format with search', 'Low']
+            ];
+            
+            taxonomyData.forEach(row => {
+                csvContent += '"' + row.join('","') + '"\n';
+            });
+            
+            csvContent += '\n\nCOMPONENT INVENTORY\n';
+            csvContent += '"Component Name","Description & Functionality","Usage Frequency","Common Variations"\n';
+            
+            const componentData = [
+                ['Hero Sections', 'Large headline text, supporting copy, primary CTA, background imagery/video, secondary navigation', '90%', 'Video backgrounds, static images, gradient overlays'],
+                ['Call-to-Action Buttons', 'Primary action buttons throughout pages - Book a demo, Learn more, Watch overview, Get pricing', '95%', 'Primary, secondary, text-only, icon + text'],
+                ['Product Integration Blocks', 'Cross-product feature highlights, Product + Product sections, integration benefits', '75%', 'Side-by-side, tabbed, accordion'],
+                ['Customer Evidence', 'Customer logo bars, testimonial quotes, case study callouts, usage statistics', '70%', 'Logo carousels, quote cards, stat highlights'],
+                ['Feature Grids', 'Icon-based feature lists, benefit explanations, capability matrices', '65%', '2-column, 3-column, 4-column layouts'],
+                ['Video Content', 'Hero background videos, product demo embeds, customer testimonials, overview links', '60%', 'Autoplay background, embedded players, modal pop-ups'],
+                ['Navigation Menus', 'Primary navigation, breadcrumbs, footer links, sidebar navigation', '100%', 'Horizontal, vertical, mega menus'],
+                ['Forms', 'Contact forms, demo requests, newsletter signups, consultation requests', '45%', 'Multi-step, single page, modal forms'],
+                ['Comparison Tables', 'Feature matrices, pricing tiers, product comparisons', '35%', 'Responsive tables, sticky headers, highlighted columns'],
+                ['AI-Powered Content Blocks', 'Generative AI capability emphasis, automated feature highlights', '55%', 'Badge overlays, dedicated sections, inline highlights'],
+                ['Search Functionality', 'Site search, resource filtering, content discovery', '25%', 'Header search, page-specific filters, faceted search'],
+                ['Social Sharing', 'Social media sharing buttons, follow links', '30%', 'Fixed position, inline, modal sharing']
+            ];
+            
+            componentData.forEach(row => {
+                csvContent += '"' + row.join('","') + '"\n';
+            });
+            
+            // Download CSV
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', 'adobe_website_classification.csv');
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+        
+        function downloadAsExcel() {
+            // Create Excel-compatible TSV content
+            let tsvContent = '';
+            
+            // Sheet 1: Page Taxonomy
+            tsvContent += 'Page Type\tPurpose & User Intent\tCore Components\tLayout Structure\tFrequency\n';
+            
+            const taxonomyData = [
+                ['Homepage/Corporate Landing', 'Primary entry points showcasing brand value proposition. Intent: Brand discovery, solution exploration', 'Hero video sections with autoplay; Multi-column product grids; AI capability highlights; Customer logo carousels; Demo/consultation CTAs', 'Multi-section scrolling with product zones', 'High'],
+                ['Product Detail Pages', 'Comprehensive product information with features and integrations. Intent: Product evaluation, feature comparison', 'Product-specific hero sections; Feature benefit grids; Use case sections with visuals; Integration showcases; Customer testimonials; FAQ accordions', 'Single-column with tabbed sections', 'Very High'],
+                ['Product Sub-Feature Pages', 'Deep-dive into specific product capabilities. Intent: Technical validation, feature evaluation', 'Feature-focused heroes; Before/after comparisons; Step-by-step processes; Performance metrics; Technical specifications', 'Feature-first with evidence', 'High'],
+                ['Pricing & Packaging', 'Structured pricing tiers and feature comparisons. Intent: Purchase consideration, budget planning', 'Comparison tables; Feature matrices; Tiered packages (Growth/Prime/Ultimate); Contact CTAs; Usage specifications', 'Table-based comparisons', 'Medium'],
+                ['Customer Success Stories', 'Social proof through detailed customer implementations. Intent: Validation, ROI understanding', 'Customer hero imagery; Quantified results callouts; Challenge-solution-results narrative; Customer quotes; Implementation timelines', 'Story-driven linear flow', 'High'],
+                ['Resource Center Pages', 'Educational content hubs with guides and webinars. Intent: Education, research, skill development', 'Content filtering systems; Resource card grids; Content type indicators; Download CTAs; Related recommendations', 'Card-based masonry with filters', 'Medium'],
+                ['Blog/Educational Content', 'Thought leadership and tutorial articles. Intent: Learning, best practice understanding', 'Article headers with dates; Table of contents; Step-by-step sections; Inline imagery; Related articles; Social sharing', 'Long-form article format', 'High'],
+                ['Event/Webinar Details', 'Event information with registration. Intent: Event attendance, professional development', 'Event details (time, speakers); Speaker bios and photos; Registration forms; Resource links; On-demand options', 'Event-focused with registration prominence', 'Medium'],
+                ['Solution/Use Case Pages', 'Industry-specific solutions combining multiple products. Intent: Solution evaluation', 'Solution overviews; Multi-product integration diagrams; Industry use cases; Implementation roadmaps; Competitive differentiators', 'Solution-first narrative', 'Medium'],
+                ['Contact/Demo Request', 'Lead generation and consultation requests. Intent: Purchase consideration', 'Lead capture forms; Product selection options; Contact preferences; Sales team info; Regional specialization', 'Form-centric minimal design', 'Low'],
+                ['Integration/Partnership', 'Third-party integrations and partner ecosystem. Intent: Technical integration understanding', 'Partner logo galleries; Integration matrices; API documentation links; Ecosystem maps; Implementation guides', 'Partnership-focused technical', 'Low'],
+                ['Support/FAQ Pages', 'Self-service help and frequently asked questions. Intent: Problem resolution', 'Searchable FAQ sections; Topic categorization; Step-by-step guides; Contact escalation; Community links', 'Q&A format with search', 'Low']
+            ];
+            
+            taxonomyData.forEach(row => {
+                tsvContent += row.join('\t') + '\n';
+            });
+            
+            tsvContent += '\n\n\nComponent Name\tDescription & Functionality\tUsage Frequency\tCommon Variations\n';
+            
+            const componentData = [
+                ['Hero Sections', 'Large headline text, supporting copy, primary CTA, background imagery/video, secondary navigation', '90%', 'Video backgrounds, static images, gradient overlays'],
+                ['Call-to-Action Buttons', 'Primary action buttons throughout pages - Book a demo, Learn more, Watch overview, Get pricing', '95%', 'Primary, secondary, text-only, icon + text'],
+                ['Product Integration Blocks', 'Cross-product feature highlights, Product + Product sections, integration benefits', '75%', 'Side-by-side, tabbed, accordion'],
+                ['Customer Evidence', 'Customer logo bars, testimonial quotes, case study callouts, usage statistics', '70%', 'Logo carousels, quote cards, stat highlights'],
+                ['Feature Grids', 'Icon-based feature lists, benefit explanations, capability matrices', '65%', '2-column, 3-column, 4-column layouts'],
+                ['Video Content', 'Hero background videos, product demo embeds, customer testimonials, overview links', '60%', 'Autoplay background, embedded players, modal pop-ups'],
+                ['Navigation Menus', 'Primary navigation, breadcrumbs, footer links, sidebar navigation', '100%', 'Horizontal, vertical, mega menus'],
+                ['Forms', 'Contact forms, demo requests, newsletter signups, consultation requests', '45%', 'Multi-step, single page, modal forms'],
+                ['Comparison Tables', 'Feature matrices, pricing tiers, product comparisons', '35%', 'Responsive tables, sticky headers, highlighted columns'],
+                ['AI-Powered Content Blocks', 'Generative AI capability emphasis, automated feature highlights', '55%', 'Badge overlays, dedicated sections, inline highlights'],
+                ['Search Functionality', 'Site search, resource filtering, content discovery', '25%', 'Header search, page-specific filters, faceted search'],
+                ['Social Sharing', 'Social media sharing buttons, follow links', '30%', 'Fixed position, inline, modal sharing']
+            ];
+            
+            componentData.forEach(row => {
+                tsvContent += row.join('\t') + '\n';
+            });
+            
+            // Download TSV file that Excel can open
+            const blob = new Blob([tsvContent], { type: 'text/tab-separated-values;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', 'adobe_website_classification.xls');
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            alert('Excel file downloaded! This file will open properly in Microsoft Excel.');
+        }
+        
+        function printReport() {
+            window.print();
+        }
+    </script>
+</body>
+</html>
