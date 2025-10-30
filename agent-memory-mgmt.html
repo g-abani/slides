@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Message Summarization Approach</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        .slide-container {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            perspective: 1000px;
+        }
+
+        .slide {
+            display: none;
+            width: 90%;
+            max-width: 1200px;
+            height: 85vh;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 60px;
+            overflow-y: auto;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        .slide.active {
+            display: block;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            color: #667eea;
+            font-size: 3em;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        h2 {
+            color: #764ba2;
+            font-size: 2.2em;
+            margin-bottom: 25px;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        h3 {
+            color: #555;
+            font-size: 1.6em;
+            margin: 25px 0 15px 0;
+        }
+
+        .emoji-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        p, li {
+            font-size: 1.2em;
+            line-height: 1.8;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        ul, ol {
+            margin-left: 30px;
+            margin-bottom: 20px;
+        }
+
+        li {
+            margin-bottom: 10px;
+        }
+
+        .code-block {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 25px;
+            border-radius: 10px;
+            overflow-x: auto;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95em;
+            line-height: 1.6;
+        }
+
+        .error-box {
+            background: #fee;
+            border-left: 5px solid #f44;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+
+        .success-box {
+            background: #efe;
+            border-left: 5px solid #4a4;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+
+        .warning-box {
+            background: #fff3cd;
+            border-left: 5px solid #ffc107;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 1em;
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+
+        th {
+            background: #667eea;
+            color: white;
+            font-weight: bold;
+        }
+
+        tr:nth-child(even) {
+            background: #f9f9f9;
+        }
+
+        .controls {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 20px;
+            z-index: 1000;
+        }
+
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        button:hover {
+            background: #764ba2;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .slide-counter {
+            position: fixed;
+            top: 30px;
+            right: 30px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 1em;
+            z-index: 1000;
+        }
+
+        .checklist {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .checklist li {
+            list-style: none;
+            padding-left: 30px;
+            position: relative;
+        }
+
+        .checklist li::before {
+            content: "☐";
+            position: absolute;
+            left: 0;
+            font-size: 1.3em;
+            color: #667eea;
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .comparison-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px solid #ddd;
+        }
+
+        .comparison-card h3 {
+            margin-top: 0;
+        }
+
+        .phase-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin: 15px 0;
+        }
+
+        .phase-card h3 {
+            color: white;
+            margin-top: 0;
+        }
+
+        strong {
+            color: #667eea;
+        }
+
+        .center-text {
+            text-align: center;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            font-size: 1.3em;
+            margin-top: -10px;
+            margin-bottom: 40px;
+        }
+    </style>
+</head>
+<body>
+    <div class="slide-counter">
+        <span id="current-slide">1</span> / <span id="total-slides">0</span>
+    </div>
+
+    <div class="slide-container">
+        <!-- Slide 1: Title -->
+        <div class="slide active">
+            <h1>📋 Message Summarization Approach</h1>
+            <p class="subtitle">Addressing Token Limit Issues in LangGraph Conversations</p>
+            <div style="margin-top: 60px; text-align: center;">
+                <p style="font-size: 1.5em; color: #555;">Instead of <strong>dropping</strong> old messages,<br>we <strong>summarize</strong> them using an LLM</p>
+                <p style="font-size: 1.3em; color: #888; margin-top: 30px;">Preserving context while reducing tokens</p>
+            </div>
+            <div style="margin-top: 80px; padding: 30px; background: #f8f9fa; border-radius: 15px;">
+                <p class="center-text" style="font-size: 1.2em;"><strong>Last Updated:</strong> October 30, 2025</p>
+                <p class="center-text" style="font-size: 1.2em;"><strong>Priority:</strong> High (Addresses production error)</p>
+            </div>
+        </div>
+
+        <!-- Slide 2: The Problem -->
+        <div class="slide">
+            <h2 class="emoji-header">🚨 The Problem</h2>
+            <div class="error-box">
+                <h3>Error Encountered:</h3>
+                <p style="font-family: monospace; font-size: 1.1em;">Input tokens exceed the configured limit of 272000 tokens.<br>Your messages resulted in 287849 tokens.<br>Please reduce the length of the messages.</p>
+            </div>
+            <h3>Root Cause Analysis:</h3>
+            <ul>
+                <li>Messages accumulate indefinitely in conversation threads</li>
+                <li>Current reducer simply concatenates: <code>existing.concat(newMessages)</code></li>
+                <li>Long conversations exceed Azure OpenAI's token limits</li>
+                <li>No mechanism to manage growing message history</li>
+            </ul>
+        </div>
+
+        <!-- Slide 3: The Solution -->
+        <div class="slide">
+            <h2 class="emoji-header">🎯 The Solution</h2>
+            <p style="font-size: 1.4em; margin-bottom: 30px;"><strong>Message Summarization Strategy</strong></p>
+            <div class="phase-card">
+                <h3>1. Count Actual Tokens</h3>
+                <p>Use tiktoken library for accurate token counting, not just message count estimates</p>
+            </div>
+            <div class="phase-card">
+                <h3>2. Preserve Recent Messages</h3>
+                <p>Keep the last 15-20 messages intact for immediate context</p>
+            </div>
+            <div class="phase-card">
+                <h3>3. Summarize Old Messages</h3>
+                <p>Use LLM to create concise summaries that retain historical context</p>
+            </div>
+            <div class="phase-card">
+                <h3>4. Stay Under Limit</h3>
+                <p>Maintain token count well below the 272k limit with safety buffer</p>
+            </div>
+        </div>
+
+        <!-- Slide 4: Dependencies -->
+        <div class="slide">
+            <h2 class="emoji-header">📦 Step 1: Add Required Dependencies</h2>
+            <p>Add to your <strong>package.json</strong>:</p>
+            <div class="code-block">{
+  "dependencies": {
+    "tiktoken": "^1.0.10"
+  }
+}</div>
+            <p>Install the package:</p>
+            <div class="code-block">npm install tiktoken</div>
+            <div class="success-box">
+                <p><strong>Why tiktoken?</strong></p>
+                <p>tiktoken is OpenAI's official token counting library. It provides accurate token counts that match exactly how your LLM will process the text, avoiding estimation errors.</p>
+            </div>
+        </div>
+
+        <!-- Slide 5: Token Counting -->
+        <div class="slide">
+            <h2 class="emoji-header">🔧 Step 2: Token Counting Function</h2>
+            <p>Add to <code>src/utils/messageUtils.ts</code>:</p>
+            <div class="code-block">import { encoding_for_model } from "tiktoken";
+
+export function countMessageTokens(messages: BaseMessage[]): number {
+  try {
+    const encoding = encoding_for_model("gpt-4");
+    let totalTokens = 0;
+
+    for (const message of messages) {
+      const content = typeof message.content === 'string' 
+        ? message.content 
+        : JSON.stringify(message.content);
+      
+      const tokens = encoding.encode(content);
+      totalTokens += tokens.length;
+      totalTokens += 4; // Overhead per message
+    }
+
+    encoding.free();
+    return totalTokens;
+  } catch (error) {
+    // Fallback: 4 chars ≈ 1 token
+    return messages.reduce((total, msg) => {
+      const content = typeof msg.content === 'string' 
+        ? msg.content : JSON.stringify(msg.content);
+      return total + Math.ceil(content.length / 4);
+    }, 0);
+  }
+}</div>
+        </div>
+
+        <!-- Slide 6: Summarization Function -->
+        <div class="slide">
+            <h2 class="emoji-header">🧠 Message Summarization (Async)</h2>
+            <div class="code-block">export async function summarizeMessages(
+  messages: BaseMessage[],
+  llm: any
+): Promise<SystemMessage> {
+  const conversationText = messages
+    .map(msg => {
+      const role = msg._getType();
+      const content = typeof msg.content === 'string' 
+        ? msg.content : JSON.stringify(msg.content);
+      return `[${role}]: ${content}`;
+    })
+    .join('\n\n');
+
+  const summaryPrompt = `Summarize the following conversation 
+while preserving:
+1. Key decisions made
+2. Important context (URLs, IDs, names)
+3. Action items or requests
+4. Critical technical details
+
+Conversation: ${conversationText}
+
+Provide a concise summary (max 200 words):`;
+
+  const summary = await llm.invoke([new HumanMessage(summaryPrompt)]);
+  return new SystemMessage({
+    content: `[Previous conversation summary]: ${summary.content}`,
+  });
+}</div>
+        </div>
+
+        <!-- Slide 7: Full Management Function -->
+        <div class="slide">
+            <h2 class="emoji-header">⚙️ Complete Message Management</h2>
+            <div class="code-block">export async function manageMessagesWithSummarization(
+  existing: BaseMessage[],
+  newMessages: BaseMessage[],
+  llm: any,
+  options = {
+    maxTokens: 250000,
+    recentMessageCount: 15,
+    summaryThreshold: 50000,
+  }
+): Promise<BaseMessage[]> {
+  const combined = existing.concat(newMessages);
+  const currentTokens = countMessageTokens(combined);
+
+  if (currentTokens <= options.summaryThreshold) {
+    return combined;
+  }
+
+  const systemMessages = combined.filter(
+    msg => msg._getType() === "system"
+  );
+  const conversationMessages = combined.filter(
+    msg => msg._getType() !== "system"
+  );
+
+  const recentMessages = conversationMessages.slice(
+    -options.recentMessageCount
+  );
+  const oldMessages = conversationMessages.slice(
+    0, -options.recentMessageCount
+  );
+
+  const summaryMessage = await summarizeMessages(oldMessages, llm);
+
+  return [...systemMessages, summaryMessage, ...recentMessages];
+}</div>
+        </div>
+
+        <!-- Slide 8: Synchronous Version -->
+        <div class="slide">
+            <h2 class="emoji-header">⚡ Synchronous Token Management</h2>
+            <p>For state reducers that must be synchronous:</p>
+            <div class="code-block">export function manageMessagesByTokenCount(
+  existing: BaseMessage[],
+  newMessages: BaseMessage[],
+  options = { maxTokens: 250000, recentMessageCount: 15 }
+): BaseMessage[] {
+  const combined = existing.concat(newMessages);
+  const currentTokens = countMessageTokens(combined);
+
+  if (currentTokens <= options.maxTokens) {
+    return combined;
+  }
+
+  const systemMessages = combined.filter(
+    msg => msg._getType() === "system"
+  );
+  const conversationMessages = combined.filter(
+    msg => msg._getType() !== "system"
+  );
+
+  const recentMessages = conversationMessages.slice(
+    -options.recentMessageCount
+  );
+
+  const simpleSummary = new SystemMessage({
+    content: `[Previous]: ${oldMessages.length} messages`
+  });
+
+  return [...systemMessages, simpleSummary, ...recentMessages];
+}</div>
+        </div>
+
+        <!-- Slide 9: Integration Pattern A -->
+        <div class="slide">
+            <h2 class="emoji-header">🎯 Pattern A: State Reducer</h2>
+            <p>For synchronous state reducers:</p>
+            <div class="code-block">// src/agents/supervisor/types.ts
+import { manageMessagesByTokenCount } 
+  from "../../utils/messageUtils.js";
+
+const SupervisorState = Annotation.Root({
+  messages: Annotation<BaseMessage[]>({
+    reducer: (existing, newMessages) => 
+      manageMessagesByTokenCount(existing, newMessages, {
+        maxTokens: 250000,
+        recentMessageCount: 15
+      }),
+    default: () => [],
+  }),
+});</div>
+            <h3>Apply to:</h3>
+            <ul>
+                <li><code>src/agents/supervisor/types.ts</code></li>
+                <li><code>src/agents/jira/types.ts</code></li>
+                <li><code>src/agents/page-agent/types.ts</code></li>
+            </ul>
+        </div>
+
+        <!-- Slide 10: Integration Pattern B -->
+        <div class="slide">
+            <h2 class="emoji-header">🎯 Pattern B: Pre-Hook</h2>
+            <div class="code-block">// supervisor.ts
+import { manageMessagesWithSummarization } 
+  from "../../../utils/messageUtils.js";
+import { slm } from "../../../services/llm/azureOpenAIService.js";
+
+export const supervisor = createSupervisor({
+  agents: [pageAgentApp, jiraAgent],
+  llm,
+  preModelHook: async (state) => {
+    const tokens = countMessageTokens(state.messages);
+    
+    if (tokens > 50000) {
+      const managed = await manageMessagesWithSummarization(
+        state.messages, [], slm,
+        { maxTokens: 250000, recentMessageCount: 15 }
+      );
+      
+      return { ...state, messages: managed };
+    }
+    
+    return state;
+  },
+}).compile({name: "supervisor", checkpointer});</div>
+        </div>
+
+        <!-- Slide 11: Comparison -->
+        <div class="slide">
+            <h2 class="emoji-header">📊 Trimming vs Summarization</h2>
+            <table>
+                <tr>
+                    <th>Aspect</th>
+                    <th>Trimming</th>
+                    <th>Summarization</th>
+                </tr>
+                <tr>
+                    <td><strong>Speed</strong></td>
+                    <td>⚡ Instant</td>
+                    <td>🐌 1-2 seconds</td>
+                </tr>
+                <tr>
+                    <td><strong>Context</strong></td>
+                    <td>❌ Lost</td>
+                    <td>✅ Preserved</td>
+                </tr>
+                <tr>
+                    <td><strong>Complexity</strong></td>
+                    <td>✅ Simple</td>
+                    <td>⚠️ Complex</td>
+                </tr>
+                <tr>
+                    <td><strong>Cost</strong></td>
+                    <td>✅ Free</td>
+                    <td>💰 API calls</td>
+                </tr>
+                <tr>
+                    <td><strong>Use Case</strong></td>
+                    <td>Short chats</td>
+                    <td>Long conversations</td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- Slide 12: Hybrid Approach -->
+        <div class="slide">
+            <h2 class="emoji-header">🎯 Hybrid Approach</h2>
+            <table>
+                <tr>
+                    <th>Token Count</th>
+                    <th>Action</th>
+                    <th>Strategy</th>
+                </tr>
+                <tr>
+                    <td>0 - 50k</td>
+                    <td>✅ Keep all</td>
+                    <td>None</td>
+                </tr>
+                <tr>
+                    <td>50k - 150k</td>
+                    <td>✂️ Trim</td>
+                    <td>Token-based</td>
+                </tr>
+                <tr>
+                    <td>150k+</td>
+                    <td>🧠 Summarize</td>
+                    <td>LLM summary</td>
+                </tr>
+            </table>
+            <div class="code-block">export async function hybridMessageManagement(
+  existing, newMessages, llm
+) {
+  const tokens = countMessageTokens(combined);
+  
+  if (tokens < 50000) return combined;
+  
+  if (tokens < 150000) {
+    return manageMessagesByTokenCount(combined, []);
+  }
+  
+  return manageMessagesWithSummarization(combined, [], llm);
+}</div>
+        </div>
+
+        <!-- Slide 13: Example -->
+        <div class="slide">
+            <h2 class="emoji-header">🔍 Before & After</h2>
+            <div class="comparison-grid">
+                <div class="comparison-card">
+                    <h3>Before (15k tokens)</h3>
+                    <ul style="font-size: 0.95em;">
+                        <li>Show JIRA issues</li>
+                        <li>Here are 50 issues...</li>
+                        <li>Filter by priority</li>
+                        <li>Here are 10 high...</li>
+                        <li>Show MERCH-123</li>
+                        <li>Comment added</li>
+                    </ul>
+                </div>
+                <div class="comparison-card">
+                    <h3>After (3k tokens)</h3>
+                    <p style="font-size: 0.95em;"><strong>[Summary]:</strong> User requested JIRA for Merch team. Filtered 50 to 10 high-priority. Viewed MERCH-123.</p>
+                    <ul style="font-size: 0.95em;">
+                        <li>Show team members</li>
+                        <li>Show blockers</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="success-box">
+                <p class="center-text"><strong>80% Token Reduction</strong></p>
+            </div>
+        </div>
+
+        <!-- Slide 14: Checklist -->
+        <div class="slide">
+            <h2 class="emoji-header">✅ Implementation Checklist</h2>
+            <div class="checklist">
+                <ul>
+                    <li>Install tiktoken package</li>
+                    <li>Add countMessageTokens()</li>
+                    <li>Add summarizeMessages()</li>
+                    <li>Add manageMessagesWithSummarization()</li>
+                    <li>Add manageMessagesByTokenCount()</li>
+                    <li>Update SupervisorState reducer</li>
+                    <li>Update JiraAgentState reducer</li>
+                    <li>Update FigmaTaskState reducer</li>
+                    <li>Add preModelHook to supervisor</li>
+                    <li>Configure thresholds</li>
+                    <li>Add token logging</li>
+                    <li>Test with long conversations</li>
+                    <li>Monitor API costs</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 15: Pro Tips -->
+        <div class="slide">
+            <h2 class="emoji-header">💡 Pro Tips</h2>
+            <div class="warning-box">
+                <h3>1. Use SLM for Summaries</h3>
+                <p>Use slm (gpt-5-nano) - cheaper and faster</p>
+            </div>
+            <div class="warning-box">
+                <h3>2. Proactive Summarization</h3>
+                <p>Trigger at 50k tokens, not 272k</p>
+            </div>
+            <div class="warning-box">
+                <h3>3. Preserve System Messages</h3>
+                <p>Never summarize or trim system messages</p>
+            </div>
+            <div class="warning-box">
+                <h3>4. Monitor Token Usage</h3>
+                <p>Add comprehensive logging</p>
+            </div>
+            <div class="warning-box">
+                <h3>5. Fallback Strategy</h3>
+                <p>Use aggressive trimming if summarization fails</p>
+            </div>
+        </div>
+
+        <!-- Slide 16: Configuration -->
+        <div class="slide">
+            <h2 class="emoji-header">🎛️ Configuration</h2>
+            <div class="code-block">const CONFIG = {
+  AZURE_MAX_TOKENS: 272000,
+  SAFE_MAX_TOKENS: 250000,
+  SUMMARIZATION_THRESHOLD: 50000,
+  AGGRESSIVE_THRESHOLD: 150000,
+  RECENT_MESSAGE_COUNT: 15,
+};</div>
+            <h3>Per-Agent Config:</h3>
+            <table>
+                <tr>
+                    <th>Agent</th>
+                    <th>Max</th>
+                    <th>Recent</th>
+                    <th>Strategy</th>
+                </tr>
+                <tr>
+                    <td>Supervisor</td>
+                    <td>250k</td>
+                    <td>15</td>
+                    <td>Hybrid</td>
+                </tr>
+                <tr>
+                    <td>JIRA</td>
+                    <td>250k</td>
+                    <td>20</td>
+                    <td>Token-based</td>
+                </tr>
+                <tr>
+                    <td>Page</td>
+                    <td>250k</td>
+                    <td>15</td>
+                    <td>Summarization</td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- Slide 17: Results -->
+        <div class="slide">
+            <h2 class="emoji-header">📈 Expected Results</h2>
+            <div class="comparison-grid">
+                <div class="comparison-card">
+                    <h3>Without ❌</h3>
+                    <ul>
+                        <li>Turn 10: 50k</li>
+                        <li>Turn 20: 150k</li>
+                        <li>Turn 30: 280k <strong style="color: red;">ERROR</strong></li>
+                    </ul>
+                </div>
+                <div class="comparison-card">
+                    <h3>With ✅</h3>
+                    <ul>
+                        <li>Turn 10: 55k→15k</li>
+                        <li>Turn 20: 35k</li>
+                        <li>Turn 30: 45k <strong style="color: green;">OK</strong></li>
+                    </ul>
+                </div>
+            </div>
+            <h3>Metrics:</h3>
+            <ul>
+                <li><strong>Reduction:</strong> 70-90%</li>
+                <li><strong>Latency:</strong> +1-2 seconds</li>
+                <li><strong>Cost:</strong> ~$0.001 per summary</li>
+                <li><strong>Retention:</strong> 80-90% context</li>
+            </ul>
+        </div>
+
+        <!-- Slide 18: Troubleshooting -->
+        <div class="slide">
+            <h2 class="emoji-header">🐛 Troubleshooting</h2>
+            <div class="error-box">
+                <h3>Still exceeding limit?</h3>
+                <p>Lower thresholds: summaryThreshold: 30000</p>
+            </div>
+            <div class="warning-box">
+                <h3>Summarization slow?</h3>
+                <p>Use slm or skip summarization</p>
+            </div>
+            <div class="warning-box">
+                <h3>Context lost?</h3>
+                <p>Increase: recentMessageCount: 25</p>
+            </div>
+            <div class="warning-box">
+                <h3>Summaries verbose?</h3>
+                <p>Adjust prompt: "max 100 words"</p>
+            </div>
+        </div>
+
+        <!-- Slide 19: Key Takeaways -->
+        <div class="slide">
+            <h2 class="emoji-header">🎓 Key Takeaways</h2>
+            <div class="success-box">
+                <h3>✅ DO</h3>
+                <ul>
+                    <li>Use tiktoken for accuracy</li>
+                    <li>Trigger at 50k tokens</li>
+                    <li>Use SLM for summaries</li>
+                    <li>Keep system messages</li>
+                    <li>Implement fallbacks</li>
+                    <li>Monitor with logging</li>
+                </ul>
+            </div>
+            <div class="error-box">
+                <h3>❌ DON'T</h3>
+                <ul>
+                    <li>Wait until 272k limit</li>
+                    <li>Use message count only</li>
+                    <li>Summarize system messages</li>
+                    <li>Use main LLM for summaries</li>
+                    <li>Skip error handling</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Slide 20: Summary -->
+        <div class="slide">
+            <h1>🎯 Summary</h1>
+            <div class="phase-card">
+                <h3>Problem Solved</h3>
+                <p>Messages exceeding 272k token limit</p>
+            </div>
+            <div class="phase-card">
+                <h3>Solution</h3>
+                <p>Hybrid trimming + LLM summarization</p>
+            </div>
+            <div class="phase-card">
+                <h3>Impact</h3>
+                <p>70-90% reduction, 80-90% context retained</p>
+            </div>
+            <div class="phase-card">
+                <h3>Next Steps</h3>
+                <p>Follow checklist and deploy with monitoring</p>
+            </div>
+            <div class="center-text" style="margin-top: 60px;">
+                <p style="font-size: 1.5em; color: #667eea;"><strong>Ready for Implementation ✨</strong></p>
+            </div>
+        </div>
+    </div>
+
+    <div class="controls">
+        <button id="prev" onclick="changeSlide(-1)">← Previous</button>
+        <button id="next" onclick="changeSlide(1)">Next →</button>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+        
+        document.getElementById('total-slides').textContent = totalSlides;
+        
+        function showSlide(n) {
+            slides[currentSlide].classList.remove('active');
+            currentSlide = (n + totalSlides) % totalSlides;
+            slides[currentSlide].classList.add('active');
+            
+            document.getElementById('current-slide').textContent = currentSlide + 1;
+            
+            document.getElementById('prev').disabled = currentSlide === 0;
+            document.getElementById('next').disabled = currentSlide === totalSlides - 1;
+            
+            slides[currentSlide].scrollTop = 0;
+        }
+        
+        function changeSlide(direction) {
+            showSlide(currentSlide + direction);
+        }
+        
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') changeSlide(-1);
+            if (e.key === 'ArrowRight') changeSlide(1);
+            if (e.key === 'Home') showSlide(0);
+            if (e.key === 'End') showSlide(totalSlides - 1);
+        });
+        
+        showSlide(0);
+    </script>
+</body>
+</html>
