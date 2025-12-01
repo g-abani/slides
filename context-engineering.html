@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Context Optimization in Agentic AI</title>
+<style>
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 20px;
+    line-height: 1.5;
+    width: 800px;
+    height: 600px;
+    margin: 0;
+    padding: 0;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin-left: -400px;
+    margin-top: -300px;
+    overflow: hidden;
+    background: #f5f5f5;
+  }
+  
+  section {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    padding: 40px 60px;
+    box-sizing: border-box;
+    background: white;
+    overflow: auto;
+    transition: left 0.4s ease;
+  }
+  
+  section { left: -150%; }
+  section[aria-selected] { left: 0; }
+  section[aria-selected] ~ section { left: 150%; }
+  
+  h1 {
+    font-size: 48px;
+    color: #2c3e50;
+    margin-bottom: 20px;
+    border-bottom: 3px solid #3498db;
+    padding-bottom: 10px;
+  }
+  
+  h2 {
+    font-size: 40px;
+    color: #2c3e50;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #3498db;
+    padding-bottom: 8px;
+  }
+  
+  h3 {
+    font-size: 28px;
+    color: #34495e;
+    margin: 20px 0 10px 0;
+  }
+  
+  ul, ol {
+    margin: 15px 0 15px 30px;
+  }
+  
+  li {
+    margin: 8px 0;
+    font-size: 22px;
+  }
+  
+  code {
+    background: #f4f4f4;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 18px;
+    color: #e74c3c;
+    font-family: 'Courier New', monospace;
+  }
+  
+  pre {
+    background: #2c3e50;
+    color: #ecf0f1;
+    padding: 15px;
+    border-radius: 5px;
+    overflow-x: auto;
+    font-size: 14px;
+    line-height: 1.4;
+    margin: 15px 0;
+  }
+  
+  pre code {
+    background: transparent;
+    color: #ecf0f1;
+    font-size: 14px;
+    padding: 0;
+  }
+  
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+    margin: 20px 0;
+  }
+  
+  .box {
+    padding: 15px;
+    border-radius: 5px;
+    margin: 15px 0;
+  }
+  
+  .info {
+    background: #d1ecf1;
+    border-left: 4px solid #17a2b8;
+  }
+  
+  .warning {
+    background: #fff3cd;
+    border-left: 4px solid #ffc107;
+  }
+  
+  .success {
+    background: #d4edda;
+    border-left: 4px solid #28a745;
+  }
+  
+  .pros { color: #27ae60; font-weight: bold; }
+  .cons { color: #e74c3c; font-weight: bold; }
+  
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 15px 0;
+    font-size: 18px;
+  }
+  
+  th, td {
+    padding: 10px;
+    text-align: left;
+    border: 1px solid #ddd;
+  }
+  
+  th {
+    background: #3498db;
+    color: white;
+  }
+  
+  tr:nth-child(even) {
+    background: #f9f9f9;
+  }
+  
+  .center {
+    text-align: center;
+  }
+  
+  strong {
+    color: #2c3e50;
+  }
+  
+  #progress {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    height: 3px;
+    background: #3498db;
+    transition: width 0.3s ease;
+  }
+  
+  #slide-number {
+    position: fixed;
+    bottom: 10px;
+    right: 20px;
+    font-size: 14px;
+    color: #7f8c8d;
+  }
+</style>
+</head>
+<body>
+
+<section>
+  <h1 class="center">Context Optimization in Agentic AI</h1>
+  <p class="center" style="font-size: 32px; margin-top: 40px;">Building Efficient Multi-Agent Systems</p>
+  <p class="center" style="font-size: 24px; margin-top: 30px; color: #7f8c8d;">
+    TypeScript • LangChain • LangGraph
+  </p>
+  <p class="center" style="margin-top: 80px; font-size: 28px; font-weight: 600; color: #2c3e50;">
+    Presented by: Abani Ranjan Behera
+  </p>
+  <p class="center" style="font-size: 20px; margin-top: 10px; color: #7f8c8d;">India Tech Council</p>
+</section>
+
+<section>
+  <h2>Agenda</h2>
+  <ol style="font-size: 24px; line-height: 1.8;">
+    <li>Understanding LLMs & AI Agents</li>
+    <li>What is Context & Why It Matters</li>
+    <li>Context Pollution Problem</li>
+    <li>Multi-Agent Context Challenges</li>
+    <li><strong>6 Context Optimization Techniques:</strong>
+      <ul style="font-size: 22px; margin-top: 10px;">
+        <li>Pruning</li>
+        <li>Summarization</li>
+        <li>Context Offloading</li>
+        <li>Tool Offloading</li>
+        <li>Semantic Editing</li>
+        <li>Hierarchical Context</li>
+      </ul>
+    </li>
+    <li>Model Context Protocol (MCP) Deep Dive</li>
+    <li>Multi-Agent Patterns & Production Examples</li>
+    <li>Best Practices & Common Pitfalls</li>
+  </ol>
+</section>
+
+<section>
+  <h2>LLMs & AI Agents: Foundation</h2>
+  <h3>Large Language Models (LLMs)</h3>
+  <ul>
+    <li>Process and generate text based on input <strong>context</strong></li>
+    <li>Limited context window (8K-200K tokens)</li>
+    <li>Stateless: no memory between interactions</li>
+  </ul>
+  <h3>AI Agents</h3>
+  <ul>
+    <li>LLM + Tools + Memory + Reasoning</li>
+    <li>Can execute actions, maintain state, plan</li>
+    <li>Context is their "working memory"</li>
+  </ul>
+</section>
+
+<section>
+  <h2>What is Context?</h2>
+  <div class="box info">
+    <strong>Context = All information sent to the LLM in each request</strong>
+  </div>
+  <h3>Context Components:</h3>
+  <ol style="font-size: 22px;">
+    <li><strong>System Prompt</strong>: Instructions & role definition</li>
+    <li><strong>Conversation History</strong>: Past messages</li>
+    <li><strong>Tool Results</strong>: Function call outputs</li>
+    <li><strong>Retrieved Documents</strong>: RAG, knowledge bases</li>
+    <li><strong>Agent State</strong>: Variables, metadata</li>
+  </ol>
+  <p style="margin-top: 20px;">💡 Each token costs money and processing time</p>
+</section>
+
+<section>
+  <h2>Why Context Matters</h2>
+  <div class="two-col">
+    <div>
+      <h3 class="pros">✓ Good Context</h3>
+      <ul style="font-size: 20px;">
+        <li>Accurate responses</li>
+        <li>Lower latency</li>
+        <li>Reduced costs</li>
+        <li>Better reasoning</li>
+        <li>Scalable agents</li>
+      </ul>
+    </div>
+    <div>
+      <h3 class="cons">✗ Poor Context</h3>
+      <ul style="font-size: 20px;">
+        <li>Token limit errors</li>
+        <li>Slow responses</li>
+        <li>High API costs</li>
+        <li>Context pollution</li>
+        <li>Poor performance</li>
+      </ul>
+    </div>
+  </div>
+  <div class="box warning" style="margin-top: 20px; font-size: 18px;">
+    <strong>⚠️ Real Impact:</strong> A chatbot with 100K daily users can waste $1000s/day with poor context management
+  </div>
+</section>
+
+<section>
+  <h2>Context Pollution</h2>
+  <h3>What is it?</h3>
+  <p>Accumulation of irrelevant, redundant, or noisy information in the context window</p>
+  <h3>Common Sources:</h3>
+  <ul style="font-size: 20px;">
+    <li><strong>Tool Spam</strong>: Failed attempts, debugging info</li>
+    <li><strong>Duplicate Data</strong>: Repeated retrievals</li>
+    <li><strong>Stale Information</strong>: Outdated context</li>
+    <li><strong>Verbose Outputs</strong>: Unfiltered tool responses</li>
+  </ul>
+  <div class="box info" style="font-size: 18px;">
+    <strong>Result:</strong> LLM gets "confused" → hallucinations, incorrect responses, degraded performance
+  </div>
+</section>
+
+<section>
+  <h2>Multi-Agent Challenges</h2>
+  <h3>Unique Context Issues:</h3>
+  <ol style="font-size: 20px;">
+    <li><strong>Shared vs. Isolated Context</strong> - Which agents see what?</li>
+    <li><strong>Context Synchronization</strong> - Keeping agent states aligned</li>
+    <li><strong>Exponential Growth</strong> - 3 agents × 10 messages = 30 message history</li>
+    <li><strong>Handoff Complexity</strong> - What context to pass between agents?</li>
+  </ol>
+  <div class="box warning" style="margin-top: 20px;">
+    <strong>Context Engineering is not optional for multi-agent apps—it's foundational</strong>
+  </div>
+</section>
+
+<section>
+  <h1 class="center">6 Optimization Techniques</h1>
+  <p class="center" style="font-size: 28px; margin-top: 60px; color: #7f8c8d;">
+    Essential Strategies for Context Management
+  </p>
+</section>
+
+<section>
+  <h2>1. Context Pruning</h2>
+  <p><strong>Strategy:</strong> Remove oldest or least relevant messages</p>
+<pre><code>import { createAgent, contextEditingMiddleware,
+         ClearToolUsesEdit } from "langchain";
+
+const agent = createAgent({
+  model: "gpt-4",
+  tools: [searchTool, calculatorTool],
+  middleware: [
+    contextEditingMiddleware({
+      edits: [
+        new ClearToolUsesEdit({ 
+          maxTokens: 1000
+        })
+      ]
+    })
+  ]
+});</code></pre>
+  <div class="two-col" style="font-size: 18px;">
+    <div>
+      <p class="pros">✓ Pros</p>
+      <ul><li>Simple</li><li>Prevents overflow</li><li>Low overhead</li></ul>
+    </div>
+    <div>
+      <p class="cons">✗ Cons</p>
+      <ul><li>May lose important info</li><li>No semantic awareness</li></ul>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>2. Summarization</h2>
+  <p><strong>Strategy:</strong> Compress old messages into summaries</p>
+<pre><code>import { createAgent, SummarizationMiddleware } 
+from "langchain";
+
+const agent = createAgent({
+  model: "claude-sonnet-4-5-20250929",
+  tools: [...],
+  middleware: [
+    new SummarizationMiddleware({
+      maxTokens: 2000,
+      summaryModel: "gpt-4o",
+      keepRecentMessages: 5
+    })
+  ]
+});</code></pre>
+  <div class="two-col" style="font-size: 18px;">
+    <div>
+      <p class="pros">✓ Pros</p>
+      <ul><li>Preserves key info</li><li>Maintains continuity</li></ul>
+    </div>
+    <div>
+      <p class="cons">✗ Cons</p>
+      <ul><li>Extra LLM call cost</li><li>Latency overhead</li></ul>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>3. Context Offloading</h2>
+  <p><strong>Strategy:</strong> Store context in external memory</p>
+<pre><code>import { MemorySaver } from "@langchain/langgraph";
+import { StateGraph } from "@langchain/langgraph";
+
+const memory = new MemorySaver();
+
+const graph = new StateGraph({
+  channels: {
+    messages: { value: (x, y) => x.concat(y) }
+  }
+}).addNode("agent", agentNode);
+
+const app = graph.compile({ 
+  checkpointer: memory 
+});
+
+await app.invoke(input, { 
+  configurable: { thread_id: "user-123" }
+});</code></pre>
+  <div class="two-col" style="font-size: 18px;">
+    <div>
+      <p class="pros">✓ Pros</p>
+      <ul><li>Infinite storage</li><li>Multi-session support</li></ul>
+    </div>
+    <div>
+      <p class="cons">✗ Cons</p>
+      <ul><li>Infrastructure needed</li><li>Retrieval complexity</li></ul>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>4. Tool Offloading</h2>
+  <p><strong>Strategy:</strong> Dynamically select which tools to expose</p>
+<pre><code>import { createAgent, llmToolSelectorMiddleware } 
+from "langchain";
+
+const agent = createAgent({
+  model: "gpt-4o",
+  tools: [simpleSearch, advancedSearch, 
+          dataAnalysis, sqlQuery],
+  middleware: [
+    llmToolSelectorMiddleware({
+      model: "gpt-4o-mini",
+      maxTools: 3,
+      alwaysInclude: ["search"]
+    })
+  ]
+});</code></pre>
+  <div class="two-col" style="font-size: 18px;">
+    <div>
+      <p class="pros">✓ Pros</p>
+      <ul><li>Reduces clutter</li><li>Faster reasoning</li></ul>
+    </div>
+    <div>
+      <p class="cons">✗ Cons</p>
+      <ul><li>May miss needed tools</li><li>Selection overhead</li></ul>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>5. Semantic Editing</h2>
+  <p><strong>Strategy:</strong> Use embeddings to filter irrelevant info</p>
+<pre><code>import { OpenAIEmbeddings } from "@langchain/openai";
+
+async function semanticFilter(
+  messages: Message[], 
+  query: string
+) {
+  const embeddings = new OpenAIEmbeddings();
+  const queryEmbed = await embeddings
+    .embedQuery(query);
+  const msgEmbeds = await embeddings
+    .embedDocuments(messages.map(m => m.content));
+  
+  const scored = messages.map((msg, i) => ({
+    message: msg,
+    score: cosineSimilarity(queryEmbed, msgEmbeds[i])
+  }));
+  
+  return scored.filter(s => s.score > 0.7)
+    .map(s => s.message);
+}</code></pre>
+  <div class="two-col" style="font-size: 18px;">
+    <div>
+      <p class="pros">✓ Pros</p>
+      <ul><li>Intelligent filtering</li><li>Quality boost</li></ul>
+    </div>
+    <div>
+      <p class="cons">✗ Cons</p>
+      <ul><li>Embedding costs</li><li>Complex to tune</li></ul>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>6. Hierarchical Context</h2>
+  <p><strong>Strategy:</strong> Structure context in layers</p>
+<pre><code>interface ContextHierarchy {
+  global: {
+    systemPrompt: string;
+    userProfile: UserProfile;
+  };
+  session: {
+    threadId: string;
+    summary: string;
+  };
+  turn: {
+    recentMessages: Message[];
+    currentTools: Tool[];
+  };
+}
+
+const constructContext = (h: ContextHierarchy) => {
+  return [
+    h.global.systemPrompt,
+    `Summary: ${h.session.summary}`,
+    ...h.turn.recentMessages
+  ];
+};</code></pre>
+  <div class="two-col" style="font-size: 18px;">
+    <div>
+      <p class="pros">✓ Pros</p>
+      <ul><li>Organized</li><li>Easy to debug</li></ul>
+    </div>
+    <div>
+      <p class="cons">✗ Cons</p>
+      <ul><li>Complex architecture</li><li>Design upfront</li></ul>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>MCP & Context Optimization</h2>
+  <p><strong>Model Context Protocol (MCP)</strong> - Standardized protocol for connecting AI to tools/data</p>
+  
+  <h3>How MCP Helps Context Optimization:</h3>
+  <ol style="font-size: 20px;">
+    <li><strong>On-Demand Tool Loading</strong>
+      <ul style="font-size: 18px;">
+        <li>Load tool definitions only when needed</li>
+        <li>Reduces upfront context by 24% (tool definitions)</li>
+      </ul>
+    </li>
+    <li><strong>Code Execution Pattern</strong>
+      <ul style="font-size: 18px;">
+        <li>Execute tools via code, not direct calls</li>
+        <li><strong>Up to 98.7% token reduction</strong></li>
+        <li>Intermediate results don't pass through LLM</li>
+      </ul>
+    </li>
+    <li><strong>Smart Tool Discovery</strong>
+      <ul style="font-size: 18px;">
+        <li><code>search_tools()</code> - find relevant tools dynamically</li>
+        <li>Tiered detail levels (name only → full schema)</li>
+      </ul>
+    </li>
+  </ol>
+</section>
+
+<section>
+  <h2>MCP Context Optimization Example</h2>
+  
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; font-size: 18px;">
+    <div>
+      <h3 style="font-size: 24px; color: #e74c3c;">❌ Traditional MCP</h3>
+<pre style="font-size: 13px;"><code>// All 50 tool definitions loaded
+// ~20k tokens just for tools!
+
+TOOL CALL: gdrive.getDocument()
+→ 50k token transcript
+
+TOOL CALL: salesforce.update()
+→ Copy entire 50k tokens again
+
+Total: ~120k tokens</code></pre>
+    </div>
+    
+    <div>
+      <h3 style="font-size: 24px; color: #27ae60;">✓ Code Execution + MCP</h3>
+<pre style="font-size: 13px;"><code>// Load only needed tools on-demand
+// ~500 tokens for 2 tools
+
+const doc = await getDocument();
+// Process locally in sandbox
+const summary = summarize(doc);
+await updateSalesforce(summary);
+
+Total: ~2k tokens (98% reduction!)</code></pre>
+    </div>
+  </div>
+  
+  <div class="box success" style="margin-top: 20px; font-size: 18px;">
+    <strong>Key Insight:</strong> MCP + Code Execution = Best of both worlds - 
+    standardized integrations + minimal context pollution
+  </div>
+</section>
+
+<section>
+  <h2>MCP Best Practices for Context</h2>
+  
+  <ol style="font-size: 22px;">
+    <li><strong>Optimize Tool Descriptions</strong>
+      <ul style="font-size: 20px;">
+        <li>Keep descriptions minimal but clear</li>
+        <li>Every character counts in tool schemas</li>
+      </ul>
+    </li>
+    <li><strong>Filter API Responses</strong>
+      <ul style="font-size: 20px;">
+        <li>Return only what the model needs</li>
+        <li>Example: 65.4% reduction removing 12 unused fields</li>
+      </ul>
+    </li>
+    <li><strong>Aggregate Pre-emptively</strong>
+      <ul style="font-size: 20px;">
+        <li>Compute summaries server-side</li>
+        <li>Example: 94.6% reduction for 6-month spending query</li>
+      </ul>
+    </li>
+    <li><strong>Use Code Execution</strong>
+      <ul style="font-size: 20px;">
+        <li>Process data in sandboxed environment</li>
+        <li>Only return final results to LLM</li>
+      </ul>
+    </li>
+  </ol>
+</section>
+
+<section>
+  <h2>MCP + LangChain Integration</h2>
+  
+<pre style="font-size: 16px;"><code>// LangChain MCP integration (TypeScript)
+import { load_mcp_tools } from "@langchain/mcp-adapters";
+import { MultiServerMCPClient } from "@langchain/mcp";
+
+// Connect to MCP servers
+const client = new MultiServerMCPClient({
+  servers: {
+    github: { url: "http://localhost:3000" },
+    notion: { url: "http://localhost:3001" }
+  }
+});
+
+// Load tools with session management
+const session = await client.session("github");
+const tools = await load_mcp_tools(session);
+
+// Use with LangChain agent
+const agent = createAgent({
+  model: "gpt-4o",
+  tools: tools,  // MCP tools automatically optimized
+  middleware: [
+    // Combine with other context optimizations
+    new SummarizationMiddleware({ maxTokens: 2000 })
+  ]
+});
+</code></pre>
+  
+  <p style="font-size: 18px; margin-top: 15px;">
+    <strong>Benefit:</strong> MCP handles tool connectivity, LangChain handles context management
+  </p>
+</section>
+
+<section>
+  <h2>Technique Comparison</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Technique</th>
+        <th>Complexity</th>
+        <th>Cost</th>
+        <th>Best For</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>Pruning</td><td>Low</td><td>Low</td><td>Simple bots</td></tr>
+      <tr><td>Summarization</td><td>Medium</td><td>Medium</td><td>Long conversations</td></tr>
+      <tr><td>Context Offload</td><td>Medium</td><td>Low</td><td>Multi-session</td></tr>
+      <tr><td>Tool Offload</td><td>Low</td><td>Low</td><td>Many tools</td></tr>
+      <tr><td>Semantic Editing</td><td>High</td><td>Medium</td><td>Quality-critical</td></tr>
+      <tr><td>Hierarchical</td><td>High</td><td>Low</td><td>Enterprise</td></tr>
+      <tr><td><strong>MCP + Code Exec</strong></td><td>Medium</td><td><strong>Very Low</strong></td><td>Tool-heavy agents</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section>
+  <h2>Multi-Agent Patterns</h2>
+  <h3>Design Patterns:</h3>
+  <ol style="font-size: 20px;">
+    <li><strong>Isolated Contexts</strong>
+      <ul style="font-size: 18px;">
+        <li>Each agent maintains separate state</li>
+        <li>Explicit handoff with context summary</li>
+      </ul>
+    </li>
+    <li><strong>Shared Memory Pool</strong>
+      <ul style="font-size: 18px;">
+        <li>Central memory all agents query</li>
+        <li>Selective retrieval per agent</li>
+      </ul>
+    </li>
+    <li><strong>Supervisor Pattern</strong>
+      <ul style="font-size: 18px;">
+        <li>Coordinator manages context distribution</li>
+        <li>Workers get task-specific context</li>
+      </ul>
+    </li>
+  </ol>
+  <div class="box info" style="font-size: 16px;">
+    <strong>LangGraph Tip:</strong> Use channels with custom reducers to control state merging
+  </div>
+</section>
+
+<section>
+  <h2>Production Example</h2>
+<pre><code>// Customer support with context optimization
+import { createAgent, SummarizationMiddleware } 
+from "langchain";
+
+const triageAgent = createAgent({
+  model: "gpt-4o",
+  tools: [searchKB, checkStatus],
+  middleware: [
+    llmToolSelectorMiddleware({ maxTools: 2 }),
+    new SummarizationMiddleware({ maxTokens: 1500 })
+  ]
+});
+
+const specialistAgent = createAgent({
+  model: "gpt-4o",
+  tools: [refundTool, escalateTool],
+  middleware: [
+    new SummarizationMiddleware({ 
+      keepRecentMessages: 3
+    })
+  ]
+});</code></pre>
+  <div class="box success" style="font-size: 18px;">
+    <strong>Result:</strong> 60% cost reduction, 40% faster responses
+  </div>
+</section>
+
+<section>
+  <h2>Best Practices</h2>
+  <ol style="font-size: 22px;">
+    <li><strong>Monitor Token Usage</strong> - Use LangSmith for observability</li>
+    <li><strong>Start Simple</strong> - Pruning → Summarization → Advanced</li>
+    <li><strong>Test Strategies</strong> - A/B test different approaches</li>
+    <li><strong>Combine Techniques</strong> - Tool offload + Summarization works well</li>
+    <li><strong>Design for Failure</strong> - Graceful degradation</li>
+  </ol>
+</section>
+
+<section>
+  <h2>Common Pitfalls</h2>
+  <div class="box warning">
+    <h3>⚠️ Watch Out For:</h3>
+    <ul style="font-size: 20px;">
+      <li><strong>Over-aggressive pruning</strong> - Breaks continuity</li>
+      <li><strong>Ignoring tool bloat</strong> - Tool calls dominate context</li>
+      <li><strong>No fallback strategy</strong> - What if summarization fails?</li>
+      <li><strong>Premature optimization</strong> - Measure first</li>
+      <li><strong>Forgetting multi-modal</strong> - Images consume tokens too</li>
+    </ul>
+  </div>
+</section>
+
+<section>
+  <h2>Tools & Resources</h2>
+  <h3>LangChain Ecosystem (v1.0+)</h3>
+  <ul style="font-size: 20px;">
+    <li><strong>LangChain</strong>: Agent framework with middleware</li>
+    <li><strong>LangGraph</strong>: Stateful multi-agent orchestration</li>
+    <li><strong>LangSmith</strong>: Observability & debugging</li>
+  </ul>
+  <h3>Key TypeScript Packages</h3>
+  <ul style="font-size: 20px;">
+    <li><code>langchain</code> - Core agent creation</li>
+    <li><code>@langchain/langgraph</code> - Graph workflows</li>
+    <li><code>@langchain/openai</code> - OpenAI integration</li>
+  </ul>
+</section>
+
+<section>
+  <h2>Key Takeaways</h2>
+  <ol style="font-size: 24px;">
+    <li>Context is the <strong>working memory</strong> of LLMs</li>
+    <li>Poor management = high costs + slow + errors</li>
+    <li>Context pollution degrades performance</li>
+    <li>Six techniques available, each with tradeoffs</li>
+    <li>Multi-agent systems require context engineering</li>
+    <li>LangChain 1.0 has built-in middleware</li>
+    <li><strong>Monitor, measure, then optimize</strong></li>
+  </ol>
+</section>
+
+<section>
+  <h1 class="center">Questions?</h1>
+  <p class="center" style="font-size: 28px; margin-top: 60px;">
+    Let's discuss your context optimization challenges
+  </p>
+  <div class="center" style="margin-top: 80px; font-size: 20px; color: #7f8c8d;">
+    <p><strong>Resources:</strong></p>
+    <p style="margin-top: 20px;">docs.langchain.com</p>
+    <p>github.com/langchain-ai/langgraph</p>
+    <p>smith.langchain.com</p>
+  </div>
+</section>
+
+<div id="progress"></div>
+<div id="slide-number"></div>
+
+<script>
+var Presentation = {
+  slides: null,
+  currentSlide: 0,
+  
+  init: function() {
+    this.slides = document.querySelectorAll('section');
+    this.setSlide(0);
+    this.updateProgress();
+    
+    window.addEventListener('keydown', function(e) {
+      if (e.key === 'ArrowRight' || e.key === 'PageDown' || e.key === ' ') {
+        e.preventDefault();
+        Presentation.next();
+      } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+        e.preventDefault();
+        Presentation.prev();
+      } else if (e.key === 'Home') {
+        e.preventDefault();
+        Presentation.goTo(0);
+      } else if (e.key === 'End') {
+        e.preventDefault();
+        Presentation.goTo(Presentation.slides.length - 1);
+      }
+    });
+    
+    document.body.addEventListener('click', function(e) {
+      if (e.target.tagName !== 'A' && e.target.tagName !== 'CODE') {
+        if (e.clientX > window.innerWidth / 2) {
+          Presentation.next();
+        } else {
+          Presentation.prev();
+        }
+      }
+    });
+  },
+  
+  setSlide: function(n) {
+    if (n < 0 || n >= this.slides.length) return;
+    
+    for (var i = 0; i < this.slides.length; i++) {
+      this.slides[i].removeAttribute('aria-selected');
+    }
+    
+    this.slides[n].setAttribute('aria-selected', 'true');
+    this.currentSlide = n;
+    this.updateProgress();
+    this.updateSlideNumber();
+  },
+  
+  next: function() {
+    if (this.currentSlide < this.slides.length - 1) {
+      this.setSlide(this.currentSlide + 1);
+    }
+  },
+  
+  prev: function() {
+    if (this.currentSlide > 0) {
+      this.setSlide(this.currentSlide - 1);
+    }
+  },
+  
+  goTo: function(n) {
+    this.setSlide(n);
+  },
+  
+  updateProgress: function() {
+    var progress = document.getElementById('progress');
+    var percent = (this.currentSlide / (this.slides.length - 1)) * 100;
+    progress.style.width = percent + '%';
+  },
+  
+  updateSlideNumber: function() {
+    var slideNum = document.getElementById('slide-number');
+    slideNum.textContent = (this.currentSlide + 1) + ' / ' + this.slides.length;
+  }
+};
+
+window.addEventListener('load', function() {
+  Presentation.init();
+});
+</script>
+
+</body>
+</html>
