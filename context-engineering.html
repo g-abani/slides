@@ -387,16 +387,16 @@
 <section>
   <h2>1. Context Pruning</h2>
   <p><strong>Strategy:</strong> Remove oldest or least relevant messages</p>
-<pre><code><span class=>import</span> { <span class="function">createAgent</span>, <span class="function">contextEditingMiddleware</span>,
-         <span class="class">ClearToolUsesEdit</span> } <span class=>from</span> <span class="string">"langchain"</span>;
+<pre><code><span class>import</span> { <span class="function">createAgent</span>, <span class="function">contextEditingMiddleware</span>,
+         <span class="class">ClearToolUsesEdit</span> } <span class>from</span> <span class="string">"langchain"</span>;
 
-<span class=>const</span> <span class="variable">agent</span> = <span class="function">createAgent</span>({
+<span class>const</span> <span class="variable">agent</span> = <span class="function">createAgent</span>({
   <span class="property">model</span>: <span class="string">"gpt-4"</span>,
   <span class="property">tools</span>: [<span class="variable">searchTool</span>, <span class="variable">calculatorTool</span>],
   <span class="property">middleware</span>: [
     <span class="function">contextEditingMiddleware</span>({
       <span class="property">edits</span>: [
-        <span class=>new</span> <span class="class">ClearToolUsesEdit</span>({ 
+        <span class>new</span> <span class="class">ClearToolUsesEdit</span>({ 
           <span class="property">maxTokens</span>: <span class="number">1000</span>
         })
       ]
