@@ -418,14 +418,14 @@
 <section>
   <h2>2. Summarization</h2>
   <p><strong>Strategy:</strong> Compress old messages into summaries</p>
-<pre><code><span class=<span class="string"></span>>import</span> { createAgent, SummarizationMiddleware } 
-<span class=<span class="string"></span>>from</span> <span class="string">"langchain"</span>;
+<pre><code><span class=<span class="string"></span>import</span> { createAgent, SummarizationMiddleware } 
+<span class=<span class="string"></span>from</span> <span class="string">"langchain"</span>;
 
-<span class=<span class="string"></span>>const</span> agent = <span class="function">createAgent</span>({
+<span class=<span class="string"></span>const</span> agent = <span class="function">createAgent</span>({
   <span class="property">model</span>: <span class="string">"claude-sonnet-<span class="number">4</span>-<span class="number">5</span>-<span class="number">20250929</span>"</span>,
   <span class="property">tools</span>: [...],
   <span class="property">middleware</span>: [
-    <span class=<span class="string"></span>>new</span> <span class="function">SummarizationMiddleware</span>({
+    <span class=<span class="string"></span>new</span> <span class="function">SummarizationMiddleware</span>({
       <span class="property">maxTokens</span>: <span class="number">2000</span>,
       <span class="property">summaryModel</span>: <span class="string">"gpt-4o"</span>,
       <span class="property">keepRecentMessages</span>: <span class="number">5</span>
@@ -448,26 +448,26 @@
   <h2>3. Context Offloading</h2>
   <p><strong>Strategy:</strong> Store context in external memory</p>
 <pre><code><span class="comment">// <span class="property">LangGraph</span>: Two types of memory</span>
-<span class=<span class="string"></span>>import</span> { MemorySaver, InMemoryStore } <span class=<span class="string"></span>>from</span> <span class="string">"@langchain/langgraph"</span>;
+<span class=<span class="string"></span>import</span> { MemorySaver, InMemoryStore } <span class=<span class="string"></span>from</span> <span class="string">"@langchain/langgraph"</span>;
 
 <span class="comment">// <span class="number">1</span>. <span class="property">Checkpointer</span>: Thread-<span class="function">level</span>(short-term)</span>
-<span class=<span class="string"></span>>const</span> checkpointer = <span class=<span class="string"></span>>new</span> <span class="function">MemorySaver</span>();
+<span class=<span class="string"></span>const</span> checkpointer = <span class=<span class="string"></span>new</span> <span class="function">MemorySaver</span>();
 
 <span class="comment">// <span class="number">2</span>. <span class="property">Store</span>: Cross-<span class="function">thread</span>(long-term)  </span>
-<span class=<span class="string"></span>>const</span> store = <span class=<span class="string"></span>>new</span> <span class="function">InMemoryStore</span>();
+<span class=<span class="string"></span>const</span> store = <span class=<span class="string"></span>new</span> <span class="function">InMemoryStore</span>();
 
-<span class=<span class="string"></span>>const</span> graph = <span class=<span class="string"></span>>new</span> <span class="function">StateGraph</span>({
+<span class=<span class="string"></span>const</span> graph = <span class=<span class="string"></span>new</span> <span class="function">StateGraph</span>({
   <span class="property">channels</span>: {
     <span class="property">messages</span>: { <span class="property">value</span>: (x, y) => x.<span class="function">concat</span>(y) }
   }
 }).<span class="function">addNode</span>(<span class="string">"agent"</span>, agentNode);
 
-<span class=<span class="string"></span>>const</span> app = graph.<span class="function">compile</span>({ 
+<span class=<span class="string"></span>const</span> app = graph.<span class="function">compile</span>({ 
   checkpointer,  <span class="comment">// Within conversation</span>
   store          <span class="comment">// Across conversations</span>
 });
 
-<span class=<span class="string"></span>>await</span> app.<span class="function">invoke</span>(input, { 
+<span class=<span class="string"></span>await</span> app.<span class="function">invoke</span>(input, { 
   <span class="property">configurable</span>: { 
     <span class="property">thread_id</span>: <span class="string">"conv-<span class="number">123</span>"</span>,
     <span class="property">user_id</span>: <span class="string">"user-<span class="number">456</span>"</span>  <span class="comment">// For store lookups</span>
@@ -488,10 +488,10 @@
 <section>
   <h2>4. Tool Offloading</h2>
   <p><strong>Strategy:</strong> Dynamically select which tools to expose</p>
-<pre><code><span class=<span class="string"></span>>import</span> { createAgent, llmToolSelectorMiddleware } 
-<span class=<span class="string"></span>>from</span> <span class="string">"langchain"</span>;
+<pre><code><span class=<span class="string"></span>import</span> { createAgent, llmToolSelectorMiddleware } 
+<span class=<span class="string"></span>from</span> <span class="string">"langchain"</span>;
 
-<span class=<span class="string"></span>>const</span> agent = <span class="function">createAgent</span>({
+<span class=<span class="string"></span>const</span> agent = <span class="function">createAgent</span>({
   <span class="property">model</span>: <span class="string">"gpt-4o"</span>,
   <span class="property">tools</span>: [simpleSearch, advancedSearch, 
           dataAnalysis, sqlQuery],
@@ -518,24 +518,24 @@
 <section>
   <h2>5. Semantic Editing</h2>
   <p><strong>Strategy:</strong> Use embeddings to filter irrelevant info</p>
-<pre><code><span class=<span class="string"></span>>import</span> { OpenAIEmbeddings } <span class=<span class="string"></span>>from</span> <span class="string">"@langchain/openai"</span>;
+<pre><code><span class=<span class="string"></span>import</span> { OpenAIEmbeddings } <span class=<span class="string"></span>from</span> <span class="string">"@langchain/openai"</span>;
 
-<span class=<span class="string"></span>>async</span> <span class=<span class="string"></span>>function</span> <span class="function">semanticFilter</span>(
+<span class=<span class="string"></span>async</span> <span class=<span class="string"></span>function</span> <span class="function">semanticFilter</span>(
   <span class="property">messages</span>: Message[], 
   <span class="property">query</span>: string
 ) {
-  <span class=<span class="string"></span>>const</span> embeddings = <span class=<span class="string"></span>>new</span> <span class="function">OpenAIEmbeddings</span>();
-  <span class=<span class="string"></span>>const</span> queryEmbed = <span class=<span class="string"></span>>await</span> embeddings
+  <span class=<span class="string"></span>const</span> embeddings = <span class=<span class="string"></span>new</span> <span class="function">OpenAIEmbeddings</span>();
+  <span class=<span class="string"></span>const</span> queryEmbed = <span class=<span class="string"></span>await</span> embeddings
     .<span class="function">embedQuery</span>(query);
-  <span class=<span class="string"></span>>const</span> msgEmbeds = <span class=<span class="string"></span>>await</span> embeddings
+  <span class=<span class="string"></span>const</span> msgEmbeds = <span class=<span class="string"></span>await</span> embeddings
     .<span class="function">embedDocuments</span>(messages.<span class="function">map</span>(m => m.content));
   
-  <span class=<span class="string"></span>>const</span> scored = messages.<span class="function">map</span>((msg, i) => ({
+  <span class=<span class="string"></span>const</span> scored = messages.<span class="function">map</span>((msg, i) => ({
     <span class="property">message</span>: msg,
     <span class="property">score</span>: <span class="function">cosineSimilarity</span>(queryEmbed, msgEmbeds[i])
   }));
   
-  <span class=<span class="string"></span>>return</span> scored.<span class="function">filter</span>(s => s.score > <span class="number">0</span>.<span class="number">7</span>)
+  <span class=<span class="string"></span>return</span> scored.<span class="function">filter</span>(s => s.score > <span class="number">0</span>.<span class="number">7</span>)
     .<span class="function">map</span>(s => s.message);
 }</code></pre>
   <div class="two-col" style="font-size: 18px;">
@@ -553,7 +553,7 @@
 <section>
   <h2>6. Hierarchical Context</h2>
   <p><strong>Strategy:</strong> Structure context in layers</p>
-<pre><code><span class=<span class="string"></span>>interface</span> ContextHierarchy {
+<pre><code><span class=<span class="string"></span>interface</span> ContextHierarchy {
   <span class="property">global</span>: {
     <span class="property">systemPrompt</span>: string;
     <span class="property">userProfile</span>: UserProfile;
@@ -568,8 +568,8 @@
   };
 }
 
-<span class=<span class="string"></span>>const</span> constructContext = (<span class="property">h</span>: ContextHierarchy) => {
-  <span class=<span class="string"></span>>return</span> [
+<span class=<span class="string"></span>const</span> constructContext = (<span class="property">h</span>: ContextHierarchy) => {
+  <span class=<span class="string"></span>return</span> [
     h.global.systemPrompt,
     `<span class="property">Summary</span>: ${h.session.summary}`,
     ...h.turn.recentMessages
@@ -773,23 +773,23 @@ const agent = createAgent({
 <section>
   <h2>Production Example</h2>
 <pre><code><span class="comment">// Customer support with context optimization</span>
-<span class=<span class="string"></span>>import</span> { createAgent, SummarizationMiddleware } 
-<span class=<span class="string"></span>>from</span> <span class="string">"langchain"</span>;
+<span class=<span class="string"></span>import</span> { createAgent, SummarizationMiddleware } 
+<span class=<span class="string"></span>from</span> <span class="string">"langchain"</span>;
 
-<span class=<span class="string"></span>>const</span> triageAgent = <span class="function">createAgent</span>({
+<span class=<span class="string"></span>const</span> triageAgent = <span class="function">createAgent</span>({
   <span class="property">model</span>: <span class="string">"gpt-4o"</span>,
   <span class="property">tools</span>: [searchKB, checkStatus],
   <span class="property">middleware</span>: [
     <span class="function">llmToolSelectorMiddleware</span>({ <span class="property">maxTools</span>: <span class="number">2</span> }),
-    <span class=<span class="string"></span>>new</span> <span class="function">SummarizationMiddleware</span>({ <span class="property">maxTokens</span>: <span class="number">1500</span> })
+    <span class=<span class="string"></span>new</span> <span class="function">SummarizationMiddleware</span>({ <span class="property">maxTokens</span>: <span class="number">1500</span> })
   ]
 });
 
-<span class=<span class="string"></span>>const</span> specialistAgent = <span class="function">createAgent</span>({
+<span class=<span class="string"></span>const</span> specialistAgent = <span class="function">createAgent</span>({
   <span class="property">model</span>: <span class="string">"gpt-4o"</span>,
   <span class="property">tools</span>: [refundTool, escalateTool],
   <span class="property">middleware</span>: [
-    <span class=<span class="string"></span>>new</span> <span class="function">SummarizationMiddleware</span>({ 
+    <span class=<span class="string"></span>new</span> <span class="function">SummarizationMiddleware</span>({ 
       <span class="property">keepRecentMessages</span>: <span class="number">3</span>
     })
   ]
