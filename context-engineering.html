@@ -82,24 +82,37 @@
   }
   
   pre {
-    background: #2c2c2c;
-    color: #ffffff;
-    padding: 15px;
-    border-radius: 4px;
+    background: #1e2837;
+    color: #d4d4d4;
+    padding: 20px;
+    border-radius: 8px;
     overflow-x: auto;
     font-size: 14px;
-    line-height: 1.4;
+    line-height: 1.6;
     margin: 15px 0;
     border-left: 4px solid #eb1000;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
   }
   
   pre code {
     background: transparent;
-    color: #ffffff;
+    color: #d4d4d4;
     font-size: 14px;
     padding: 0;
     border: none;
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
   }
+  
+  /* Syntax highlighting for code blocks */
+  pre .comment { color: #6a9955; }
+  pre .keyword { color: #c586c0; }
+  pre .string { color: #ce9178; }
+  pre .function { color: #dcdcaa; }
+  pre .variable { color: #9cdcfe; }
+  pre .number { color: #b5cea8; }
+  pre .operator { color: #d4d4d4; }
+  pre .class { color: #4ec9b0; }
+  pre .property { color: #9cdcfe; }
   
   .two-col {
     display: grid;
@@ -264,7 +277,8 @@
 <section>
   <h2>What is Context?</h2>
   <div class="box info">
-    <strong>Context = All information sent to the LLM in each request</strong>
+    <strong>Context = All information provided to the LLM to generate a response</strong>
+    <p style="margin-top: 10px; font-size: 20px;">Think of it as the LLM's "working memory" - everything the model can see and use to understand your request and produce relevant output.</p>
   </div>
   <h3>Context Components:</h3>
   <ol style="font-size: 22px;">
@@ -274,7 +288,7 @@
     <li><strong>Retrieved Documents</strong>: RAG, knowledge bases</li>
     <li><strong>Agent State</strong>: Variables, metadata</li>
   </ol>
-  <p style="margin-top: 20px;">💡 Each token costs money and processing time</p>
+  <p style="margin-top: 20px; font-size: 20px;">💡 Each token costs money and processing time</p>
 </section>
 
 <section>
@@ -346,17 +360,17 @@
 <section>
   <h2>1. Context Pruning</h2>
   <p><strong>Strategy:</strong> Remove oldest or least relevant messages</p>
-<pre><code>import { createAgent, contextEditingMiddleware,
-         ClearToolUsesEdit } from "langchain";
+<pre><code><span class="keyword">import</span> { <span class="function">createAgent</span>, <span class="function">contextEditingMiddleware</span>,
+         <span class="class">ClearToolUsesEdit</span> } <span class="keyword">from</span> <span class="string">"langchain"</span>;
 
-const agent = createAgent({
-  model: "gpt-4",
-  tools: [searchTool, calculatorTool],
-  middleware: [
-    contextEditingMiddleware({
-      edits: [
-        new ClearToolUsesEdit({ 
-          maxTokens: 1000
+<span class="keyword">const</span> <span class="variable">agent</span> = <span class="function">createAgent</span>({
+  <span class="property">model</span>: <span class="string">"gpt-4"</span>,
+  <span class="property">tools</span>: [<span class="variable">searchTool</span>, <span class="variable">calculatorTool</span>],
+  <span class="property">middleware</span>: [
+    <span class="function">contextEditingMiddleware</span>({
+      <span class="property">edits</span>: [
+        <span class="keyword">new</span> <span class="class">ClearToolUsesEdit</span>({ 
+          <span class="property">maxTokens</span>: <span class="number">1000</span>
         })
       ]
     })
@@ -377,17 +391,17 @@ const agent = createAgent({
 <section>
   <h2>2. Summarization</h2>
   <p><strong>Strategy:</strong> Compress old messages into summaries</p>
-<pre><code>import { createAgent, SummarizationMiddleware } 
-from "langchain";
+<pre><code><span class=<span class="string">"keyword"</span>>import</span> { createAgent, SummarizationMiddleware } 
+<span class=<span class="string">"keyword"</span>>from</span> <span class="string">"langchain"</span>;
 
-const agent = createAgent({
-  model: "claude-sonnet-4-5-20250929",
-  tools: [...],
-  middleware: [
-    new SummarizationMiddleware({
-      maxTokens: 2000,
-      summaryModel: "gpt-4o",
-      keepRecentMessages: 5
+<span class=<span class="string">"keyword"</span>>const</span> agent = <span class="function">createAgent</span>({
+  <span class="property">model</span>: <span class="string">"claude-sonnet-<span class="number">4</span>-<span class="number">5</span>-<span class="number">20250929</span>"</span>,
+  <span class="property">tools</span>: [...],
+  <span class="property">middleware</span>: [
+    <span class=<span class="string">"keyword"</span>>new</span> <span class="function">SummarizationMiddleware</span>({
+      <span class="property">maxTokens</span>: <span class="number">2000</span>,
+      <span class="property">summaryModel</span>: <span class="string">"gpt-4o"</span>,
+      <span class="property">keepRecentMessages</span>: <span class="number">5</span>
     })
   ]
 });</code></pre>
@@ -406,30 +420,30 @@ const agent = createAgent({
 <section>
   <h2>3. Context Offloading</h2>
   <p><strong>Strategy:</strong> Store context in external memory</p>
-<pre><code>// LangGraph: Two types of memory
-import { MemorySaver, InMemoryStore } from "@langchain/langgraph";
+<pre><code><span class="comment">// <span class="property">LangGraph</span>: Two types of memory</span>
+<span class=<span class="string">"keyword"</span>>import</span> { MemorySaver, InMemoryStore } <span class=<span class="string">"keyword"</span>>from</span> <span class="string">"@langchain/langgraph"</span>;
 
-// 1. Checkpointer: Thread-level (short-term)
-const checkpointer = new MemorySaver();
+<span class="comment">// <span class="number">1</span>. <span class="property">Checkpointer</span>: Thread-<span class="function">level</span>(short-term)</span>
+<span class=<span class="string">"keyword"</span>>const</span> checkpointer = <span class=<span class="string">"keyword"</span>>new</span> <span class="function">MemorySaver</span>();
 
-// 2. Store: Cross-thread (long-term)  
-const store = new InMemoryStore();
+<span class="comment">// <span class="number">2</span>. <span class="property">Store</span>: Cross-<span class="function">thread</span>(long-term)  </span>
+<span class=<span class="string">"keyword"</span>>const</span> store = <span class=<span class="string">"keyword"</span>>new</span> <span class="function">InMemoryStore</span>();
 
-const graph = new StateGraph({
-  channels: {
-    messages: { value: (x, y) => x.concat(y) }
+<span class=<span class="string">"keyword"</span>>const</span> graph = <span class=<span class="string">"keyword"</span>>new</span> <span class="function">StateGraph</span>({
+  <span class="property">channels</span>: {
+    <span class="property">messages</span>: { <span class="property">value</span>: (x, y) => x.<span class="function">concat</span>(y) }
   }
-}).addNode("agent", agentNode);
+}).<span class="function">addNode</span>(<span class="string">"agent"</span>, agentNode);
 
-const app = graph.compile({ 
-  checkpointer,  // Within conversation
-  store          // Across conversations
+<span class=<span class="string">"keyword"</span>>const</span> app = graph.<span class="function">compile</span>({ 
+  checkpointer,  <span class="comment">// Within conversation</span>
+  store          <span class="comment">// Across conversations</span>
 });
 
-await app.invoke(input, { 
-  configurable: { 
-    thread_id: "conv-123",
-    user_id: "user-456"  // For store lookups
+<span class=<span class="string">"keyword"</span>>await</span> app.<span class="function">invoke</span>(input, { 
+  <span class="property">configurable</span>: { 
+    <span class="property">thread_id</span>: <span class="string">"conv-<span class="number">123</span>"</span>,
+    <span class="property">user_id</span>: <span class="string">"user-<span class="number">456</span>"</span>  <span class="comment">// For store lookups</span>
   }
 });</code></pre>
   <div class="two-col" style="font-size: 18px;">
@@ -447,18 +461,18 @@ await app.invoke(input, {
 <section>
   <h2>4. Tool Offloading</h2>
   <p><strong>Strategy:</strong> Dynamically select which tools to expose</p>
-<pre><code>import { createAgent, llmToolSelectorMiddleware } 
-from "langchain";
+<pre><code><span class=<span class="string">"keyword"</span>>import</span> { createAgent, llmToolSelectorMiddleware } 
+<span class=<span class="string">"keyword"</span>>from</span> <span class="string">"langchain"</span>;
 
-const agent = createAgent({
-  model: "gpt-4o",
-  tools: [simpleSearch, advancedSearch, 
+<span class=<span class="string">"keyword"</span>>const</span> agent = <span class="function">createAgent</span>({
+  <span class="property">model</span>: <span class="string">"gpt-4o"</span>,
+  <span class="property">tools</span>: [simpleSearch, advancedSearch, 
           dataAnalysis, sqlQuery],
-  middleware: [
-    llmToolSelectorMiddleware({
-      model: "gpt-4o-mini",
-      maxTools: 3,
-      alwaysInclude: ["search"]
+  <span class="property">middleware</span>: [
+    <span class="function">llmToolSelectorMiddleware</span>({
+      <span class="property">model</span>: <span class="string">"gpt-4o-mini"</span>,
+      <span class="property">maxTools</span>: <span class="number">3</span>,
+      <span class="property">alwaysInclude</span>: [<span class="string">"search"</span>]
     })
   ]
 });</code></pre>
@@ -477,25 +491,25 @@ const agent = createAgent({
 <section>
   <h2>5. Semantic Editing</h2>
   <p><strong>Strategy:</strong> Use embeddings to filter irrelevant info</p>
-<pre><code>import { OpenAIEmbeddings } from "@langchain/openai";
+<pre><code><span class=<span class="string">"keyword"</span>>import</span> { OpenAIEmbeddings } <span class=<span class="string">"keyword"</span>>from</span> <span class="string">"@langchain/openai"</span>;
 
-async function semanticFilter(
-  messages: Message[], 
-  query: string
+<span class=<span class="string">"keyword"</span>>async</span> <span class=<span class="string">"keyword"</span>>function</span> <span class="function">semanticFilter</span>(
+  <span class="property">messages</span>: Message[], 
+  <span class="property">query</span>: string
 ) {
-  const embeddings = new OpenAIEmbeddings();
-  const queryEmbed = await embeddings
-    .embedQuery(query);
-  const msgEmbeds = await embeddings
-    .embedDocuments(messages.map(m => m.content));
+  <span class=<span class="string">"keyword"</span>>const</span> embeddings = <span class=<span class="string">"keyword"</span>>new</span> <span class="function">OpenAIEmbeddings</span>();
+  <span class=<span class="string">"keyword"</span>>const</span> queryEmbed = <span class=<span class="string">"keyword"</span>>await</span> embeddings
+    .<span class="function">embedQuery</span>(query);
+  <span class=<span class="string">"keyword"</span>>const</span> msgEmbeds = <span class=<span class="string">"keyword"</span>>await</span> embeddings
+    .<span class="function">embedDocuments</span>(messages.<span class="function">map</span>(m => m.content));
   
-  const scored = messages.map((msg, i) => ({
-    message: msg,
-    score: cosineSimilarity(queryEmbed, msgEmbeds[i])
+  <span class=<span class="string">"keyword"</span>>const</span> scored = messages.<span class="function">map</span>((msg, i) => ({
+    <span class="property">message</span>: msg,
+    <span class="property">score</span>: <span class="function">cosineSimilarity</span>(queryEmbed, msgEmbeds[i])
   }));
   
-  return scored.filter(s => s.score > 0.7)
-    .map(s => s.message);
+  <span class=<span class="string">"keyword"</span>>return</span> scored.<span class="function">filter</span>(s => s.score > <span class="number">0</span>.<span class="number">7</span>)
+    .<span class="function">map</span>(s => s.message);
 }</code></pre>
   <div class="two-col" style="font-size: 18px;">
     <div>
@@ -512,25 +526,25 @@ async function semanticFilter(
 <section>
   <h2>6. Hierarchical Context</h2>
   <p><strong>Strategy:</strong> Structure context in layers</p>
-<pre><code>interface ContextHierarchy {
-  global: {
-    systemPrompt: string;
-    userProfile: UserProfile;
+<pre><code><span class=<span class="string">"keyword"</span>>interface</span> ContextHierarchy {
+  <span class="property">global</span>: {
+    <span class="property">systemPrompt</span>: string;
+    <span class="property">userProfile</span>: UserProfile;
   };
-  session: {
-    threadId: string;
-    summary: string;
+  <span class="property">session</span>: {
+    <span class="property">threadId</span>: string;
+    <span class="property">summary</span>: string;
   };
-  turn: {
-    recentMessages: Message[];
-    currentTools: Tool[];
+  <span class="property">turn</span>: {
+    <span class="property">recentMessages</span>: Message[];
+    <span class="property">currentTools</span>: Tool[];
   };
 }
 
-const constructContext = (h: ContextHierarchy) => {
-  return [
+<span class=<span class="string">"keyword"</span>>const</span> constructContext = (<span class="property">h</span>: ContextHierarchy) => {
+  <span class=<span class="string">"keyword"</span>>return</span> [
     h.global.systemPrompt,
-    `Summary: ${h.session.summary}`,
+    `<span class="property">Summary</span>: ${h.session.summary}`,
     ...h.turn.recentMessages
   ];
 };</code></pre>
@@ -731,25 +745,25 @@ const agent = createAgent({
 
 <section>
   <h2>Production Example</h2>
-<pre><code>// Customer support with context optimization
-import { createAgent, SummarizationMiddleware } 
-from "langchain";
+<pre><code><span class="comment">// Customer support with context optimization</span>
+<span class=<span class="string">"keyword"</span>>import</span> { createAgent, SummarizationMiddleware } 
+<span class=<span class="string">"keyword"</span>>from</span> <span class="string">"langchain"</span>;
 
-const triageAgent = createAgent({
-  model: "gpt-4o",
-  tools: [searchKB, checkStatus],
-  middleware: [
-    llmToolSelectorMiddleware({ maxTools: 2 }),
-    new SummarizationMiddleware({ maxTokens: 1500 })
+<span class=<span class="string">"keyword"</span>>const</span> triageAgent = <span class="function">createAgent</span>({
+  <span class="property">model</span>: <span class="string">"gpt-4o"</span>,
+  <span class="property">tools</span>: [searchKB, checkStatus],
+  <span class="property">middleware</span>: [
+    <span class="function">llmToolSelectorMiddleware</span>({ <span class="property">maxTools</span>: <span class="number">2</span> }),
+    <span class=<span class="string">"keyword"</span>>new</span> <span class="function">SummarizationMiddleware</span>({ <span class="property">maxTokens</span>: <span class="number">1500</span> })
   ]
 });
 
-const specialistAgent = createAgent({
-  model: "gpt-4o",
-  tools: [refundTool, escalateTool],
-  middleware: [
-    new SummarizationMiddleware({ 
-      keepRecentMessages: 3
+<span class=<span class="string">"keyword"</span>>const</span> specialistAgent = <span class="function">createAgent</span>({
+  <span class="property">model</span>: <span class="string">"gpt-4o"</span>,
+  <span class="property">tools</span>: [refundTool, escalateTool],
+  <span class="property">middleware</span>: [
+    <span class=<span class="string">"keyword"</span>>new</span> <span class="function">SummarizationMiddleware</span>({ 
+      <span class="property">keepRecentMessages</span>: <span class="number">3</span>
     })
   ]
 });</code></pre>
