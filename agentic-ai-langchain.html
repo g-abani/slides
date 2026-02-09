@@ -112,7 +112,8 @@
         .controls {
             position: fixed;
             bottom: 25px;
-            right: 25px;
+            left: 50%;
+            transform: translateX(-50%);
             display: flex;
             gap: 12px;
             z-index: 1000;
@@ -139,11 +140,12 @@
         }
         .slide-number {
             position: absolute;
-            bottom: 25px;
-            left: 55px;
+            top: 25px;
+            right: 55px;
             font-size: 0.95em;
             color: #999;
             font-weight: 500;
+            z-index: 100;
         }
         .subtitle {
             font-size: 1.3em;
@@ -200,7 +202,7 @@
             background: #f8f9fa;
             border-radius: 10px;
             padding: 22px;
-            /*margin: 15px 0;*/
+            margin: 15px 0;
             text-align: center;
             border: 2px dashed #667eea;
         }
@@ -256,50 +258,120 @@
                     <li>⚙️ Middleware: Summarization, Context Editing, HITL</li>
                     <li>🏗️ Supervisor Pattern for Multi-Agent Orchestration</li>
                     <li>📊 LangSmith for Observability & Debugging</li>
+               
                 </ul>
             </div>
             <p class="author">Abani Ranjan - Lead Solutions Architect, Adobe.com</p>
-            <div class="slide-number">1 / 26</div>
+            <div class="slide-number">1 / 27</div>
         </div>
 
-        <!-- Slide 2: Agenda -->
+        <!-- Slide 2: What is an Agent? -->
         <div class="slide">
-            <h2>Session Roadmap</h2>
-            <div class="feature-grid">
-                <div class="feature-card">
-                    <h4>1. LangChain Basics</h4>
-                    <p>Core concepts and architecture</p>
+            <h2>What is an Agent?</h2>
+            <p>Understanding the fundamental difference between agents, pipelines, and workflows</p>
+
+            <div class="two-column" style="margin-top: 20px;">
+                <div class="box" style="background: #fff3e0; border-left-color: #ff9800;">
+                    <h4 style="color: #e65100;">Pipeline / Workflow</h4>
+                    <p style="font-size: 0.92em; margin-top: 10px;"><strong>Predetermined Flow</strong></p>
+                    <ul style="font-size: 0.88em; margin-top: 8px;">
+                        <li>Fixed sequence of steps</li>
+                        <li>Step A → Step B → Step C</li>
+                        <li>Predictable execution path</li>
+                        <li>No decision-making</li>
+                        <li>Works for structured tasks</li>
+                    </ul>
+                    <div class="diagram" style="margin-top: 12px; padding: 15px;">
+                        <p style="font-size: 0.9em; color: #e65100;">Input → Process 1 → Process 2 → Output</p>
+                    </div>
                 </div>
-                <div class="feature-card">
-                    <h4>2. LangGraph Fundamentals</h4>
-                    <p>State machines and workflows</p>
-                </div>
-                <div class="feature-card">
-                    <h4>3. LangSmith Observability</h4>
-                    <p>Tracing and debugging</p>
-                </div>
-                <div class="feature-card">
-                    <h4>4. createAgent API</h4>
-                    <p>Building modern agents</p>
-                </div>
-                <div class="feature-card">
-                    <h4>5. Tools & MCP</h4>
-                    <p>Tool creation and MCP servers</p>
-                </div>
-                <div class="feature-card">
-                    <h4>6. Middleware System</h4>
-                    <p>Context management patterns</p>
-                </div>
-                <div class="feature-card">
-                    <h4>7. Supervisor Pattern</h4>
-                    <p>Multi-agent orchestration</p>
-                </div>
-                <div class="feature-card">
-                    <h4>8. Production Patterns</h4>
-                    <p>Adobe's real-world examples</p>
+
+                <div class="box" style="background: #e8f5e9; border-left-color: #4caf50;">
+                    <h4 style="color: #2e7d32;">Agent</h4>
+                    <p style="font-size: 0.92em; margin-top: 10px;"><strong>Autonomous Decision-Making</strong></p>
+                    <ul style="font-size: 0.88em; margin-top: 8px;">
+                        <li>Observes → Thinks → Acts</li>
+                        <li>Chooses tools dynamically</li>
+                        <li>Iterative problem-solving</li>
+                        <li>Adapts to context</li>
+                        <li>Handles ambiguity</li>
+                    </ul>
+                    <div class="diagram" style="margin-top: 12px; padding: 15px;">
+                        <p style="font-size: 0.9em; color: #2e7d32;">Input → <strong>Decide</strong> → Tool? → <strong>Decide</strong> → Output</p>
+                    </div>
                 </div>
             </div>
-            <div class="slide-number">2 / 26</div>
+
+            <div class="info" style="margin-top: 20px;">
+                <strong>Key Insight:</strong> Agents use LLMs to decide <em>what to do next</em> at runtime, making them ideal for complex, open-ended tasks where the path isn't predetermined
+            </div>
+
+            <div class="success" style="margin-top: 12px;">
+                <strong>Example:</strong> Pipeline: "Always search → summarize → save" | Agent: "Decide if search is needed → choose best tool → verify result → iterate if necessary"
+            </div>
+
+            <div class="slide-number">2 / 27</div>
+        </div>
+
+        <!-- Slide 3: Agenda -->
+        <div class="slide">
+            <h2>Session Agenda</h2>
+            
+            <div style="margin-bottom: 25px;">
+                <h3 style="font-size: 1.4em; color: #667eea; margin-bottom: 15px;">📋 What We'll Cover Today</h3>
+            </div>
+
+            <div class="two-column">
+                <div>
+                    <div class="box" style="margin-bottom: 15px;">
+                        <h4>Part 1: Foundations</h4>
+                        <ul style="font-size: 0.9em; margin-top: 8px;">
+                            <li>What is an Agent?</li>
+                            <li>LangChain.js Ecosystem</li>
+                            <li>LangGraph for Workflows</li>
+                            <li>LangSmith for Observability</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="box">
+                        <h4>Part 2: Building Agents</h4>
+                        <ul style="font-size: 0.9em; margin-top: 8px;">
+                            <li>createAgent API</li>
+                            <li>Tool Creation Patterns</li>
+                            <li>MCP Integration</li>
+                            <li>Streaming & State</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="box" style="margin-bottom: 15px;">
+                        <h4>Part 3: Advanced Patterns</h4>
+                        <ul style="font-size: 0.9em; margin-top: 8px;">
+                            <li>Middleware System</li>
+                            <li>Context Management</li>
+                            <li>Human-in-the-Loop</li>
+                            <li>Custom Middleware</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="box">
+                        <h4>Part 4: Production</h4>
+                        <ul style="font-size: 0.9em; margin-top: 8px;">
+                            <li>Supervisor Pattern</li>
+                            <li>Multi-Agent Systems</li>
+                            <li>Adobe Case Study</li>
+                            <li>Best Practices</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="info" style="margin-top: 20px;">
+                <strong>Duration:</strong> ~60-90 minutes with live code examples and Q&A
+            </div>
+
+            <div class="slide-number">3 / 27</div>
         </div>
 
         <!-- Slide 3: LangChain Basics -->
@@ -334,10 +406,10 @@
             <div class="info">
                 <strong>Philosophy:</strong> Composable building blocks for production AI applications with observability, streaming, and state management built-in
             </div>
-            <div class="slide-number">3 / 26</div>
+            <div class="slide-number">4 / 27</div>
         </div>
 
-        <!-- Slide 4: LangGraph Fundamentals -->
+        <!-- Slide 5: LangGraph Fundamentals -->
         <div class="slide">
             <h2>LangGraph.js - Stateful Workflows</h2>
             <p>Build complex, cyclic agent workflows as state machines</p>
@@ -365,12 +437,17 @@
                 </div>
             </div>
 
-            
+            <div class="diagram">
+                <p style="font-size: 1.05em; color: #667eea;">
+                    <strong>START</strong> → Agent → <span style="color: #764ba2;">Tools</span> → Agent → <span style="color: #764ba2;">Tools</span> → <strong>END</strong>
+                </p>
+                <p style="font-size: 0.9em; margin-top: 8px; color: #666;">Cyclic execution with state checkpoints at each step</p>
+            </div>
 
             <div class="success">
                 <strong>Key Benefit:</strong> LangGraph enables persistent, resumable workflows with full state control and human-in-the-loop capabilities
             </div>
-            <div class="slide-number">4 / 26</div>
+            <div class="slide-number">5 / 27</div>
         </div>
 
         <!-- Slide 5: LangSmith Observability -->
@@ -410,13 +487,13 @@
             <div class="info">
                 <strong>Production Essential:</strong> LangSmith provides visibility into agent behavior, enabling rapid debugging and optimization
             </div>
-            <div class="slide-number">5 / 26</div>
+            <div class="slide-number">6 / 27</div>
         </div>
 
         <!-- Slide 6: createAgent API -->
         <div class="slide">
             <h2>createAgent - The Modern Way</h2>
-    
+            <p><span class="warning" style="display: inline; padding: 4px 8px;">⚠️ createReactAgent is DEPRECATED</span> Use <code>createAgent</code> instead</p>
 
             <div class="code-block">
                 <pre><span class="syntax-keyword">import</span> { <span class="syntax-function">createAgent</span>, tool } <span class="syntax-keyword">from</span> <span class="syntax-string">"langchain"</span>;
@@ -445,7 +522,7 @@
 );</pre>
             </div>
 
-            <div class="slide-number">6 / 26</div>
+            <div class="slide-number">7 / 27</div>
         </div>
 
         <!-- Slide 7: Creating Tools -->
@@ -491,7 +568,7 @@
   }
 );</pre>
             </div>
-            <div class="slide-number">7 / 26</div>
+            <div class="slide-number">8 / 27</div>
         </div>
 
         <!-- Slide 8: MCP Integration -->
@@ -528,7 +605,7 @@
   tools,  <span class="syntax-comment">// MCP tools work seamlessly</span>
 });</pre>
             </div>
-            <div class="slide-number">8 / 26</div>
+            <div class="slide-number">9 / 27</div>
         </div>
 
         <!-- Slide 9: MCP Popular Servers -->
@@ -578,7 +655,7 @@
 <span class="syntax-keyword">const</span> tools = <span class="syntax-keyword">await</span> client.<span class="syntax-function">getTools</span>();
 <span class="syntax-comment">// Tools: read_file, write_file, list_directory, etc.</span></pre>
             </div>
-            <div class="slide-number">9 / 26</div>
+            <div class="slide-number">10 / 27</div>
         </div>
 
         <!-- Slide 10: Middleware Overview -->
@@ -612,7 +689,7 @@
             <div class="success">
                 <strong>Key Insight:</strong> Middleware provides surgical control over agent loops without modifying core logic
             </div>
-            <div class="slide-number">10 / 26</div>
+            <div class="slide-number">11 / 27</div>
         </div>
 
         <!-- Slide 11: Summarization Middleware -->
@@ -656,7 +733,7 @@
 
             <div class="info">
                 <strong>Production Tip:</strong> Use summarization to handle long conversations without hitting context limits (60%+ cost reduction)</div>
-            <div class="slide-number">11 / 26</div>
+            <div class="slide-number">12 / 27</div>
         </div>
 
         <!-- Slide 12: Context Editing Middleware -->
@@ -694,7 +771,7 @@
             <div class="success">
                 <strong>Adobe Production Pattern:</strong> Clear old tool results while keeping recent context - reduces latency by 40%
             </div>
-            <div class="slide-number">12 / 26</div>
+            <div class="slide-number">13 / 27</div>
         </div>
 
         <!-- Slide 13: Human-in-the-Loop Middleware -->
@@ -737,7 +814,7 @@
 <span class="syntax-comment">// After human approves - resume</span>
 <span class="syntax-keyword">const</span> finalState = <span class="syntax-keyword">await</span> agent.<span class="syntax-function">invoke</span>(<span class="syntax-keyword">null</span>, config);</pre>
             </div>
-            <div class="slide-number">13 / 26</div>
+            <div class="slide-number">14 / 27</div>
         </div>
 
         <!-- Slide 14: Custom Middleware -->
@@ -780,7 +857,7 @@
   },
 });</pre>
             </div>
-            <div class="slide-number">14 / 26</div>
+            <div class="slide-number">15 / 27</div>
         </div>
 
         <!-- Slide 15: Supervisor Pattern Overview -->
@@ -828,7 +905,7 @@
                     </ul>
                 </div>
             </div>
-            <div class="slide-number">15 / 26</div>
+            <div class="slide-number">16 / 27</div>
         </div>
 
         <!-- Slide 16: Worker Agents as Tools -->
@@ -870,7 +947,7 @@
   }
 );</pre>
             </div>
-            <div class="slide-number">16 / 26</div>
+            <div class="slide-number">17 / 27</div>
         </div>
 
         <!-- Slide 17: Creating the Supervisor -->
@@ -913,7 +990,7 @@
 
 <span class="syntax-keyword">export default</span> supervisor;</pre>
             </div>
-            <div class="slide-number">17 / 26</div>
+            <div class="slide-number">18 / 27</div>
         </div>
 
         <!-- Slide 18: Supervisor Usage Example -->
@@ -955,10 +1032,7 @@
 });</pre>
             </div>
 
-            <div class="success">
-                <strong>Adobe Pattern:</strong> Supervisor handles 10,000+ monthly requests routing to specialized agents
-            </div>
-            <div class="slide-number">18 / 26</div>
+            <div class="slide-number">19 / 27</div>
         </div>
 
         <!-- Slide 19: Streaming Agent Responses -->
@@ -996,7 +1070,7 @@
             <div class="info">
                 <strong>Production Essential:</strong> Streaming provides real-time feedback and improves perceived performance
             </div>
-            <div class="slide-number">19 / 26</div>
+            <div class="slide-number">20 / 27</div>
         </div>
 
         <!-- Slide 20: Checkpointers -->
@@ -1035,7 +1109,7 @@
   config
 );</pre>
             </div>
-            <div class="slide-number">20 / 26</div>
+            <div class="slide-number">21 / 27</div>
         </div>
 
         <!-- Slide 21: Production Best Practices -->
@@ -1072,7 +1146,7 @@
             <div class="warning">
                 <strong>Common Pitfalls:</strong> Not handling context limits, missing error handling, no observability, exposing sensitive data
             </div>
-            <div class="slide-number">21 / 26</div>
+            <div class="slide-number">22 / 27</div>
         </div>
 
         <!-- Slide 22: Adobe Production Example -->
@@ -1125,7 +1199,7 @@
                     • Production-grade reliability</p>
                 </div>
             </div>
-            <div class="slide-number">22 / 26</div>
+            <div class="slide-number">23 / 27</div>
         </div>
 
         <!-- Slide 23: Key Takeaways -->
@@ -1162,7 +1236,7 @@
             <div class="success" style="margin-top: 20px;">
                 <strong>Bottom Line:</strong> LangChain.js + LangGraph + LangSmith provide a complete platform for production-ready multi-agent systems
             </div>
-            <div class="slide-number">23 / 26</div>
+            <div class="slide-number">24 / 27</div>
         </div>
 
         <!-- Slide 24: Resources -->
@@ -1209,7 +1283,7 @@
 
 <span class="syntax-keyword">const</span> result = <span class="syntax-keyword">await</span> agent.<span class="syntax-function">invoke</span>({ messages: [...] });</pre>
             </div>
-            <div class="slide-number">24 / 26</div>
+            <div class="slide-number">25 / 27</div>
         </div>
 
         <!-- Slide 25: Code Repository -->
@@ -1228,14 +1302,14 @@
                 <li>✅ Custom semantic compression middleware</li>
                 <li>✅ Logging middleware for production monitoring</li>
                 <li>✅ MemorySaver checkpointer for state</li>
-                <li>✅ MCP integration (Azure Search)</li>
+                <li>✅ Tool Integration</li>
                 <li>✅ Token usage tracking and aggregation</li>
             </ul>
 
             <div class="success" style="margin-top: 20px;">
-                <strong>Live Demo:</strong> This exact pattern powers 10,000+ monthly requests at Adobe with 60% cost reduction
+                <strong>Live Demo:</strong> This exact pattern powers 
             </div>
-            <div class="slide-number">25 / 26</div>
+            <div class="slide-number">26 / 27</div>
         </div>
 
         <!-- Slide 26: Q&A -->
@@ -1260,11 +1334,11 @@
             </div>
 
             <p class="author" style="margin-top: auto;">
-                <strong>Abani R</strong> | Senior Solution Architect, Adobe Systems<br/>
-                <span style="font-size: 0.9em;">Project Stream - Agentic AI Platform (10,000+ monthly requests)</span><br/>
-                <span style="font-size: 0.85em; margin-top: 8px; display: block;">abani.routray@adobe.com | LinkedIn: /in/abanir</span>
+                <strong>Abani Ranjan</strong> | Senior Solution Architect, Adobe.com<br/>
+                <span style="font-size: 0.9em;">Project Stream - Agentic AI Platform </span><br/>
+                <span style="font-size: 0.85em; margin-top: 8px; display: block;">behera@adobe.com | LinkedIn: /in/abanir</span>
             </p>
-            <div class="slide-number">26 / 26</div>
+            <div class="slide-number">27 / 27</div>
         </div>
     </div>
 
