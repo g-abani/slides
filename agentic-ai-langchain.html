@@ -1,0 +1,1311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Building Multi-Agent Applications with LangChain.js</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Fira+Code:wght@400;500&display=swap');
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            overflow: hidden;
+        }
+        .slide-container {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .slide {
+            width: 90%;
+            max-width: 1200px;
+            height: 85vh;
+            background: white;
+            border-radius: 20px;
+            padding: 55px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            display: none;
+            flex-direction: column;
+            position: relative;
+            overflow-y: auto;
+        }
+        .slide.active {
+            display: flex;
+            animation: slideIn 0.5s ease-out;
+        }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        h1 {
+            font-size: 2.8em;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 18px;
+            line-height: 1.2;
+        }
+        h2 {
+            font-size: 2.3em;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 25px;
+        }
+        h3 {
+            font-size: 1.6em;
+            font-weight: 600;
+            color: #764ba2;
+            margin-top: 18px;
+            margin-bottom: 12px;
+        }
+        h4 {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: #667eea;
+            margin-bottom: 8px;
+        }
+        p {
+            font-size: 1.1em;
+            line-height: 1.7;
+            margin-bottom: 12px;
+            color: #555;
+        }
+        ul {
+            margin-left: 28px;
+            margin-bottom: 15px;
+        }
+        li {
+            font-size: 1.05em;
+            line-height: 1.7;
+            margin-bottom: 8px;
+            color: #555;
+        }
+        .code-block {
+            background: #1e1e1e;
+            border-radius: 10px;
+            padding: 16px;
+            margin: 12px 0;
+            overflow-x: auto;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+        pre {
+            margin: 0;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.82em;
+            line-height: 1.5;
+            color: #d4d4d4;
+        }
+        code {
+            font-family: 'Fira Code', monospace;
+            background: #f0f0f0;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.88em;
+            color: #e74c3c;
+        }
+        .controls {
+            position: fixed;
+            bottom: 25px;
+            right: 25px;
+            display: flex;
+            gap: 12px;
+            z-index: 1000;
+        }
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 50px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .slide-number {
+            position: absolute;
+            bottom: 25px;
+            left: 55px;
+            font-size: 0.95em;
+            color: #999;
+            font-weight: 500;
+        }
+        .subtitle {
+            font-size: 1.3em;
+            color: #666;
+            margin-bottom: 35px;
+            font-weight: 400;
+        }
+        .author {
+            font-size: 1.15em;
+            color: #764ba2;
+            margin-top: auto;
+            font-weight: 500;
+        }
+        .two-column {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 22px;
+            margin-top: 12px;
+        }
+        .box {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 18px;
+            border-left: 4px solid #667eea;
+        }
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin-top: 18px;
+        }
+        .feature-card {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 10px;
+            padding: 18px;
+            border-left: 4px solid #667eea;
+            transition: transform 0.3s;
+        }
+        .feature-card:hover {
+            transform: translateX(5px);
+        }
+        .feature-card h4 {
+            color: #667eea;
+            font-size: 1.15em;
+            margin-bottom: 6px;
+        }
+        .feature-card p {
+            font-size: 0.92em;
+            color: #666;
+            margin: 0;
+            line-height: 1.5;
+        }
+        .diagram {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 22px;
+            /*margin: 15px 0;*/
+            text-align: center;
+            border: 2px dashed #667eea;
+        }
+        .syntax-keyword { color: #569cd6; }
+        .syntax-string { color: #ce9178; }
+        .syntax-function { color: #dcdcaa; }
+        .syntax-comment { color: #6a9955; }
+        .syntax-number { color: #b5cea8; }
+        .syntax-type { color: #4ec9b0; }
+        .warning {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 10px;
+            border-radius: 6px;
+            margin: 10px 0;
+            font-size: 0.92em;
+        }
+        .info {
+            background: #d1ecf1;
+            border-left: 4px solid #17a2b8;
+            padding: 10px;
+            border-radius: 6px;
+            margin: 10px 0;
+            font-size: 0.92em;
+        }
+        .success {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+            padding: 10px;
+            border-radius: 6px;
+            margin: 10px 0;
+            font-size: 0.92em;
+        }
+        .three-column {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 18px;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="slide-container">
+        <!-- Slide 1: Title -->
+        <div class="slide active">
+            <h1>Building Multi-Agent Applications</h1>
+            <p class="subtitle">with LangChain.js & Node.js</p>
+            <div style="margin-top: 35px;">
+                <p style="font-size: 1.25em; color: #667eea; font-weight: 600;">Production-Ready Agentic AI</p>
+                <ul style="margin-top: 22px; font-size: 1.08em;">
+                    <li>🤖 Modern <code>createAgent</code> API </li>
+                    <li>🔌 MCP Integration with <code>MultiServerMCPClient</code></li>
+                    <li>⚙️ Middleware: Summarization, Context Editing, HITL</li>
+                    <li>🏗️ Supervisor Pattern for Multi-Agent Orchestration</li>
+                    <li>📊 LangSmith for Observability & Debugging</li>
+                </ul>
+            </div>
+            <p class="author">Abani Ranjan - Lead Solutions Architect, Adobe.com</p>
+            <div class="slide-number">1 / 26</div>
+        </div>
+
+        <!-- Slide 2: Agenda -->
+        <div class="slide">
+            <h2>Session Roadmap</h2>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4>1. LangChain Basics</h4>
+                    <p>Core concepts and architecture</p>
+                </div>
+                <div class="feature-card">
+                    <h4>2. LangGraph Fundamentals</h4>
+                    <p>State machines and workflows</p>
+                </div>
+                <div class="feature-card">
+                    <h4>3. LangSmith Observability</h4>
+                    <p>Tracing and debugging</p>
+                </div>
+                <div class="feature-card">
+                    <h4>4. createAgent API</h4>
+                    <p>Building modern agents</p>
+                </div>
+                <div class="feature-card">
+                    <h4>5. Tools & MCP</h4>
+                    <p>Tool creation and MCP servers</p>
+                </div>
+                <div class="feature-card">
+                    <h4>6. Middleware System</h4>
+                    <p>Context management patterns</p>
+                </div>
+                <div class="feature-card">
+                    <h4>7. Supervisor Pattern</h4>
+                    <p>Multi-agent orchestration</p>
+                </div>
+                <div class="feature-card">
+                    <h4>8. Production Patterns</h4>
+                    <p>Adobe's real-world examples</p>
+                </div>
+            </div>
+            <div class="slide-number">2 / 26</div>
+        </div>
+
+        <!-- Slide 3: LangChain Basics -->
+        <div class="slide">
+            <h2>LangChain.js - Foundation</h2>
+            <p>Framework for building LLM-powered applications</p>
+            
+            <div class="three-column">
+                <div class="box">
+                    <h4>Core Abstractions</h4>
+                    <p style="font-size: 0.9em;">• Models (LLMs, Chat)<br/>• Prompts<br/>• Tools<br/>• Agents<br/>• Chains</p>
+                </div>
+                <div class="box">
+                    <h4>Key Features</h4>
+                    <p style="font-size: 0.9em;">• Modular architecture<br/>• Provider agnostic<br/>• TypeScript first<br/>• Streaming support<br/>• Memory systems</p>
+                </div>
+                <div class="box">
+                    <h4>Ecosystem</h4>
+                    <p style="font-size: 0.9em;">• LangGraph (workflows)<br/>• LangSmith (observability)<br/>• LangServe (deployment)<br/>• Hub (templates)</p>
+                </div>
+            </div>
+
+            <div class="code-block">
+                <pre><span class="syntax-comment">// Installation</span>
+<span class="syntax-keyword">npm install</span> langchain @langchain/core
+<span class="syntax-keyword">npm install</span> @langchain/anthropic @langchain/openai
+<span class="syntax-keyword">npm install</span> @langchain/langgraph
+<span class="syntax-keyword">npm install</span> @langchain/mcp-adapters
+<span class="syntax-keyword">npm install</span> zod  <span class="syntax-comment">// For schema validation</span></pre>
+            </div>
+
+            <div class="info">
+                <strong>Philosophy:</strong> Composable building blocks for production AI applications with observability, streaming, and state management built-in
+            </div>
+            <div class="slide-number">3 / 26</div>
+        </div>
+
+        <!-- Slide 4: LangGraph Fundamentals -->
+        <div class="slide">
+            <h2>LangGraph.js - Stateful Workflows</h2>
+            <p>Build complex, cyclic agent workflows as state machines</p>
+
+            <div class="two-column">
+                <div>
+                    <h3>Core Concepts</h3>
+                    <ul style="font-size: 0.95em;">
+                        <li><strong>State:</strong> Shared data structure</li>
+                        <li><strong>Nodes:</strong> Functions that update state</li>
+                        <li><strong>Edges:</strong> Control flow between nodes</li>
+                        <li><strong>Checkpointers:</strong> Persist state</li>
+                        <li><strong>Interrupts:</strong> Human-in-the-loop</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3>When to Use</h3>
+                    <ul style="font-size: 0.95em;">
+                        <li>Multi-step workflows</li>
+                        <li>Cyclic agent patterns</li>
+                        <li>State persistence needed</li>
+                        <li>Human approval flows</li>
+                        <li>Complex orchestration</li>
+                    </ul>
+                </div>
+            </div>
+
+            
+
+            <div class="success">
+                <strong>Key Benefit:</strong> LangGraph enables persistent, resumable workflows with full state control and human-in-the-loop capabilities
+            </div>
+            <div class="slide-number">4 / 26</div>
+        </div>
+
+        <!-- Slide 5: LangSmith Observability -->
+        <div class="slide">
+            <h2>LangSmith - Observability & Debugging</h2>
+            <p>Production monitoring and debugging platform for LLM applications</p>
+
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4>🔍 Tracing</h4>
+                    <p>End-to-end visibility into agent execution, tool calls, and LLM requests</p>
+                </div>
+                <div class="feature-card">
+                    <h4>📊 Monitoring</h4>
+                    <p>Track costs, latency, token usage, and error rates in real-time</p>
+                </div>
+                <div class="feature-card">
+                    <h4>🧪 Testing</h4>
+                    <p>Create datasets, run evaluations, and regression test your agents</p>
+                </div>
+                <div class="feature-card">
+                    <h4>🎯 Debugging</h4>
+                    <p>Inspect prompts, outputs, and intermediate steps with full context</p>
+                </div>
+            </div>
+
+            <div class="code-block">
+                <pre><span class="syntax-comment">// Enable LangSmith tracing</span>
+<span class="syntax-keyword">export</span> <span class="syntax-type">LANGSMITH_API_KEY</span>=<span class="syntax-string">"your-api-key"</span>
+<span class="syntax-keyword">export</span> <span class="syntax-type">LANGCHAIN_TRACING_V2</span>=<span class="syntax-string">"true"</span>
+<span class="syntax-keyword">export</span> <span class="syntax-type">LANGCHAIN_PROJECT</span>=<span class="syntax-string">"my-agent-project"</span>
+
+<span class="syntax-comment">// All agent calls are now automatically traced</span>
+<span class="syntax-keyword">const</span> result = <span class="syntax-keyword">await</span> agent.<span class="syntax-function">invoke</span>({ messages: [...] });</pre>
+            </div>
+
+            <div class="info">
+                <strong>Production Essential:</strong> LangSmith provides visibility into agent behavior, enabling rapid debugging and optimization
+            </div>
+            <div class="slide-number">5 / 26</div>
+        </div>
+
+        <!-- Slide 6: createAgent API -->
+        <div class="slide">
+            <h2>createAgent - The Modern Way</h2>
+    
+
+            <div class="code-block">
+                <pre><span class="syntax-keyword">import</span> { <span class="syntax-function">createAgent</span>, tool } <span class="syntax-keyword">from</span> <span class="syntax-string">"langchain"</span>;
+<span class="syntax-keyword">import</span> { <span class="syntax-type">ChatAnthropic</span> } <span class="syntax-keyword">from</span> <span class="syntax-string">"@langchain/anthropic"</span>;
+<span class="syntax-keyword">import</span> { <span class="syntax-type">MemorySaver</span> } <span class="syntax-keyword">from</span> <span class="syntax-string">"@langchain/langgraph"</span>;
+<span class="syntax-keyword">import</span> { z } <span class="syntax-keyword">from</span> <span class="syntax-string">"zod"</span>;
+
+<span class="syntax-comment">// Initialize model</span>
+<span class="syntax-keyword">const</span> model = <span class="syntax-keyword">new</span> <span class="syntax-type">ChatAnthropic</span>({
+  model: <span class="syntax-string">"claude-sonnet-4-5-20250929"</span>,
+  temperature: <span class="syntax-number">0</span>,
+});
+
+<span class="syntax-comment">// Create agent with checkpointer</span>
+<span class="syntax-keyword">const</span> agent = <span class="syntax-function">createAgent</span>({
+  model,
+  tools: [weatherTool, calculatorTool],
+  checkpointer: <span class="syntax-keyword">new</span> <span class="syntax-type">MemorySaver</span>(),  <span class="syntax-comment">// For state persistence</span>
+  systemPrompt: <span class="syntax-string">"You are a helpful assistant."</span>,
+});
+
+<span class="syntax-comment">// Invoke with thread_id for conversation memory</span>
+<span class="syntax-keyword">const</span> result = <span class="syntax-keyword">await</span> agent.<span class="syntax-function">invoke</span>(
+  { messages: [{ role: <span class="syntax-string">"user"</span>, content: <span class="syntax-string">"What's 25 * 4?"</span> }] },
+  { configurable: { thread_id: <span class="syntax-string">"user-123"</span> } }
+);</pre>
+            </div>
+
+            <div class="slide-number">6 / 26</div>
+        </div>
+
+        <!-- Slide 7: Creating Tools -->
+        <div class="slide">
+            <h2>Creating Tools with tool() Helper</h2>
+            <p>Modern tool definition using the <code>tool()</code> function</p>
+
+            <div class="code-block">
+                <pre><span class="syntax-keyword">import</span> { tool } <span class="syntax-keyword">from</span> <span class="syntax-string">"langchain"</span>;
+<span class="syntax-keyword">import</span> { z } <span class="syntax-keyword">from</span> <span class="syntax-string">"zod"</span>;
+
+<span class="syntax-comment">// Simple tool definition</span>
+<span class="syntax-keyword">const</span> weatherTool = <span class="syntax-function">tool</span>(
+  <span class="syntax-keyword">async</span> ({ city }: { city: <span class="syntax-type">string</span> }) => {
+    <span class="syntax-keyword">const</span> response = <span class="syntax-keyword">await</span> <span class="syntax-function">fetch</span>(<span class="syntax-string">`api.weather.com?city=<span class="syntax-keyword">${city}</span>`</span>);
+    <span class="syntax-keyword">const</span> data = <span class="syntax-keyword">await</span> response.<span class="syntax-function">json</span>();
+    <span class="syntax-keyword">return</span> <span class="syntax-type">JSON</span>.<span class="syntax-function">stringify</span>(data);
+  },
+  {
+    name: <span class="syntax-string">"get_weather"</span>,
+    description: <span class="syntax-string">"Get current weather for a city"</span>,
+    schema: z.<span class="syntax-function">object</span>({
+      city: z.<span class="syntax-function">string</span>().<span class="syntax-function">describe</span>(<span class="syntax-string">"City name"</span>),
+    }),
+  }
+);
+
+<span class="syntax-comment">// Calculator tool</span>
+<span class="syntax-keyword">const</span> calculatorTool = <span class="syntax-function">tool</span>(
+  <span class="syntax-keyword">async</span> ({ operation, a, b }) => {
+    <span class="syntax-keyword">if</span> (operation === <span class="syntax-string">"add"</span>) <span class="syntax-keyword">return</span> (a + b).<span class="syntax-function">toString</span>();
+    <span class="syntax-keyword">if</span> (operation === <span class="syntax-string">"multiply"</span>) <span class="syntax-keyword">return</span> (a * b).<span class="syntax-function">toString</span>();
+    <span class="syntax-comment">// ...</span>
+  },
+  {
+    name: <span class="syntax-string">"calculator"</span>,
+    description: <span class="syntax-string">"Perform arithmetic operations"</span>,
+    schema: z.<span class="syntax-function">object</span>({
+      operation: z.<span class="syntax-function">enum</span>([<span class="syntax-string">"add"</span>, <span class="syntax-string">"subtract"</span>, <span class="syntax-string">"multiply"</span>, <span class="syntax-string">"divide"</span>]),
+      a: z.<span class="syntax-function">number</span>(),
+      b: z.<span class="syntax-function">number</span>(),
+    }),
+  }
+);</pre>
+            </div>
+            <div class="slide-number">7 / 26</div>
+        </div>
+
+        <!-- Slide 8: MCP Integration -->
+        <div class="slide">
+            <h2>MCP (Model Context Protocol) Integration</h2>
+            <p>Connect to standardized tool servers using MultiServerMCPClient</p>
+
+            <div class="code-block">
+                <pre><span class="syntax-keyword">import</span> { <span class="syntax-type">MultiServerMCPClient</span> } <span class="syntax-keyword">from</span> <span class="syntax-string">"@langchain/mcp-adapters"</span>;
+<span class="syntax-keyword">import</span> { <span class="syntax-function">createAgent</span> } <span class="syntax-keyword">from</span> <span class="syntax-string">"langchain"</span>;
+
+<span class="syntax-comment">// Initialize MCP client with multiple servers</span>
+<span class="syntax-keyword">const</span> client = <span class="syntax-keyword">new</span> <span class="syntax-type">MultiServerMCPClient</span>({
+  mcpServers: {
+    <span class="syntax-string">"filesystem"</span>: {
+      transport: <span class="syntax-string">"stdio"</span>,
+      command: <span class="syntax-string">"npx"</span>,
+      args: [<span class="syntax-string">"-y"</span>, <span class="syntax-string">"@modelcontextprotocol/server-filesystem"</span>, <span class="syntax-string">"/tmp"</span>],
+    },
+    <span class="syntax-string">"github"</span>: {
+      transport: <span class="syntax-string">"http"</span>,
+      url: <span class="syntax-string">"http://localhost:8000/mcp"</span>,
+    },
+  },
+  defaultToolTimeout: <span class="syntax-number">10000</span>,  <span class="syntax-comment">// 10 seconds</span>
+});
+
+<span class="syntax-comment">// Get tools from all MCP servers</span>
+<span class="syntax-keyword">const</span> tools = <span class="syntax-keyword">await</span> client.<span class="syntax-function">getTools</span>();
+
+<span class="syntax-comment">// Use in agent</span>
+<span class="syntax-keyword">const</span> agent = <span class="syntax-function">createAgent</span>({
+  model: <span class="syntax-string">"claude-sonnet-4-5-20250929"</span>,
+  tools,  <span class="syntax-comment">// MCP tools work seamlessly</span>
+});</pre>
+            </div>
+            <div class="slide-number">8 / 26</div>
+        </div>
+
+        <!-- Slide 9: MCP Popular Servers -->
+        <div class="slide">
+            <h2>Popular MCP Servers</h2>
+            <p>Pre-built servers for common integrations</p>
+
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4>🗂️ Filesystem</h4>
+                    <p>@modelcontextprotocol/server-filesystem - Read/write files</p>
+                </div>
+                <div class="feature-card">
+                    <h4>🐙 GitHub</h4>
+                    <p>@modelcontextprotocol/server-github - Repos, issues, PRs</p>
+                </div>
+                <div class="feature-card">
+                    <h4>🗄️ PostgreSQL</h4>
+                    <p>@modelcontextprotocol/server-postgres - Database queries</p>
+                </div>
+                <div class="feature-card">
+                    <h4>💬 Slack</h4>
+                    <p>@modelcontextprotocol/server-slack - Messages and channels</p>
+                </div>
+                <div class="feature-card">
+                    <h4>🔍 Google Drive</h4>
+                    <p>Custom MCP server for Drive operations</p>
+                </div>
+                <div class="feature-card">
+                    <h4>📧 Gmail</h4>
+                    <p>Custom MCP server for email operations</p>
+                </div>
+            </div>
+
+            <div class="code-block">
+                <pre><span class="syntax-comment">// Example: Using filesystem MCP server</span>
+<span class="syntax-keyword">const</span> client = <span class="syntax-keyword">new</span> <span class="syntax-type">MultiServerMCPClient</span>({
+  mcpServers: {
+    <span class="syntax-string">"fs"</span>: {
+      transport: <span class="syntax-string">"stdio"</span>,
+      command: <span class="syntax-string">"npx"</span>,
+      args: [<span class="syntax-string">"-y"</span>, <span class="syntax-string">"@modelcontextprotocol/server-filesystem"</span>, <span class="syntax-string">"/workspace"</span>],
+    },
+  },
+});
+
+<span class="syntax-keyword">const</span> tools = <span class="syntax-keyword">await</span> client.<span class="syntax-function">getTools</span>();
+<span class="syntax-comment">// Tools: read_file, write_file, list_directory, etc.</span></pre>
+            </div>
+            <div class="slide-number">9 / 26</div>
+        </div>
+
+        <!-- Slide 10: Middleware Overview -->
+        <div class="slide">
+            <h2>Middleware System - Context Engineering</h2>
+            <p>Pluggable hooks to control agent execution</p>
+
+            <div class="diagram">
+                <p style="font-size: 1em; color: #667eea; line-height: 1.8;">
+                    <strong>beforeModel</strong> → modify context<br/>
+                    <strong>wrapModelCall</strong> → intercept request<br/>
+                    <strong>afterModel</strong> → process response
+                </p>
+            </div>
+
+            <div class="three-column">
+                <div class="box">
+                    <h4>Built-in Middleware</h4>
+                    <p style="font-size: 0.88em;">• Summarization<br/>• Context Editing<br/>• HITL (Human-in-Loop)<br/>• Prompt Caching<br/>• Custom middleware</p>
+                </div>
+                <div class="box">
+                    <h4>Use Cases</h4>
+                    <p style="font-size: 0.88em;">• Token management<br/>• Cost optimization<br/>• Approval flows<br/>• Context compression<br/>• Debugging/logging</p>
+                </div>
+                <div class="box">
+                    <h4>Benefits</h4>
+                    <p style="font-size: 0.88em;">• Clean separation<br/>• Composable<br/>• Reusable<br/>• Production-ready<br/>• Provider-agnostic</p>
+                </div>
+            </div>
+
+            <div class="success">
+                <strong>Key Insight:</strong> Middleware provides surgical control over agent loops without modifying core logic
+            </div>
+            <div class="slide-number">10 / 26</div>
+        </div>
+
+        <!-- Slide 11: Summarization Middleware -->
+        <div class="slide">
+            <h2>Summarization Middleware</h2>
+            <p>Automatically summarize long conversations to manage context window</p>
+
+            <div class="code-block">
+                <pre><span class="syntax-keyword">import</span> { <span class="syntax-function">createAgent</span>, summarizationMiddleware } <span class="syntax-keyword">from</span> <span class="syntax-string">"langchain"</span>;
+
+<span class="syntax-keyword">const</span> agent = <span class="syntax-function">createAgent</span>({
+  model: <span class="syntax-string">"gpt-4.1"</span>,
+  tools: [searchTool, calculatorTool],
+  middleware: [
+    <span class="syntax-function">summarizationMiddleware</span>({
+      model: <span class="syntax-string">"gpt-4.1-mini"</span>,  <span class="syntax-comment">// Cheaper model for summaries</span>
+      trigger: { tokens: <span class="syntax-number">4000</span> },       <span class="syntax-comment">// Trigger at 4k tokens</span>
+      keep: { messages: <span class="syntax-number">20</span> },          <span class="syntax-comment">// Keep last 20 messages</span>
+      summaryPrefix: <span class="syntax-string">"## Previous conversation summary:"</span>,
+    }),
+  ],
+});</pre>
+            </div>
+
+            <div class="two-column">
+                <div class="box">
+                    <h4>Trigger Conditions</h4>
+                    <p style="font-size: 0.88em;">• <code>tokens</code>: Token count threshold<br/>
+                    • <code>messages</code>: Message count<br/>
+                    • <code>fraction</code>: % of context window<br/>
+                    • Multiple conditions (AND/OR)</p>
+                </div>
+                <div class="box">
+                    <h4>Keep Options</h4>
+                    <p style="font-size: 0.88em;">• <code>tokens</code>: Keep N tokens<br/>
+                    • <code>messages</code>: Keep N messages<br/>
+                    • <code>fraction</code>: Keep % of window<br/>
+                    • Preserves AI/Tool pairs</p>
+                </div>
+            </div>
+
+            <div class="info">
+                <strong>Production Tip:</strong> Use summarization to handle long conversations without hitting context limits (60%+ cost reduction)</div>
+            <div class="slide-number">11 / 26</div>
+        </div>
+
+        <!-- Slide 12: Context Editing Middleware -->
+        <div class="slide">
+            <h2>Context Editing Middleware</h2>
+            <p>Clear old tool results to manage context size (Anthropic's clear_tool_uses pattern)</p>
+
+            <div class="code-block">
+                <pre><span class="syntax-keyword">import</span> { 
+  <span class="syntax-function">createAgent</span>, 
+  contextEditingMiddleware, 
+  <span class="syntax-type">ClearToolUsesEdit</span> 
+} <span class="syntax-keyword">from</span> <span class="syntax-string">"langchain"</span>;
+
+<span class="syntax-keyword">const</span> agent = <span class="syntax-function">createAgent</span>({
+  model: <span class="syntax-string">"anthropic:claude-sonnet-4-5"</span>,
+  tools: [searchTool, databaseTool, calculatorTool],
+  middleware: [
+    <span class="syntax-function">contextEditingMiddleware</span>({
+      edits: [
+        <span class="syntax-keyword">new</span> <span class="syntax-type">ClearToolUsesEdit</span>({
+          triggerTokens: <span class="syntax-number">100000</span>,    <span class="syntax-comment">// Clear when > 100k tokens</span>
+          keep: { messages: <span class="syntax-number">5</span> },     <span class="syntax-comment">// Keep 5 recent tool results</span>
+          clearToolInputs: <span class="syntax-keyword">false</span>, <span class="syntax-comment">// Keep tool call arguments</span>
+          excludeTools: [<span class="syntax-string">"search"</span>], <span class="syntax-comment">// Never clear search results</span>
+          placeholder: <span class="syntax-string">"[cleared]"</span>,
+        }),
+      ],
+      tokenCountMethod: <span class="syntax-string">"approx"</span>,  <span class="syntax-comment">// Fast approximate counting</span>
+    }),
+  ],
+});</pre>
+            </div>
+
+            <div class="success">
+                <strong>Adobe Production Pattern:</strong> Clear old tool results while keeping recent context - reduces latency by 40%
+            </div>
+            <div class="slide-number">12 / 26</div>
+        </div>
+
+        <!-- Slide 13: Human-in-the-Loop Middleware -->
+        <div class="slide">
+            <h2>Human-in-the-Loop (HITL) Middleware</h2>
+            <p>Pause execution for human approval before tool execution</p>
+
+            <div class="code-block">
+                <pre><span class="syntax-keyword">import</span> { <span class="syntax-function">createAgent</span>, humanInTheLoopMiddleware } <span class="syntax-keyword">from</span> <span class="syntax-string">"langchain"</span>;
+
+<span class="syntax-keyword">const</span> agent = <span class="syntax-function">createAgent</span>({
+  model: <span class="syntax-string">"gpt-4.1"</span>,
+  tools: [deleteTool, deployTool, sendEmailTool],
+  checkpointer: <span class="syntax-keyword">new</span> <span class="syntax-type">MemorySaver</span>(),  <span class="syntax-comment">// Required for HITL</span>
+  middleware: [
+    <span class="syntax-function">humanInTheLoopMiddleware</span>({
+      interruptOn: {
+        <span class="syntax-string">"delete_files"</span>: <span class="syntax-keyword">true</span>,      <span class="syntax-comment">// Require approval</span>
+        <span class="syntax-string">"deploy_to_prod"</span>: <span class="syntax-keyword">true</span>,   <span class="syntax-comment">// Require approval</span>
+        <span class="syntax-string">"send_email"</span>: <span class="syntax-keyword">false</span>,      <span class="syntax-comment">// Auto-approve</span>
+      },
+    }),
+  ],
+});</pre>
+            </div>
+
+            <div class="code-block">
+                <pre><span class="syntax-comment">// Usage with interrupts</span>
+<span class="syntax-keyword">const</span> config = { configurable: { thread_id: <span class="syntax-string">"user-123"</span> } };
+
+<span class="syntax-comment">// Run until interrupt</span>
+<span class="syntax-keyword">let</span> state = <span class="syntax-keyword">await</span> agent.<span class="syntax-function">invoke</span>(
+  { messages: [{ role: <span class="syntax-string">"user"</span>, content: <span class="syntax-string">"Delete old logs"</span> }] },
+  config
+);
+
+<span class="syntax-comment">// Get pending action for approval</span>
+<span class="syntax-keyword">const</span> currentState = <span class="syntax-keyword">await</span> agent.<span class="syntax-function">getState</span>(config);
+
+<span class="syntax-comment">// After human approves - resume</span>
+<span class="syntax-keyword">const</span> finalState = <span class="syntax-keyword">await</span> agent.<span class="syntax-function">invoke</span>(<span class="syntax-keyword">null</span>, config);</pre>
+            </div>
+            <div class="slide-number">13 / 26</div>
+        </div>
+
+        <!-- Slide 14: Custom Middleware -->
+        <div class="slide">
+            <h2>Creating Custom Middleware</h2>
+            <p>Build your own middleware for specific needs</p>
+
+            <div class="code-block">
+                <pre><span class="syntax-keyword">import</span> { createMiddleware } <span class="syntax-keyword">from</span> <span class="syntax-string">"langchain"</span>;
+
+<span class="syntax-comment">// Logging middleware</span>
+<span class="syntax-keyword">const</span> loggingMiddleware = <span class="syntax-function">createMiddleware</span>({
+  name: <span class="syntax-string">"LoggingMiddleware"</span>,
+  
+  <span class="syntax-function">beforeModel</span>: (state) => {
+    console.<span class="syntax-function">log</span>(<span class="syntax-string">"🔍 Messages:"</span>, state.messages.length);
+    <span class="syntax-keyword">return</span>;  <span class="syntax-comment">// No state modification</span>
+  },
+  
+  <span class="syntax-function">afterModel</span>: (state) => {
+    <span class="syntax-keyword">const</span> lastMsg = state.messages[state.messages.length - <span class="syntax-number">1</span>];
+    console.<span class="syntax-function">log</span>(<span class="syntax-string">"📤 Model output:"</span>, lastMsg.content);
+    <span class="syntax-keyword">return</span>;
+  },
+});
+
+<span class="syntax-comment">// Budget tracking middleware</span>
+<span class="syntax-keyword">const</span> budgetMiddleware = <span class="syntax-function">createMiddleware</span>({
+  name: <span class="syntax-string">"BudgetTracking"</span>,
+  
+  <span class="syntax-function">wrapModelCall</span>: <span class="syntax-keyword">async</span> (request, handler) => {
+    <span class="syntax-keyword">const</span> startTime = <span class="syntax-type">Date</span>.<span class="syntax-function">now</span>();
+    <span class="syntax-keyword">const</span> result = <span class="syntax-keyword">await</span> <span class="syntax-function">handler</span>(request);
+    <span class="syntax-keyword">const</span> duration = <span class="syntax-type">Date</span>.<span class="syntax-function">now</span>() - startTime;
+    
+    <span class="syntax-comment">// Track costs, log metrics, etc.</span>
+    <span class="syntax-function">trackMetrics</span>({ duration, tokens: result.usage });
+    
+    <span class="syntax-keyword">return</span> result;
+  },
+});</pre>
+            </div>
+            <div class="slide-number">14 / 26</div>
+        </div>
+
+        <!-- Slide 15: Supervisor Pattern Overview -->
+        <div class="slide">
+            <h2>Supervisor Pattern</h2>
+            <p>Orchestrate specialized worker agents with a supervisor</p>
+
+            <div class="diagram">
+                <div style="display: flex; justify-content: center; align-items: center; gap: 30px; flex-wrap: wrap;">
+                    <div class="box" style="min-width: 150px; text-align: center;">
+                        <h4 style="color: #764ba2;">👤 User</h4>
+                    </div>
+                    <div style="font-size: 2em; color: #667eea;">↓</div>
+                    <div class="box" style="min-width: 150px; text-align: center;">
+                        <h4 style="color: #667eea;">🧭 Supervisor</h4>
+                        <p style="font-size: 0.85em; margin-top: 5px;">Routes & coordinates</p>
+                    </div>
+                    <div style="font-size: 2em; color: #667eea;">↓</div>
+                    <div style="display: flex; gap: 15px;">
+                        <div class="box" style="min-width: 120px; text-align: center; background: #e3f2fd;">
+                            <h4 style="color: #1976d2; font-size: 1em;">🔍 Research</h4>
+                        </div>
+                        <div class="box" style="min-width: 120px; text-align: center; background: #f3e5f5;">
+                            <h4 style="color: #7b1fa2; font-size: 1em;">🎯 JIRA</h4>
+                        </div>
+                        <div class="box" style="min-width: 120px; text-align: center; background: #fff3e0;">
+                            <h4 style="color: #e65100; font-size: 1em;">🔢 Calculator</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="two-column">
+                <div>
+                    <h3>Key Concept</h3>
+                    <p style="font-size: 0.95em;">Workers are wrapped as tools and exposed to the supervisor agent. The supervisor routes tasks to appropriate workers.</p>
+                </div>
+                <div>
+                    <h3>Benefits</h3>
+                    <ul style="font-size: 0.9em;">
+                        <li>Specialized expertise</li>
+                        <li>Clear separation of concerns</li>
+                        <li>Easy to add new workers</li>
+                        <li>Transparent routing</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="slide-number">15 / 26</div>
+        </div>
+
+        <!-- Slide 16: Worker Agents as Tools -->
+        <div class="slide">
+            <h2>Wrapping Worker Agents as Tools</h2>
+            <p>The key pattern: expose agents as tools to the supervisor</p>
+
+            <div class="code-block">
+                <pre><span class="syntax-keyword">import</span> { <span class="syntax-function">createAgent</span>, tool } <span class="syntax-keyword">from</span> <span class="syntax-string">"langchain"</span>;
+<span class="syntax-keyword">import</span> { z } <span class="syntax-keyword">from</span> <span class="syntax-string">"zod"</span>;
+
+<span class="syntax-comment">// Create worker agent</span>
+<span class="syntax-keyword">const</span> researchAgent = <span class="syntax-function">createAgent</span>({
+  model: <span class="syntax-string">"gpt-4.1"</span>,
+  tools: [searchTool, wikipediaTool],
+  systemPrompt: <span class="syntax-string">"You are a research specialist."</span>,
+});
+
+<span class="syntax-comment">// Wrap worker as a tool</span>
+<span class="syntax-keyword">const</span> researchAgentTool = <span class="syntax-function">tool</span>(
+  <span class="syntax-keyword">async</span> ({ query }: { query: <span class="syntax-type">string</span> }) => {
+    console.<span class="syntax-function">log</span>(<span class="syntax-string">"[Supervisor] Delegating to Research Agent"</span>);
+    
+    <span class="syntax-keyword">const</span> result = <span class="syntax-keyword">await</span> researchAgent.<span class="syntax-function">invoke</span>({
+      messages: [{ role: <span class="syntax-string">"user"</span>, content: query }],
+    });
+    
+    <span class="syntax-comment">// Extract response</span>
+    <span class="syntax-keyword">const</span> lastMessage = result.messages[result.messages.length - <span class="syntax-number">1</span>];
+    <span class="syntax-keyword">return</span> lastMessage.content;
+  },
+  {
+    name: <span class="syntax-string">"delegate_to_research_agent"</span>,
+    description: <span class="syntax-string">"Delegate research tasks to the Research Agent"</span>,
+    returnDirect: <span class="syntax-keyword">true</span>,  <span class="syntax-comment">// Return result directly to user</span>
+    schema: z.<span class="syntax-function">object</span>({
+      query: z.<span class="syntax-function">string</span>().<span class="syntax-function">describe</span>(<span class="syntax-string">"The research question"</span>),
+    }),
+  }
+);</pre>
+            </div>
+            <div class="slide-number">16 / 26</div>
+        </div>
+
+        <!-- Slide 17: Creating the Supervisor -->
+        <div class="slide">
+            <h2>Creating the Supervisor Agent</h2>
+            <p>Supervisor routes tasks to worker agents</p>
+
+            <div class="code-block">
+                <pre><span class="syntax-keyword">import</span> { <span class="syntax-function">createAgent</span> } <span class="syntax-keyword">from</span> <span class="syntax-string">"langchain"</span>;
+<span class="syntax-keyword">import</span> { <span class="syntax-type">MemorySaver</span> } <span class="syntax-keyword">from</span> <span class="syntax-string">"@langchain/langgraph"</span>;
+
+<span class="syntax-comment">// Collect all worker tools</span>
+<span class="syntax-keyword">const</span> workerTools = [
+  researchAgentTool,
+  jiraAgentTool,
+  calculatorAgentTool,
+];
+
+<span class="syntax-keyword">const</span> workerNames = workerTools.<span class="syntax-function">map</span>(t => t.name).<span class="syntax-function">join</span>(<span class="syntax-string">", "</span>);
+
+<span class="syntax-comment">// Create supervisor with middleware</span>
+<span class="syntax-keyword">const</span> supervisor = <span class="syntax-function">createAgent</span>({
+  model: <span class="syntax-string">"gpt-4.1-mini"</span>,  <span class="syntax-comment">// Lightweight model for routing</span>
+  tools: workerTools,
+  checkpointer: <span class="syntax-keyword">new</span> <span class="syntax-type">MemorySaver</span>(),
+  middleware: [
+    <span class="syntax-function">contextEditingMiddleware</span>({
+      edits: [
+        <span class="syntax-keyword">new</span> <span class="syntax-type">ClearToolUsesEdit</span>({
+          triggerTokens: <span class="syntax-number">2000</span>,
+          keep: { messages: <span class="syntax-number">3</span> },
+        }),
+      ],
+    }),
+  ],
+  systemPrompt: <span class="syntax-string">`You are a Supervisor coordinating worker agents: <span class="syntax-keyword">${workerNames}</span>.
+    Route queries appropriately. Return agent responses EXACTLY.
+    Simple questions: answer directly. You are a transparent router.`</span>,
+});
+
+<span class="syntax-keyword">export default</span> supervisor;</pre>
+            </div>
+            <div class="slide-number">17 / 26</div>
+        </div>
+
+        <!-- Slide 18: Supervisor Usage Example -->
+        <div class="slide">
+            <h2>Using the Supervisor</h2>
+            <p>The supervisor automatically routes to the right worker</p>
+
+            <div class="code-block">
+                <pre><span class="syntax-comment">// Example 1: Research question → Research Agent</span>
+<span class="syntax-keyword">const</span> result1 = <span class="syntax-keyword">await</span> supervisor.<span class="syntax-function">invoke</span>({
+  messages: [{ 
+    role: <span class="syntax-string">"user"</span>, 
+    content: <span class="syntax-string">"What are the latest developments in quantum computing?"</span> 
+  }],
+});
+
+<span class="syntax-comment">// Example 2: JIRA question → JIRA Agent</span>
+<span class="syntax-keyword">const</span> result2 = <span class="syntax-keyword">await</span> supervisor.<span class="syntax-function">invoke</span>({
+  messages: [{ 
+    role: <span class="syntax-string">"user"</span>, 
+    content: <span class="syntax-string">"Show me Vendors team issues"</span> 
+  }],
+});
+
+<span class="syntax-comment">// Example 3: Math question → Calculator Agent</span>
+<span class="syntax-keyword">const</span> result3 = <span class="syntax-keyword">await</span> supervisor.<span class="syntax-function">invoke</span>({
+  messages: [{ 
+    role: <span class="syntax-string">"user"</span>, 
+    content: <span class="syntax-string">"What's 2500 divided by 125?"</span> 
+  }],
+});
+
+<span class="syntax-comment">// Example 4: Multi-step - supervisor coordinates</span>
+<span class="syntax-keyword">const</span> result4 = <span class="syntax-keyword">await</span> supervisor.<span class="syntax-function">invoke</span>({
+  messages: [{ 
+    role: <span class="syntax-string">"user"</span>, 
+    content: <span class="syntax-string">"Research AI trends, then calculate the average price"</span> 
+  }],
+});</pre>
+            </div>
+
+            <div class="success">
+                <strong>Adobe Pattern:</strong> Supervisor handles 10,000+ monthly requests routing to specialized agents
+            </div>
+            <div class="slide-number">18 / 26</div>
+        </div>
+
+        <!-- Slide 19: Streaming Agent Responses -->
+        <div class="slide">
+            <h2>Streaming for Better UX</h2>
+            <p>Stream intermediate steps and responses</p>
+
+            <div class="code-block">
+                <pre><span class="syntax-comment">// Stream events from agent execution</span>
+<span class="syntax-keyword">const</span> stream = <span class="syntax-keyword">await</span> agent.<span class="syntax-function">stream</span>({
+  messages: [{ role: <span class="syntax-string">"user"</span>, content: <span class="syntax-string">"Research and summarize"</span> }],
+});
+
+<span class="syntax-keyword">for await</span> (<span class="syntax-keyword">const</span> chunk <span class="syntax-keyword">of</span> stream) {
+  <span class="syntax-keyword">if</span> (chunk.agent) {
+    console.<span class="syntax-function">log</span>(<span class="syntax-string">"🤖 Agent:"</span>, chunk.agent);
+  }
+  <span class="syntax-keyword">if</span> (chunk.tools) {
+    console.<span class="syntax-function">log</span>(<span class="syntax-string">"🔧 Tool:"</span>, chunk.tools);
+  }
+}
+
+<span class="syntax-comment">// Or stream with detailed events</span>
+<span class="syntax-keyword">const</span> eventStream = agent.<span class="syntax-function">streamEvents</span>({
+  messages: [{ role: <span class="syntax-string">"user"</span>, content: <span class="syntax-string">"Hello"</span> }],
+}, { version: <span class="syntax-string">"v2"</span> });
+
+<span class="syntax-keyword">for await</span> (<span class="syntax-keyword">const</span> event <span class="syntax-keyword">of</span> eventStream) {
+  <span class="syntax-keyword">if</span> (event.event === <span class="syntax-string">"on_chat_model_stream"</span>) {
+    process.stdout.<span class="syntax-function">write</span>(event.data.chunk.content);
+  }
+}</pre>
+            </div>
+
+            <div class="info">
+                <strong>Production Essential:</strong> Streaming provides real-time feedback and improves perceived performance
+            </div>
+            <div class="slide-number">19 / 26</div>
+        </div>
+
+        <!-- Slide 20: Checkpointers -->
+        <div class="slide">
+            <h2>State Persistence with Checkpointers</h2>
+            <p>Maintain conversation state across sessions</p>
+
+            <div class="code-block">
+                <pre><span class="syntax-keyword">import</span> { <span class="syntax-type">MemorySaver</span> } <span class="syntax-keyword">from</span> <span class="syntax-string">"@langchain/langgraph"</span>;
+<span class="syntax-keyword">import</span> { <span class="syntax-type">SqliteSaver</span> } <span class="syntax-keyword">from</span> <span class="syntax-string">"@langchain/langgraph-checkpoint-sqlite"</span>;
+
+<span class="syntax-comment">// Development: In-memory</span>
+<span class="syntax-keyword">const</span> devCheckpointer = <span class="syntax-keyword">new</span> <span class="syntax-type">MemorySaver</span>();
+
+<span class="syntax-comment">// Production: SQLite persistence</span>
+<span class="syntax-keyword">const</span> prodCheckpointer = <span class="syntax-type">SqliteSaver</span>.<span class="syntax-function">fromConnString</span>(<span class="syntax-string">"./checkpoints.db"</span>);
+
+<span class="syntax-keyword">const</span> agent = <span class="syntax-function">createAgent</span>({
+  model: <span class="syntax-string">"gpt-4.1"</span>,
+  tools: [weatherTool],
+  checkpointer: prodCheckpointer,
+});
+
+<span class="syntax-comment">// Use thread_id for conversation isolation</span>
+<span class="syntax-keyword">const</span> config = { configurable: { thread_id: <span class="syntax-string">"user-456"</span> } };
+
+<span class="syntax-comment">// First message</span>
+<span class="syntax-keyword">await</span> agent.<span class="syntax-function">invoke</span>(
+  { messages: [{ role: <span class="syntax-string">"user"</span>, content: <span class="syntax-string">"My name is Alice"</span> }] },
+  config
+);
+
+<span class="syntax-comment">// Later message - agent remembers Alice</span>
+<span class="syntax-keyword">await</span> agent.<span class="syntax-function">invoke</span>(
+  { messages: [{ role: <span class="syntax-string">"user"</span>, content: <span class="syntax-string">"What's my name?"</span> }] },
+  config
+);</pre>
+            </div>
+            <div class="slide-number">20 / 26</div>
+        </div>
+
+        <!-- Slide 21: Production Best Practices -->
+        <div class="slide">
+            <h2>Production Best Practices</h2>
+            
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4>🔒 Error Handling</h4>
+                    <p>Try-catch on tool calls, implement retries, graceful degradation, circuit breakers</p>
+                </div>
+                <div class="feature-card">
+                    <h4>📊 Observability</h4>
+                    <p>Enable LangSmith tracing, monitor costs/latency, track token usage, error rates</p>
+                </div>
+                <div class="feature-card">
+                    <h4>⚡ Performance</h4>
+                    <p>Stream responses, use middleware for context optimization, cache where possible</p>
+                </div>
+                <div class="feature-card">
+                    <h4>🛡️ Security</h4>
+                    <p>Validate inputs, sanitize outputs, rate limiting, never expose API keys</p>
+                </div>
+                <div class="feature-card">
+                    <h4>💾 State Management</h4>
+                    <p>Use SQLite/Postgres checkpointers for production, Redis for distributed systems</p>
+                </div>
+                <div class="feature-card">
+                    <h4>🧪 Testing</h4>
+                    <p>Unit test tools, integration test workflows, LangSmith evaluations</p>
+                </div>
+            </div>
+
+            <div class="warning">
+                <strong>Common Pitfalls:</strong> Not handling context limits, missing error handling, no observability, exposing sensitive data
+            </div>
+            <div class="slide-number">21 / 26</div>
+        </div>
+
+        <!-- Slide 22: Adobe Production Example -->
+        <div class="slide">
+            <h2>Real Production: Adobe Content Pipeline</h2>
+            <p>Multi-agent system with HITL for content creation at scale</p>
+
+            <div class="code-block" style="font-size: 0.78em;">
+                <pre><span class="syntax-comment">// Supervisor with multiple specialized workers</span>
+<span class="syntax-keyword">const</span> supervisor = <span class="syntax-function">createAgent</span>({
+  model: <span class="syntax-string">"gpt-4.1-mini"</span>,
+  tools: [researchAgent, writerAgent, jiraAgent, azureSearchTool],
+  checkpointer: <span class="syntax-keyword">new</span> <span class="syntax-type">SqliteSaver</span>(<span class="syntax-string">"./prod.db"</span>),
+  middleware: [
+    <span class="syntax-comment">// Context editing - clear old tool results</span>
+    <span class="syntax-function">contextEditingMiddleware</span>({
+      edits: [
+        <span class="syntax-keyword">new</span> <span class="syntax-type">ClearToolUsesEdit</span>({
+          triggerTokens: <span class="syntax-number">2000</span>,
+          keep: { messages: <span class="syntax-number">3</span> },
+          clearToolInputs: <span class="syntax-keyword">false</span>,
+          excludeTools: [],
+          placeholder: <span class="syntax-string">"[cleared]"</span>,
+        }),
+      ],
+      tokenCountMethod: <span class="syntax-string">"approx"</span>,
+    }),
+    <span class="syntax-comment">// Custom logging for production monitoring</span>
+    loggingMiddleware,
+  ],
+  systemPrompt: <span class="syntax-string">`Coordinate worker agents. Return responses exactly.`</span>,
+});</pre>
+            </div>
+
+            <div class="two-column" style="margin-top: 15px;">
+                <div class="box">
+                    <h4>Key Features</h4>
+                    <p style="font-size: 0.88em;">• Supervisor pattern with 4 workers<br/>
+                    • Context editing middleware<br/>
+                    • SQLite checkpointer<br/>
+                    • Custom logging middleware<br/>
+                    • MCP integration (Azure Search)</p>
+                </div>
+                <div class="box">
+                    <h4>Results</h4>
+                    <p style="font-size: 0.88em;">• <strong>60% cost reduction</strong><br/>
+                    • <strong>40% latency improvement</strong><br/>
+                    • <strong>10,000+ monthly requests</strong><br/>
+                    • Context optimization<br/>
+                    • Production-grade reliability</p>
+                </div>
+            </div>
+            <div class="slide-number">22 / 26</div>
+        </div>
+
+        <!-- Slide 23: Key Takeaways -->
+        <div class="slide">
+            <h2>Key Takeaways</h2>
+            
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h4>✅ Use createAgent</h4>
+                    <p>createReactAgent is deprecated - use modern createAgent API</p>
+                </div>
+                <div class="feature-card">
+                    <h4>🔌 Embrace MCP</h4>
+                    <p>MultiServerMCPClient for standardized tool integrations</p>
+                </div>
+                <div class="feature-card">
+                    <h4>⚙️ Leverage Middleware</h4>
+                    <p>Summarization, context editing, HITL for production control</p>
+                </div>
+                <div class="feature-card">
+                    <h4>🏗️ Supervisor Pattern</h4>
+                    <p>Wrap workers as tools for clean multi-agent orchestration</p>
+                </div>
+                <div class="feature-card">
+                    <h4>📊 Monitor Everything</h4>
+                    <p>LangSmith for debugging, tracing, and production observability</p>
+                </div>
+                <div class="feature-card">
+                    <h4>💾 Persist State</h4>
+                    <p>Use checkpointers (SQLite/Postgres) for conversation memory</p>
+                </div>
+            </div>
+
+            <div class="success" style="margin-top: 20px;">
+                <strong>Bottom Line:</strong> LangChain.js + LangGraph + LangSmith provide a complete platform for production-ready multi-agent systems
+            </div>
+            <div class="slide-number">23 / 26</div>
+        </div>
+
+        <!-- Slide 24: Resources -->
+        <div class="slide">
+            <h2>Resources & Learning</h2>
+            
+            <div class="two-column">
+                <div>
+                    <h3>📚 Official Documentation</h3>
+                    <ul style="font-size: 0.95em;">
+                        <li><strong>LangChain.js:</strong><br/>js.langchain.com/docs</li>
+                        <li><strong>LangGraph.js:</strong><br/>langchain-ai.github.io/langgraphjs</li>
+                        <li><strong>MCP Integration:</strong><br/>docs.langchain.com/mcp</li>
+                        <li><strong>LangSmith:</strong><br/>smith.langchain.com</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3>🚀 Getting Started</h3>
+                    <ul style="font-size: 0.95em;">
+                        <li>Start with createAgent</li>
+                        <li>Add tools using tool() helper</li>
+                        <li>Integrate MCP servers</li>
+                        <li>Apply middleware patterns</li>
+                        <li>Build supervisor for multi-agent</li>
+                        <li>Enable LangSmith tracing</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="code-block" style="margin-top: 20px;">
+                <pre><span class="syntax-comment">// Quick start template</span>
+<span class="syntax-keyword">import</span> { <span class="syntax-function">createAgent</span>, tool } <span class="syntax-keyword">from</span> <span class="syntax-string">"langchain"</span>;
+
+<span class="syntax-keyword">const</span> myTool = <span class="syntax-function">tool</span>(<span class="syntax-keyword">async</span> ({ input }) => <span class="syntax-string">"result"</span>, {
+  name: <span class="syntax-string">"my_tool"</span>,
+  description: <span class="syntax-string">"Description"</span>,
+  schema: z.<span class="syntax-function">object</span>({ input: z.<span class="syntax-function">string</span>() }),
+});
+
+<span class="syntax-keyword">const</span> agent = <span class="syntax-function">createAgent</span>({
+  model: <span class="syntax-string">"gpt-4.1"</span>,
+  tools: [myTool],
+});
+
+<span class="syntax-keyword">const</span> result = <span class="syntax-keyword">await</span> agent.<span class="syntax-function">invoke</span>({ messages: [...] });</pre>
+            </div>
+            <div class="slide-number">24 / 26</div>
+        </div>
+
+        <!-- Slide 25: Code Repository -->
+        <div class="slide">
+            <h2>Reference Implementation</h2>
+            <p>Complete supervisor pattern with all concepts covered</p>
+
+            <div class="info" style="margin-bottom: 20px;">
+                <strong>supervisor.ts</strong> - Production implementation from Adobe with:
+            </div>
+
+            <ul style="font-size: 1.05em; line-height: 2;">
+                <li>✅ Modern <code>createAgent</code> API</li>
+                <li>✅ Worker agents wrapped as tools using <code>tool()</code> helper</li>
+                <li>✅ Context editing middleware with <code>ClearToolUsesEdit</code></li>
+                <li>✅ Custom semantic compression middleware</li>
+                <li>✅ Logging middleware for production monitoring</li>
+                <li>✅ MemorySaver checkpointer for state</li>
+                <li>✅ MCP integration (Azure Search)</li>
+                <li>✅ Token usage tracking and aggregation</li>
+            </ul>
+
+            <div class="success" style="margin-top: 20px;">
+                <strong>Live Demo:</strong> This exact pattern powers 10,000+ monthly requests at Adobe with 60% cost reduction
+            </div>
+            <div class="slide-number">25 / 26</div>
+        </div>
+
+        <!-- Slide 26: Q&A -->
+        <div class="slide">
+            <h2>Thank You!</h2>
+            <p style="font-size: 1.3em; margin-bottom: 30px;">Questions & Discussion</p>
+
+            <div class="box" style="margin: 30px 0; padding: 30px;">
+                <h3 style="color: #667eea; margin-bottom: 15px;">Topics for Discussion</h3>
+                <ul style="font-size: 1.1em; line-height: 2;">
+                    <li>Multi-agent architectures and patterns</li>
+                    <li>Production deployment strategies</li>
+                    <li>Middleware customization for specific use cases</li>
+                    <li>MCP server development and integration</li>
+                    <li>Cost optimization techniques</li>
+                    <li>Debugging and observability best practices</li>
+                </ul>
+            </div>
+
+            <div class="info" style="margin-top: 30px;">
+                <strong>Connect:</strong> Let's discuss how to apply these patterns to your specific use cases
+            </div>
+
+            <p class="author" style="margin-top: auto;">
+                <strong>Abani R</strong> | Senior Solution Architect, Adobe Systems<br/>
+                <span style="font-size: 0.9em;">Project Stream - Agentic AI Platform (10,000+ monthly requests)</span><br/>
+                <span style="font-size: 0.85em; margin-top: 8px; display: block;">abani.routray@adobe.com | LinkedIn: /in/abanir</span>
+            </p>
+            <div class="slide-number">26 / 26</div>
+        </div>
+    </div>
+
+    <div class="controls">
+        <button id="prevBtn" onclick="changeSlide(-1)">← Previous</button>
+        <button id="nextBtn" onclick="changeSlide(1)">Next →</button>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+
+        function showSlide(n) {
+            if (n >= totalSlides) currentSlide = totalSlides - 1;
+            if (n < 0) currentSlide = 0;
+            
+            slides.forEach((slide, index) => {
+                slide.classList.remove('active');
+                if (index === currentSlide) {
+                    slide.classList.add('active');
+                }
+            });
+
+            document.getElementById('prevBtn').disabled = currentSlide === 0;
+            document.getElementById('nextBtn').disabled = currentSlide === totalSlides - 1;
+        }
+
+        function changeSlide(direction) {
+            currentSlide += direction;
+            showSlide(currentSlide);
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') changeSlide(-1);
+            if (e.key === 'ArrowRight') changeSlide(1);
+            if (e.key === 'Home') { currentSlide = 0; showSlide(currentSlide); }
+            if (e.key === 'End') { currentSlide = totalSlides - 1; showSlide(currentSlide); }
+        });
+
+        showSlide(currentSlide);
+    </script>
+</body>
+</html>
