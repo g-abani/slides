@@ -1,0 +1,1094 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>RAG Reasoning Techniques</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;}
+  :root{
+    --bg:#0f1117;--bg2:#1a1d2e;--bg3:#232638;
+    --accent:#6c63ff;--accent2:#00d4ff;--accent3:#ff6b6b;
+    --green:#00e5a0;--yellow:#ffd166;--orange:#ff9a3c;
+    --text:#e8eaf6;--text2:#9fa8c7;--border:#2e3257;
+    --card:#1e2235;
+  }
+  body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);overflow:hidden;height:100vh;}
+
+  /* NAV */
+  .nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(15,17,23,0.95);
+    border-bottom:1px solid var(--border);display:flex;align-items:center;
+    justify-content:space-between;padding:10px 24px;backdrop-filter:blur(10px);}
+  .nav-logo{font-size:13px;font-weight:700;color:var(--accent2);letter-spacing:1px;}
+  .nav-controls{display:flex;align-items:center;gap:12px;}
+  .nav-btn{background:var(--bg3);border:1px solid var(--border);color:var(--text);
+    padding:6px 14px;border-radius:6px;cursor:pointer;font-size:13px;transition:all .2s;}
+  .nav-btn:hover{background:var(--accent);border-color:var(--accent);}
+  .nav-counter{font-size:13px;color:var(--text2);min-width:60px;text-align:center;}
+  .progress-bar{position:fixed;top:49px;left:0;right:0;height:3px;background:var(--bg3);z-index:100;}
+  .progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .4s ease;}
+
+  /* SLIDES */
+  .slides{height:100vh;overflow:hidden;}
+  .slide{position:absolute;top:0;left:0;right:0;bottom:0;padding:70px 60px 30px;
+    display:none;overflow-y:auto;animation:fadeIn .4s ease;}
+  .slide.active{display:flex;flex-direction:column;}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+  /* TYPOGRAPHY */
+  .slide-tag{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;
+    color:var(--accent2);margin-bottom:10px;}
+  h1{font-size:42px;font-weight:800;line-height:1.15;margin-bottom:8px;}
+  h2{font-size:28px;font-weight:700;margin-bottom:20px;color:var(--text);}
+  h3{font-size:16px;font-weight:700;margin-bottom:10px;}
+  p,li{font-size:14px;line-height:1.7;color:var(--text2);}
+  .accent{color:var(--accent);}
+  .accent2{color:var(--accent2);}
+  .green{color:var(--green);}
+  .yellow{color:var(--yellow);}
+  .orange{color:var(--orange);}
+  .red{color:var(--accent3);}
+
+  /* CARDS */
+  .card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;}
+  .card.accent-border{border-left:4px solid var(--accent);}
+  .card.green-border{border-left:4px solid var(--green);}
+  .card.red-border{border-left:4px solid var(--accent3);}
+  .card.yellow-border{border-left:4px solid var(--yellow);}
+  .card.cyan-border{border-left:4px solid var(--accent2);}
+  .card.orange-border{border-left:4px solid var(--orange);}
+
+  /* GRIDS */
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;}
+  .grid4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:14px;}
+
+  /* TAGS */
+  .tag{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;margin:3px 3px 3px 0;}
+  .tag.pro{background:rgba(0,229,160,.15);color:var(--green);border:1px solid rgba(0,229,160,.3);}
+  .tag.con{background:rgba(255,107,107,.15);color:var(--accent3);border:1px solid rgba(255,107,107,.3);}
+  .tag.use{background:rgba(108,99,255,.15);color:var(--accent);border:1px solid rgba(108,99,255,.3);}
+  .tag.neutral{background:rgba(0,212,255,.15);color:var(--accent2);border:1px solid rgba(0,212,255,.3);}
+
+  /* FLOW */
+  .flow{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:10px 0;}
+  .flow-box{background:var(--bg3);border:1px solid var(--border);border-radius:8px;
+    padding:7px 14px;font-size:12px;font-weight:600;color:var(--text);white-space:nowrap;}
+  .flow-arrow{color:var(--accent2);font-size:16px;font-weight:700;}
+
+  /* TABLE */
+  table{width:100%;border-collapse:collapse;font-size:13px;}
+  th{background:var(--bg3);color:var(--accent2);text-align:left;padding:10px 14px;
+    border-bottom:2px solid var(--border);font-size:12px;letter-spacing:.5px;}
+  td{padding:10px 14px;border-bottom:1px solid var(--border);color:var(--text2);vertical-align:top;}
+  tr:hover td{background:rgba(108,99,255,.05);}
+
+  /* BADGE */
+  .badge{display:inline-flex;align-items:center;gap:6px;background:var(--bg3);
+    border:1px solid var(--border);border-radius:8px;padding:6px 12px;font-size:12px;font-weight:600;}
+
+  /* HERO */
+  .hero-grid{display:grid;grid-template-columns:1.2fr 1fr;gap:40px;align-items:center;flex:1;}
+  .hero-stats{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:20px;}
+  .stat-box{background:var(--card);border:1px solid var(--border);border-radius:10px;
+    padding:16px;text-align:center;}
+  .stat-num{font-size:28px;font-weight:800;color:var(--accent2);}
+  .stat-lbl{font-size:11px;color:var(--text2);margin-top:4px;}
+
+  /* TECHNIQUE HEADER */
+  .tech-header{display:flex;align-items:center;gap:14px;margin-bottom:20px;}
+  .tech-icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;
+    justify-content:center;font-size:22px;flex-shrink:0;}
+  .tech-meta{flex:1;}
+  .complexity-bar{display:flex;gap:4px;margin-top:4px;}
+  .complexity-dot{width:10px;height:10px;border-radius:50%;}
+
+  /* DIVIDER */
+  .divider{height:1px;background:var(--border);margin:16px 0;}
+
+  /* PILL NAV */
+  .pill-nav{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px;}
+  .pill{padding:5px 14px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;
+    border:1px solid var(--border);color:var(--text2);background:var(--bg3);transition:all .2s;}
+  .pill:hover,.pill.active{background:var(--accent);border-color:var(--accent);color:white;}
+
+  /* CODE */
+  .code-block{background:#0d1117;border:1px solid var(--border);border-radius:8px;
+    padding:14px 16px;font-family:'Cascadia Code','Fira Code',monospace;font-size:12px;
+    line-height:1.7;color:#e6edf3;overflow-x:auto;}
+  .code-block .kw{color:#ff7b72;}
+  .code-block .fn{color:#d2a8ff;}
+  .code-block .str{color:#a5d6ff;}
+  .code-block .cm{color:#8b949e;}
+
+  /* ROADMAP */
+  .roadmap{display:flex;flex-direction:column;gap:12px;}
+  .roadmap-item{display:flex;gap:16px;align-items:flex-start;}
+  .roadmap-line{display:flex;flex-direction:column;align-items:center;gap:0;}
+  .roadmap-dot{width:14px;height:14px;border-radius:50%;flex-shrink:0;margin-top:3px;}
+  .roadmap-bar{width:2px;flex:1;background:var(--border);min-height:30px;}
+
+  /* SCROLL */
+  .slide::-webkit-scrollbar{width:4px;}
+  .slide::-webkit-scrollbar-track{background:transparent;}
+  .slide::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+
+  /* FOOTER */
+  .slide-footer{margin-top:auto;padding-top:12px;border-top:1px solid var(--border);
+    display:flex;justify-content:space-between;align-items:center;font-size:11px;color:var(--text2);}
+
+  ul{padding-left:16px;}
+  ul li{margin-bottom:4px;}
+
+  .vs-box{text-align:center;background:var(--bg3);border-radius:50%;width:36px;height:36px;
+    display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;
+    color:var(--yellow);border:1px solid var(--border);flex-shrink:0;align-self:center;}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-logo">⚡ RAG REASONING TECHNIQUES</div>
+  <div class="nav-controls">
+    <button class="nav-btn" onclick="changeSlide(-1)">← Prev</button>
+    <span class="nav-counter" id="counter">1 / 13</span>
+    <button class="nav-btn" onclick="changeSlide(1)">Next →</button>
+  </div>
+</nav>
+<div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
+
+<div class="slides" id="slides">
+
+<!-- SLIDE 1: TITLE -->
+<div class="slide active" id="s1">
+  <div class="hero-grid">
+    <div>
+      <div class="slide-tag">Engineering Team Presentation · 2026</div>
+      <h1>Reasoning-Based<br/><span class="accent">RAG Techniques</span></h1>
+      <p style="font-size:15px;margin:16px 0 24px;color:var(--text2);max-width:480px;">
+        A deep dive into 6 advanced retrieval-augmented generation strategies that go beyond basic retrieval — covering architecture, trade-offs, and a path to our Enterprise Knowledge Base POC.
+      </p>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <div class="badge">🎯 <span>6 Techniques</span></div>
+        <div class="badge">⚙️ <span>Engineer Audience</span></div>
+        <div class="badge">🏢 <span>Enterprise KB POC</span></div>
+      </div>
+      <div class="hero-stats">
+        <div class="stat-box"><div class="stat-num accent2">6</div><div class="stat-lbl">RAG Strategies</div></div>
+        <div class="stat-box"><div class="stat-num" style="color:var(--green)">3</div><div class="stat-lbl">POC Phases</div></div>
+        <div class="stat-box"><div class="stat-num" style="color:var(--yellow)">∞</div><div class="stat-lbl">Use Cases</div></div>
+        <div class="stat-box"><div class="stat-num" style="color:var(--accent3)">1</div><div class="stat-lbl">Goal: Production</div></div>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <div class="card accent-border"><h3 class="accent">What we'll cover</h3>
+        <ul><li>Why basic RAG falls short for enterprise</li><li>Iterative, Recursive, Self, Corrective, Adaptive & Agentic RAG</li><li>Pros, cons & ideal applications</li><li>Side-by-side comparison matrix</li><li>POC architecture & implementation plan</li></ul>
+      </div>
+      <div class="card cyan-border"><h3 class="accent2">End Goal</h3>
+        <p>Build a production-ready POC for an <strong style="color:var(--text)">Enterprise Knowledge Base</strong> that intelligently selects the right RAG strategy per query type.</p>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer"><span>RAG Reasoning Techniques</span><span>Slide 1 of 13</span></div>
+</div>
+
+<!-- SLIDE 2: WHY REASONING RAG -->
+<div class="slide" id="s2">
+  <div class="slide-tag">Context Setting</div>
+  <h2>Why Basic RAG <span class="accent3">Falls Short</span></h2>
+  <div class="grid2" style="margin-bottom:16px;">
+    <div class="card red-border">
+      <h3 class="red">❌ Problems with Naive RAG</h3>
+      <ul>
+        <li>Retrieves chunks that are <strong>syntactically similar</strong>, not semantically sufficient</li>
+        <li>Single-pass retrieval misses <strong>multi-hop reasoning</strong></li>
+        <li>No mechanism to <strong>self-correct</strong> bad retrievals</li>
+        <li>Cannot handle <strong>complex, multi-part</strong> questions</li>
+        <li>No awareness of <strong>retrieval quality</strong> — garbage in, garbage out</li>
+        <li>Static pipeline — <strong>no adaptability</strong> to query complexity</li>
+      </ul>
+    </div>
+    <div class="card green-border">
+      <h3 class="green">✅ What Reasoning RAG Adds</h3>
+      <ul>
+        <li><strong>Dynamic query refinement</strong> based on intermediate results</li>
+        <li><strong>Self-evaluation</strong> of retrieval quality before generation</li>
+        <li><strong>Question decomposition</strong> for complex queries</li>
+        <li><strong>Iterative enrichment</strong> — building richer context each pass</li>
+        <li><strong>Routing logic</strong> — right strategy for right query</li>
+        <li><strong>Autonomous planning</strong> for multi-step tasks</li>
+      </ul>
+    </div>
+  </div>
+  <div class="card" style="margin-bottom:16px;">
+    <h3 style="margin-bottom:12px;">Reasoning RAG Pipeline vs Basic RAG</h3>
+    <div style="margin-bottom:10px;">
+      <div style="font-size:11px;color:var(--text2);margin-bottom:6px;">BASIC RAG</div>
+      <div class="flow">
+        <div class="flow-box">User Query</div><div class="flow-arrow">→</div>
+        <div class="flow-box">Retrieve Top-K</div><div class="flow-arrow">→</div>
+        <div class="flow-box">LLM Generate</div><div class="flow-arrow">→</div>
+        <div class="flow-box" style="color:var(--accent3)">Answer (Maybe Wrong)</div>
+      </div>
+    </div>
+    <div>
+      <div style="font-size:11px;color:var(--text2);margin-bottom:6px;">REASONING RAG</div>
+      <div class="flow">
+        <div class="flow-box">User Query</div><div class="flow-arrow">→</div>
+        <div class="flow-box" style="border-color:var(--accent)">Reason / Plan</div><div class="flow-arrow">→</div>
+        <div class="flow-box" style="border-color:var(--accent)">Retrieve</div><div class="flow-arrow">→</div>
+        <div class="flow-box" style="border-color:var(--accent)">Evaluate</div><div class="flow-arrow">→</div>
+        <div class="flow-box" style="border-color:var(--accent)">Refine / Loop</div><div class="flow-arrow">→</div>
+        <div class="flow-box" style="color:var(--green)">Verified Answer</div>
+      </div>
+    </div>
+  </div>
+  <div class="grid4">
+    <div class="stat-box"><div class="stat-num" style="color:var(--accent3)">~40%</div><div class="stat-lbl">Basic RAG accuracy drop on multi-hop questions</div></div>
+    <div class="stat-box"><div class="stat-num accent2">2-5x</div><div class="stat-lbl">Better answer quality with iterative strategies</div></div>
+    <div class="stat-box"><div class="stat-num" style="color:var(--green)">↓60%</div><div class="stat-lbl">Hallucination reduction with CRAG</div></div>
+    <div class="stat-box"><div class="stat-num" style="color:var(--yellow)">↑80%</div><div class="stat-lbl">User trust improvement with self-verified answers</div></div>
+  </div>
+  <div class="slide-footer"><span>RAG Reasoning Techniques</span><span>Slide 2 of 13</span></div>
+</div>
+
+<!-- SLIDE 3: ITERATIVE RAG -->
+<div class="slide" id="s3">
+  <div class="slide-tag">Technique 1 of 6</div>
+  <div class="tech-header">
+    <div class="tech-icon" style="background:rgba(108,99,255,.2);border:1px solid var(--accent);">🔁</div>
+    <div class="tech-meta">
+      <h2 style="margin:0;font-size:24px;">Iterative RAG</h2>
+      <div style="font-size:12px;color:var(--text2);margin-top:2px;">Retrieve → Generate → Refine → Loop</div>
+      <div class="complexity-bar">
+        <div class="complexity-dot" style="background:var(--accent)"></div>
+        <div class="complexity-dot" style="background:var(--accent)"></div>
+        <div class="complexity-dot" style="background:var(--accent)"></div>
+        <div class="complexity-dot" style="background:var(--border)"></div>
+        <div class="complexity-dot" style="background:var(--border)"></div>
+        <span style="font-size:11px;color:var(--text2);margin-left:6px;">Complexity: Medium</span>
+      </div>
+    </div>
+    <div class="badge" style="border-color:var(--accent);color:var(--accent);">🏢 Best for Enterprise KB</div>
+  </div>
+  <div class="grid2" style="margin-bottom:14px;">
+    <div>
+      <div class="card accent-border" style="margin-bottom:12px;">
+        <h3>How It Works</h3>
+        <p style="margin-bottom:10px;">The same query is retrieved against multiple times in a loop. Each pass uses the <strong style="color:var(--text)">previous generation output</strong> to refine the next retrieval query, progressively building richer context.</p>
+        <div class="flow" style="flex-direction:column;align-items:flex-start;gap:4px;">
+          <div class="flow-box" style="width:100%">① Initial Query → Retrieve Docs</div>
+          <div class="flow-arrow" style="padding-left:20px;">↓</div>
+          <div class="flow-box" style="width:100%">② Generate Partial Answer</div>
+          <div class="flow-arrow" style="padding-left:20px;">↓</div>
+          <div class="flow-box" style="width:100%;border-color:var(--accent)">③ Evaluate Completeness</div>
+          <div class="flow-arrow" style="padding-left:20px;">↓</div>
+          <div class="flow-box" style="width:100%;border-color:var(--accent2)">④ Refine Query → Retrieve Again</div>
+          <div class="flow-arrow" style="padding-left:20px;">↓</div>
+          <div class="flow-box" style="width:100%;border-color:var(--green)">⑤ Final Converged Answer</div>
+        </div>
+      </div>
+      <div class="card">
+        <h3>🏢 Enterprise KB Use Cases</h3>
+        <ul>
+          <li>Policy & compliance document Q&A</li>
+          <li>Technical documentation deep search</li>
+          <li>Research synthesis across large corpora</li>
+          <li>Multi-document summarization</li>
+        </ul>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <div class="card green-border">
+        <h3 class="green">✅ Pros</h3>
+        <div>
+          <span class="tag pro">Progressively richer context</span>
+          <span class="tag pro">Handles vague initial queries</span>
+          <span class="tag pro">Self-improving per loop</span>
+          <span class="tag pro">Simple to implement</span>
+          <span class="tag pro">Works with any vector DB</span>
+        </div>
+      </div>
+      <div class="card red-border">
+        <h3 class="red">❌ Cons</h3>
+        <div>
+          <span class="tag con">Higher latency (multiple passes)</span>
+          <span class="tag con">Risk of infinite loops</span>
+          <span class="tag con">Token cost multiplies per iteration</span>
+          <span class="tag con">Needs good stopping criteria</span>
+        </div>
+      </div>
+      <div class="card yellow-border">
+        <h3 class="yellow">⚡ Key Design Decisions</h3>
+        <ul>
+          <li><strong style="color:var(--text)">Max iterations:</strong> Cap at 3–5 to control cost</li>
+          <li><strong style="color:var(--text)">Stop condition:</strong> Confidence score or answer completeness check</li>
+          <li><strong style="color:var(--text)">Query evolution:</strong> Use LLM to rewrite query using partial answer</li>
+          <li><strong style="color:var(--text)">Deduplication:</strong> Filter already-seen chunks between passes</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer"><span>RAG Reasoning Techniques</span><span>Slide 3 of 13</span></div>
+</div>
+
+<!-- SLIDE 4: RECURSIVE RAG -->
+<div class="slide" id="s4">
+  <div class="slide-tag">Technique 2 of 6</div>
+  <div class="tech-header">
+    <div class="tech-icon" style="background:rgba(0,212,255,.15);border:1px solid var(--accent2);">🌀</div>
+    <div class="tech-meta">
+      <h2 style="margin:0;font-size:24px;">Recursive RAG</h2>
+      <div style="font-size:12px;color:var(--text2);margin-top:2px;">Decompose → Solve Sub-Questions → Synthesize</div>
+      <div class="complexity-bar">
+        <div class="complexity-dot" style="background:var(--accent2)"></div>
+        <div class="complexity-dot" style="background:var(--accent2)"></div>
+        <div class="complexity-dot" style="background:var(--accent2)"></div>
+        <div class="complexity-dot" style="background:var(--accent2)"></div>
+        <div class="complexity-dot" style="background:var(--border)"></div>
+        <span style="font-size:11px;color:var(--text2);margin-left:6px;">Complexity: Medium-High</span>
+      </div>
+    </div>
+    <div class="badge" style="border-color:var(--accent2);color:var(--accent2);">📊 Best for Multi-Part Queries</div>
+  </div>
+  <div class="grid2" style="margin-bottom:14px;">
+    <div>
+      <div class="card cyan-border" style="margin-bottom:12px;">
+        <h3>How It Works</h3>
+        <p style="margin-bottom:10px;">A complex query is <strong style="color:var(--text)">decomposed into a tree of sub-questions</strong>. Each leaf node is answered independently via retrieval. Results bubble up and are synthesized into a final answer.</p>
+        <div style="background:var(--bg3);border-radius:8px;padding:12px;font-size:12px;font-family:monospace;line-height:2;">
+          <div style="text-align:center;color:var(--accent2);">Complex Query</div>
+          <div style="text-align:center;color:var(--text2);">↓ decompose</div>
+          <div style="display:flex;justify-content:space-around;">
+            <div style="text-align:center;color:var(--text);">Sub-Q1</div>
+            <div style="text-align:center;color:var(--text);">Sub-Q2</div>
+            <div style="text-align:center;color:var(--text);">Sub-Q3</div>
+          </div>
+          <div style="display:flex;justify-content:space-around;color:var(--text2);">
+            <div>↓</div><div>↓</div><div>↓</div>
+          </div>
+          <div style="display:flex;justify-content:space-around;color:var(--green);">
+            <div>Ans1</div><div>Ans2</div><div>Ans3</div>
+          </div>
+          <div style="text-align:center;color:var(--text2);">↓ synthesize</div>
+          <div style="text-align:center;color:var(--green);">Final Answer</div>
+        </div>
+      </div>
+      <div class="card">
+        <h3>🏢 Enterprise KB Use Cases</h3>
+        <ul>
+          <li>Comparative analysis (e.g., "Compare policy A vs B vs C")</li>
+          <li>Multi-department knowledge aggregation</li>
+          <li>Cross-document fact gathering</li>
+          <li>Structured report generation</li>
+        </ul>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <div class="card green-border">
+        <h3 class="green">✅ Pros</h3>
+        <div>
+          <span class="tag pro">Handles complex multi-part questions</span>
+          <span class="tag pro">Parallelizable sub-questions</span>
+          <span class="tag pro">Structured, traceable reasoning</span>
+          <span class="tag pro">Excellent for comparisons</span>
+          <span class="tag pro">Sub-answers are reusable</span>
+        </div>
+      </div>
+      <div class="card red-border">
+        <h3 class="red">❌ Cons</h3>
+        <div>
+          <span class="tag con">Poor decomposition = wrong answers</span>
+          <span class="tag con">High LLM call overhead</span>
+          <span class="tag con">Synthesis step can lose nuance</span>
+          <span class="tag con">Harder to debug failures</span>
+        </div>
+      </div>
+      <div class="card yellow-border">
+        <h3 class="yellow">⚡ Key Design Decisions</h3>
+        <ul>
+          <li><strong style="color:var(--text)">Decomposition model:</strong> Use strong LLM (GPT-4 class) for planning</li>
+          <li><strong style="color:var(--text)">Max depth:</strong> Limit recursion to 2–3 levels</li>
+          <li><strong style="color:var(--text)">Parallelism:</strong> Run leaf retrievals concurrently (async)</li>
+          <li><strong style="color:var(--text)">Synthesis prompt:</strong> Carefully engineered to combine answers without hallucination</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer"><span>RAG Reasoning Techniques</span><span>Slide 4 of 13</span></div>
+</div>
+
+<!-- SLIDE 5: SELF-RAG -->
+<div class="slide" id="s5">
+  <div class="slide-tag">Technique 3 of 6</div>
+  <div class="tech-header">
+    <div class="tech-icon" style="background:rgba(0,229,160,.15);border:1px solid var(--green);">🪞</div>
+    <div class="tech-meta">
+      <h2 style="margin:0;font-size:24px;">Self-RAG</h2>
+      <div style="font-size:12px;color:var(--text2);margin-top:2px;">Retrieve Only When Needed · Self-Critique · Self-Score</div>
+      <div class="complexity-bar">
+        <div class="complexity-dot" style="background:var(--green)"></div>
+        <div class="complexity-dot" style="background:var(--green)"></div>
+        <div class="complexity-dot" style="background:var(--green)"></div>
+        <div class="complexity-dot" style="background:var(--green)"></div>
+        <div class="complexity-dot" style="background:var(--border)"></div>
+        <span style="font-size:11px;color:var(--text2);margin-left:6px;">Complexity: High</span>
+      </div>
+    </div>
+    <div class="badge" style="border-color:var(--green);color:var(--green);">🎯 Best for Accuracy-Critical Apps</div>
+  </div>
+  <div class="grid2" style="margin-bottom:14px;">
+    <div>
+      <div class="card green-border" style="margin-bottom:12px;">
+        <h3>How It Works</h3>
+        <p style="margin-bottom:10px;">The LLM generates <strong style="color:var(--text)">special reflection tokens</strong> to decide: (1) whether to retrieve at all, (2) whether retrieved docs are relevant, and (3) whether its own output is supported by evidence.</p>
+        <div style="display:flex;flex-direction:column;gap:6px;font-size:12px;">
+          <div class="flow-box" style="width:100%">① Query arrives → LLM decides: <span class="green">Retrieve?</span></div>
+          <div class="flow-box" style="width:100%;border-color:var(--green)">② [Retrieve] token → Fetch docs</div>
+          <div class="flow-box" style="width:100%">③ LLM scores each doc: <span class="green">Relevant?</span></div>
+          <div class="flow-box" style="width:100%;border-color:var(--green)">④ Generate answer using relevant docs</div>
+          <div class="flow-box" style="width:100%">⑤ Self-critique: <span class="green">Supported? Useful?</span></div>
+          <div class="flow-box" style="width:100%;border-color:var(--green)">⑥ Best-scored answer returned</div>
+        </div>
+      </div>
+      <div class="card">
+        <h3>🏢 Enterprise KB Use Cases</h3>
+        <ul>
+          <li>Compliance & audit Q&A (must cite sources)</li>
+          <li>Legal document interpretation</li>
+          <li>Financial policy lookup</li>
+          <li>HR policy self-service chatbot</li>
+        </ul>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <div class="card" style="border-color:var(--green);">
+        <h3 style="color:var(--green);">Self-RAG Reflection Tokens</h3>
+        <table>
+          <tr><th>Token</th><th>Meaning</th></tr>
+          <tr><td><code style="color:var(--accent2)">[Retrieve]</code></td><td>Trigger retrieval</td></tr>
+          <tr><td><code style="color:var(--accent2)">[ISREL]</code></td><td>Doc is relevant</td></tr>
+          <tr><td><code style="color:var(--accent2)">[ISSUP]</code></td><td>Answer is supported</td></tr>
+          <tr><td><code style="color:var(--accent2)">[ISUSE]</code></td><td>Answer is useful</td></tr>
+        </table>
+      </div>
+      <div class="card green-border">
+        <h3 class="green">✅ Pros</h3>
+        <div>
+          <span class="tag pro">Avoids unnecessary retrieval</span>
+          <span class="tag pro">High factual accuracy</span>
+          <span class="tag pro">Built-in hallucination check</span>
+          <span class="tag pro">Source-grounded answers</span>
+        </div>
+      </div>
+      <div class="card red-border">
+        <h3 class="red">❌ Cons</h3>
+        <div>
+          <span class="tag con">Requires special fine-tuned model</span>
+          <span class="tag con">Complex training pipeline</span>
+          <span class="tag con">Higher inference compute</span>
+          <span class="tag con">Overkill for simple queries</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer"><span>RAG Reasoning Techniques</span><span>Slide 5 of 13</span></div>
+</div>
+
+<!-- SLIDE 6: CRAG -->
+<div class="slide" id="s6">
+  <div class="slide-tag">Technique 4 of 6</div>
+  <div class="tech-header">
+    <div class="tech-icon" style="background:rgba(255,107,107,.15);border:1px solid var(--accent3);">🔧</div>
+    <div class="tech-meta">
+      <h2 style="margin:0;font-size:24px;">Corrective RAG (CRAG)</h2>
+      <div style="font-size:12px;color:var(--text2);margin-top:2px;">Retrieve → Evaluate → Correct → Web Fallback</div>
+      <div class="complexity-bar">
+        <div class="complexity-dot" style="background:var(--accent3)"></div>
+        <div class="complexity-dot" style="background:var(--accent3)"></div>
+        <div class="complexity-dot" style="background:var(--accent3)"></div>
+        <div class="complexity-dot" style="background:var(--border)"></div>
+        <div class="complexity-dot" style="background:var(--border)"></div>
+        <span style="font-size:11px;color:var(--text2);margin-left:6px;">Complexity: Medium</span>
+      </div>
+    </div>
+    <div class="badge" style="border-color:var(--accent3);color:var(--accent3);">🛡️ Best for High-Accuracy Needs</div>
+  </div>
+  <div class="grid2" style="margin-bottom:14px;">
+    <div>
+      <div class="card red-border" style="margin-bottom:12px;">
+        <h3>How It Works</h3>
+        <p style="margin-bottom:10px;">CRAG adds a <strong style="color:var(--text)">retrieval evaluator</strong> that scores retrieved documents. Based on the score, it either uses the docs, refines them, or falls back to an external source (web search).</p>
+        <div style="font-size:12px;display:flex;flex-direction:column;gap:5px;">
+          <div class="flow-box">① Retrieve Top-K docs</div>
+          <div class="flow-box" style="border-color:var(--accent3)">② Relevance Evaluator scores docs</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin:4px 0;">
+            <div style="background:rgba(0,229,160,.1);border:1px solid var(--green);border-radius:6px;padding:6px;text-align:center;font-size:11px;"><div class="green">CORRECT</div><div style="color:var(--text2);margin-top:3px;">Use docs directly</div></div>
+            <div style="background:rgba(255,209,102,.1);border:1px solid var(--yellow);border-radius:6px;padding:6px;text-align:center;font-size:11px;"><div class="yellow">AMBIGUOUS</div><div style="color:var(--text2);margin-top:3px;">Refine + combine</div></div>
+            <div style="background:rgba(255,107,107,.1);border:1px solid var(--accent3);border-radius:6px;padding:6px;text-align:center;font-size:11px;"><div class="red">INCORRECT</div><div style="color:var(--text2);margin-top:3px;">Web search fallback</div></div>
+          </div>
+          <div class="flow-box" style="border-color:var(--green)">③ Generate answer from best context</div>
+        </div>
+      </div>
+      <div class="card">
+        <h3>🏢 Enterprise KB Use Cases</h3>
+        <ul>
+          <li>Knowledge bases with stale/incomplete docs</li>
+          <li>IT helpdesk where answers may not exist internally</li>
+          <li>Hybrid internal + internet knowledge lookup</li>
+          <li>Regulated industries (always cite reliable source)</li>
+        </ul>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <div class="card green-border">
+        <h3 class="green">✅ Pros</h3>
+        <div>
+          <span class="tag pro">Prevents bad retrieval from corrupting answers</span>
+          <span class="tag pro">Graceful fallback to web</span>
+          <span class="tag pro">Significantly reduces hallucinations</span>
+          <span class="tag pro">No model fine-tuning needed</span>
+          <span class="tag pro">Robust to incomplete KB</span>
+        </div>
+      </div>
+      <div class="card red-border">
+        <h3 class="red">❌ Cons</h3>
+        <div>
+          <span class="tag con">Evaluator quality is critical</span>
+          <span class="tag con">Web fallback raises privacy concerns</span>
+          <span class="tag con">Extra latency for evaluation step</span>
+          <span class="tag con">Web search adds unpredictability</span>
+        </div>
+      </div>
+      <div class="card yellow-border">
+        <h3 class="yellow">⚡ Key Design Decisions</h3>
+        <ul>
+          <li><strong style="color:var(--text)">Evaluator model:</strong> Lightweight cross-encoder works well</li>
+          <li><strong style="color:var(--text)">Threshold tuning:</strong> Set correct/ambiguous/incorrect thresholds carefully</li>
+          <li><strong style="color:var(--text)">Web fallback:</strong> Use internal search tier first before external web</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer"><span>RAG Reasoning Techniques</span><span>Slide 6 of 13</span></div>
+</div>
+
+<!-- SLIDE 7: ADAPTIVE RAG -->
+<div class="slide" id="s7">
+  <div class="slide-tag">Technique 5 of 6</div>
+  <div class="tech-header">
+    <div class="tech-icon" style="background:rgba(255,209,102,.15);border:1px solid var(--yellow);">🧭</div>
+    <div class="tech-meta">
+      <h2 style="margin:0;font-size:24px;">Adaptive RAG</h2>
+      <div style="font-size:12px;color:var(--text2);margin-top:2px;">Classify Query → Route to Best Strategy → Execute</div>
+      <div class="complexity-bar">
+        <div class="complexity-dot" style="background:var(--yellow)"></div>
+        <div class="complexity-dot" style="background:var(--yellow)"></div>
+        <div class="complexity-dot" style="background:var(--yellow)"></div>
+        <div class="complexity-dot" style="background:var(--yellow)"></div>
+        <div class="complexity-dot" style="background:var(--border)"></div>
+        <span style="font-size:11px;color:var(--text2);margin-left:6px;">Complexity: High</span>
+      </div>
+    </div>
+    <div class="badge" style="border-color:var(--yellow);color:var(--yellow);">🏆 Best for Production Systems</div>
+  </div>
+  <div class="grid2" style="margin-bottom:14px;">
+    <div>
+      <div class="card yellow-border" style="margin-bottom:12px;">
+        <h3>How It Works</h3>
+        <p style="margin-bottom:10px;">A <strong style="color:var(--text)">query classifier</strong> (LLM or lightweight model) first categorizes the incoming query by complexity, then routes it to the most appropriate RAG strategy — avoiding over-engineering simple queries.</p>
+        <div style="font-size:12px;display:flex;flex-direction:column;gap:5px;">
+          <div class="flow-box">① Query arrives</div>
+          <div class="flow-box" style="border-color:var(--yellow)">② Classifier: Simple / Medium / Complex?</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin:4px 0;">
+            <div style="background:rgba(0,229,160,.1);border:1px solid var(--green);border-radius:6px;padding:6px;text-align:center;font-size:11px;"><div class="green">SIMPLE</div><div style="color:var(--text2);margin-top:3px;">No RAG / Basic RAG</div></div>
+            <div style="background:rgba(255,209,102,.1);border:1px solid var(--yellow);border-radius:6px;padding:6px;text-align:center;font-size:11px;"><div class="yellow">MEDIUM</div><div style="color:var(--text2);margin-top:3px;">Single-step RAG</div></div>
+            <div style="background:rgba(108,99,255,.1);border:1px solid var(--accent);border-radius:6px;padding:6px;text-align:center;font-size:11px;"><div class="accent">COMPLEX</div><div style="color:var(--text2);margin-top:3px;">Iterative/Recursive</div></div>
+          </div>
+          <div class="flow-box" style="border-color:var(--green)">③ Execute optimal strategy → Answer</div>
+        </div>
+      </div>
+      <div class="card">
+        <h3>🏢 Enterprise KB Use Cases</h3>
+        <ul>
+          <li>Mixed-intent enterprise search portals</li>
+          <li>AI assistants handling diverse query types</li>
+          <li>Cost-optimized production RAG pipelines</li>
+          <li>Multi-tenant knowledge platforms</li>
+        </ul>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <div class="card green-border">
+        <h3 class="green">✅ Pros</h3>
+        <div>
+          <span class="tag pro">Right strategy for each query type</span>
+          <span class="tag pro">Cost-efficient (no overkill)</span>
+          <span class="tag pro">Lower average latency</span>
+          <span class="tag pro">Combines strengths of all techniques</span>
+          <span class="tag pro">Production-ready mindset</span>
+        </div>
+      </div>
+      <div class="card red-border">
+        <h3 class="red">❌ Cons</h3>
+        <div>
+          <span class="tag con">Classifier errors cascade</span>
+          <span class="tag con">Complex system to build & maintain</span>
+          <span class="tag con">Requires labelled routing data</span>
+          <span class="tag con">Harder to test end-to-end</span>
+        </div>
+      </div>
+      <div class="card yellow-border">
+        <h3 class="yellow">⚡ Key Design Decisions</h3>
+        <ul>
+          <li><strong style="color:var(--text)">Classifier:</strong> LLM prompt or fine-tuned small model (BERT-class)</li>
+          <li><strong style="color:var(--text)">Routing fallback:</strong> Default to Iterative RAG for ambiguous cases</li>
+          <li><strong style="color:var(--text)">Observability:</strong> Log routing decisions for continuous improvement</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer"><span>RAG Reasoning Techniques</span><span>Slide 7 of 13</span></div>
+</div>
+
+<!-- SLIDE 8: AGENTIC RAG -->
+<div class="slide" id="s8">
+  <div class="slide-tag">Technique 6 of 6</div>
+  <div class="tech-header">
+    <div class="tech-icon" style="background:rgba(255,154,60,.15);border:1px solid var(--orange);">🤖</div>
+    <div class="tech-meta">
+      <h2 style="margin:0;font-size:24px;">Agentic RAG</h2>
+      <div style="font-size:12px;color:var(--text2);margin-top:2px;">Plan → Use Tools → Reason → Act → Answer</div>
+      <div class="complexity-bar">
+        <div class="complexity-dot" style="background:var(--orange)"></div>
+        <div class="complexity-dot" style="background:var(--orange)"></div>
+        <div class="complexity-dot" style="background:var(--orange)"></div>
+        <div class="complexity-dot" style="background:var(--orange)"></div>
+        <div class="complexity-dot" style="background:var(--orange)"></div>
+        <span style="font-size:11px;color:var(--text2);margin-left:6px;">Complexity: Very High</span>
+      </div>
+    </div>
+    <div class="badge" style="border-color:var(--orange);color:var(--orange);">🚀 Most Powerful / Advanced</div>
+  </div>
+  <div class="grid2" style="margin-bottom:14px;">
+    <div>
+      <div class="card orange-border" style="margin-bottom:12px;">
+        <h3>How It Works</h3>
+        <p style="margin-bottom:10px;">An <strong style="color:var(--text)">AI agent</strong> autonomously plans a retrieval strategy, decides which tools/sources to use, executes multi-step retrieval, reasons over collected evidence, and produces a final grounded answer — all without hard-coded pipeline steps.</p>
+        <div style="font-size:12px;display:flex;flex-direction:column;gap:5px;">
+          <div class="flow-box">① Query + Task → Agent plans steps</div>
+          <div class="flow-box" style="border-color:var(--orange)">② Agent selects tools: Search / API / DB / Calculator</div>
+          <div class="flow-box">③ Execute tools, collect evidence</div>
+          <div class="flow-box" style="border-color:var(--orange)">④ Reason over evidence (ReAct / CoT)</div>
+          <div class="flow-box">⑤ Is answer complete? → Loop or finish</div>
+          <div class="flow-box" style="border-color:var(--green)">⑥ Return final grounded answer</div>
+        </div>
+      </div>
+      <div class="card">
+        <h3>🏢 Enterprise KB Use Cases</h3>
+        <ul>
+          <li>Autonomous research assistant for analysts</li>
+          <li>Cross-system knowledge gathering (KB + CRM + DB)</li>
+          <li>Multi-step onboarding or troubleshooting workflows</li>
+          <li>Executive briefing generation from multiple sources</li>
+        </ul>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <div class="card" style="border-color:var(--orange);">
+        <h3 style="color:var(--orange);">Agent Tool Arsenal</h3>
+        <div>
+          <span class="tag neutral">Vector Search</span>
+          <span class="tag neutral">SQL Query</span>
+          <span class="tag neutral">Web Search</span>
+          <span class="tag neutral">API Calls</span>
+          <span class="tag neutral">Calculator</span>
+          <span class="tag neutral">Code Executor</span>
+          <span class="tag neutral">File Reader</span>
+          <span class="tag neutral">Summarizer</span>
+        </div>
+      </div>
+      <div class="card green-border">
+        <h3 class="green">✅ Pros</h3>
+        <div>
+          <span class="tag pro">Most flexible and powerful</span>
+          <span class="tag pro">Handles open-ended tasks</span>
+          <span class="tag pro">Multi-source, multi-tool</span>
+          <span class="tag pro">Human-like research capability</span>
+        </div>
+      </div>
+      <div class="card red-border">
+        <h3 class="red">❌ Cons</h3>
+        <div>
+          <span class="tag con">Highest latency & cost</span>
+          <span class="tag con">Unpredictable execution paths</span>
+          <span class="tag con">Hallucination risk in planning</span>
+          <span class="tag con">Hard to test & control</span>
+          <span class="tag con">Needs strong guardrails</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer"><span>RAG Reasoning Techniques</span><span>Slide 8 of 13</span></div>
+</div>
+
+<!-- SLIDE 9: COMPARISON MATRIX -->
+<div class="slide" id="s9">
+  <div class="slide-tag">Side-by-Side Analysis</div>
+  <h2>Comparison <span class="accent">Matrix</span></h2>
+  <div style="overflow-x:auto;margin-bottom:16px;">
+    <table>
+      <tr>
+        <th>Technique</th>
+        <th>Complexity</th>
+        <th>Latency</th>
+        <th>Cost</th>
+        <th>Accuracy</th>
+        <th>Best Query Type</th>
+        <th>Fine-tune?</th>
+        <th>Enterprise KB Fit</th>
+      </tr>
+      <tr>
+        <td><span style="color:var(--accent)">🔁 Iterative</span></td>
+        <td>Medium</td>
+        <td><span class="yellow">Medium</span></td>
+        <td><span class="yellow">Medium</span></td>
+        <td><span class="green">High</span></td>
+        <td>Deep, exploratory</td>
+        <td><span class="green">No</span></td>
+        <td>⭐⭐⭐⭐</td>
+      </tr>
+      <tr>
+        <td><span style="color:var(--accent2)">🌀 Recursive</span></td>
+        <td>Med-High</td>
+        <td><span class="yellow">Medium</span></td>
+        <td><span class="yellow">Medium</span></td>
+        <td><span class="green">High</span></td>
+        <td>Multi-part, comparative</td>
+        <td><span class="green">No</span></td>
+        <td>⭐⭐⭐⭐</td>
+      </tr>
+      <tr>
+        <td><span style="color:var(--green)">🪞 Self-RAG</span></td>
+        <td>High</td>
+        <td><span class="accent3">High</span></td>
+        <td><span class="accent3">High</span></td>
+        <td><span class="green">Very High</span></td>
+        <td>Factual, citation-heavy</td>
+        <td><span class="accent3">Yes</span></td>
+        <td>⭐⭐⭐⭐⭐</td>
+      </tr>
+      <tr>
+        <td><span style="color:var(--accent3)">🔧 CRAG</span></td>
+        <td>Medium</td>
+        <td><span class="yellow">Medium</span></td>
+        <td><span class="yellow">Medium</span></td>
+        <td><span class="green">Very High</span></td>
+        <td>Any (with incomplete KB)</td>
+        <td><span class="green">No</span></td>
+        <td>⭐⭐⭐⭐⭐</td>
+      </tr>
+      <tr>
+        <td><span style="color:var(--yellow)">🧭 Adaptive</span></td>
+        <td>High</td>
+        <td><span class="green">Low-Medium</span></td>
+        <td><span class="green">Optimized</span></td>
+        <td><span class="green">High</span></td>
+        <td>Mixed / diverse</td>
+        <td><span class="green">No</span></td>
+        <td>⭐⭐⭐⭐⭐</td>
+      </tr>
+      <tr>
+        <td><span style="color:var(--orange)">🤖 Agentic</span></td>
+        <td>Very High</td>
+        <td><span class="accent3">Very High</span></td>
+        <td><span class="accent3">Very High</span></td>
+        <td><span class="green">Highest</span></td>
+        <td>Open-ended, multi-step</td>
+        <td><span class="green">No</span></td>
+        <td>⭐⭐⭐</td>
+      </tr>
+    </table>
+  </div>
+  <div class="grid3">
+    <div class="card green-border">
+      <h3 class="green">🏆 Top Pick: Self-RAG + CRAG</h3>
+      <p>For an enterprise KB where accuracy and source attribution are critical, combining CRAG's retrieval evaluation with Self-RAG's output validation gives the highest quality with reasonable complexity.</p>
+    </div>
+    <div class="card yellow-border">
+      <h3 class="yellow">⚡ Production Pick: Adaptive RAG</h3>
+      <p>For a production system serving diverse queries, Adaptive RAG routes each query to the right strategy — balancing cost, latency, and quality optimally across query types.</p>
+    </div>
+    <div class="card orange-border">
+      <h3 class="orange">🚀 Future Pick: Agentic RAG</h3>
+      <p>Start with simpler strategies, instrument them well, then graduate to Agentic RAG for power users who need autonomous, multi-source research across your enterprise KB + external systems.</p>
+    </div>
+  </div>
+  <div class="slide-footer"><span>RAG Reasoning Techniques</span><span>Slide 9 of 13</span></div>
+</div>
+
+<!-- SLIDE 10: APPLICATION MAPPING -->
+<div class="slide" id="s10">
+  <div class="slide-tag">Use Case Analysis</div>
+  <h2>Which Technique for <span class="accent2">Which Application?</span></h2>
+  <div style="overflow-x:auto;margin-bottom:16px;">
+    <table>
+      <tr>
+        <th>Application Type</th>
+        <th>Primary Technique</th>
+        <th>Why</th>
+        <th>Secondary</th>
+      </tr>
+      <tr><td>🏢 Enterprise Policy Q&A</td><td><span class="accent3">CRAG</span></td><td>Handles incomplete/stale docs, always validates retrieval quality</td><td>Self-RAG</td></tr>
+      <tr><td>📊 Comparative Analysis Reports</td><td><span class="accent2">Recursive RAG</span></td><td>Decomposes multi-entity comparisons naturally</td><td>Iterative</td></tr>
+      <tr><td>🔍 Deep Research Assistant</td><td><span class="accent">Iterative RAG</span></td><td>Progressively enriches context across document corpus</td><td>Agentic</td></tr>
+      <tr><td>⚖️ Legal / Compliance Lookup</td><td><span class="green">Self-RAG</span></td><td>Every answer must be citation-backed and verified</td><td>CRAG</td></tr>
+      <tr><td>💬 General Employee Chatbot</td><td><span class="yellow">Adaptive RAG</span></td><td>Routes simple FAQs cheaply, complex queries to richer strategy</td><td>CRAG</td></tr>
+      <tr><td>🤖 Autonomous Research Agent</td><td><span class="orange">Agentic RAG</span></td><td>Multi-source, multi-step, open-ended research tasks</td><td>Recursive</td></tr>
+      <tr><td>🛠️ IT Helpdesk / Troubleshooting</td><td><span class="accent3">CRAG</span></td><td>Graceful fallback when internal KB doesn't have the answer</td><td>Iterative</td></tr>
+      <tr><td>📋 Onboarding Knowledge Base</td><td><span class="yellow">Adaptive RAG</span></td><td>New employees ask everything from simple to complex questions</td><td>Recursive</td></tr>
+    </table>
+  </div>
+  <div class="grid2">
+    <div class="card accent-border">
+      <h3>🎯 Our POC Target: Enterprise KB</h3>
+      <p style="margin-bottom:10px;">For our Enterprise Knowledge Base POC, the ideal architecture is:</p>
+      <div class="flow" style="flex-direction:column;align-items:flex-start;gap:6px;">
+        <div class="flow-box" style="width:100%;border-color:var(--yellow)">Layer 1: Adaptive RAG (query classifier & router)</div>
+        <div class="flow-box" style="width:100%;border-color:var(--accent3)">Layer 2: CRAG (validate retrieval quality)</div>
+        <div class="flow-box" style="width:100%;border-color:var(--accent)">Layer 3: Iterative or Recursive (based on complexity)</div>
+        <div class="flow-box" style="width:100%;border-color:var(--green)">Layer 4: Self-RAG scoring (output verification)</div>
+      </div>
+    </div>
+    <div class="card cyan-border">
+      <h3 class="accent2">📐 Decision Framework</h3>
+      <ul>
+        <li><strong style="color:var(--text)">Simple factual query?</strong> → Basic RAG (fast, cheap)</li>
+        <li><strong style="color:var(--text)">Deep single-topic query?</strong> → Iterative RAG</li>
+        <li><strong style="color:var(--text)">Multi-part / comparative?</strong> → Recursive RAG</li>
+        <li><strong style="color:var(--text)">KB might be incomplete?</strong> → CRAG</li>
+        <li><strong style="color:var(--text)">Must cite every fact?</strong> → Self-RAG</li>
+        <li><strong style="color:var(--text)">Open-ended research task?</strong> → Agentic RAG</li>
+      </ul>
+    </div>
+  </div>
+  <div class="slide-footer"><span>RAG Reasoning Techniques</span><span>Slide 10 of 13</span></div>
+</div>
+
+<!-- SLIDE 11: POC ARCHITECTURE -->
+<div class="slide" id="s11">
+  <div class="slide-tag">POC Design</div>
+  <h2>POC Architecture: <span class="accent">Enterprise Knowledge Base</span></h2>
+  <div class="grid2" style="margin-bottom:14px;">
+    <div>
+      <div class="card accent-border" style="margin-bottom:12px;">
+        <h3>🏗️ System Architecture</h3>
+        <div style="font-size:12px;display:flex;flex-direction:column;gap:5px;">
+          <div class="flow-box" style="width:100%;text-align:center;">📥 Document Ingestion Layer</div>
+          <div style="text-align:center;color:var(--text2);font-size:11px;">PDF / Word / Confluence / SharePoint</div>
+          <div class="flow-arrow" style="text-align:center;">↓ chunk + embed</div>
+          <div class="flow-box" style="width:100%;text-align:center;border-color:var(--accent2);">🗄️ Vector Store (Qdrant / pgvector)</div>
+          <div class="flow-arrow" style="text-align:center;">↓ query</div>
+          <div class="flow-box" style="width:100%;text-align:center;border-color:var(--yellow);">🧭 Adaptive Router (Query Classifier)</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;margin:4px 0;font-size:11px;">
+            <div style="background:rgba(108,99,255,.1);border:1px solid var(--accent);border-radius:6px;padding:5px;text-align:center;">🔁 Iterative</div>
+            <div style="background:rgba(255,107,107,.1);border:1px solid var(--accent3);border-radius:6px;padding:5px;text-align:center;">🔧 CRAG</div>
+            <div style="background:rgba(0,212,255,.1);border:1px solid var(--accent2);border-radius:6px;padding:5px;text-align:center;">🌀 Recursive</div>
+          </div>
+          <div class="flow-box" style="width:100%;text-align:center;border-color:var(--green);">🪞 Self-RAG Verifier</div>
+          <div class="flow-arrow" style="text-align:center;">↓</div>
+          <div class="flow-box" style="width:100%;text-align:center;border-color:var(--green);">✅ Grounded Answer + Citations</div>
+        </div>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <div class="card cyan-border">
+        <h3 class="accent2">🛠️ Tech Stack</h3>
+        <table>
+          <tr><th>Component</th><th>Tool</th></tr>
+          <tr><td>Vector DB</td><td><span class="tag neutral">Qdrant</span></td></tr>
+          <tr><td>Embeddings</td><td><span class="tag neutral">text-embedding-3-large</span></td></tr>
+          <tr><td>LLM</td><td><span class="tag neutral">GPT-4o / Claude 3.5</span></td></tr>
+          <tr><td>Orchestration</td><td><span class="tag neutral">LangGraph</span></td></tr>
+          <tr><td>Framework</td><td><span class="tag neutral">LangChain / LlamaIndex</span></td></tr>
+          <tr><td>Reranker</td><td><span class="tag neutral">Cohere Rerank</span></td></tr>
+          <tr><td>API Layer</td><td><span class="tag neutral">FastAPI</span></td></tr>
+          <tr><td>Observability</td><td><span class="tag neutral">LangSmith / Arize</span></td></tr>
+        </table>
+      </div>
+      <div class="card green-border">
+        <h3 class="green">📏 Evaluation Metrics</h3>
+        <div>
+          <span class="tag pro">Faithfulness</span>
+          <span class="tag pro">Answer Relevance</span>
+          <span class="tag pro">Context Precision</span>
+          <span class="tag pro">Context Recall</span>
+          <span class="tag pro">Latency P95</span>
+          <span class="tag pro">Cost per Query</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer"><span>RAG Reasoning Techniques</span><span>Slide 11 of 13</span></div>
+</div>
+
+<!-- SLIDE 12: POC ROADMAP -->
+<div class="slide" id="s12">
+  <div class="slide-tag">Implementation Plan</div>
+  <h2>POC <span class="accent">Implementation Roadmap</span></h2>
+  <div class="grid3" style="margin-bottom:16px;">
+    <div class="card accent-border">
+      <h3 class="accent">📦 Phase 1 — Foundation <span style="font-weight:400;font-size:12px;color:var(--text2)">(Week 1–2)</span></h3>
+      <div class="roadmap">
+        <div class="roadmap-item">
+          <div class="roadmap-line"><div class="roadmap-dot" style="background:var(--accent)"></div><div class="roadmap-bar"></div></div>
+          <div><strong style="font-size:13px;">Document Ingestion Pipeline</strong><p style="font-size:12px;margin-top:3px;">Chunk, embed, and index enterprise docs into Qdrant. Support PDF, DOCX, Confluence.</p></div>
+        </div>
+        <div class="roadmap-item">
+          <div class="roadmap-line"><div class="roadmap-dot" style="background:var(--accent)"></div><div class="roadmap-bar"></div></div>
+          <div><strong style="font-size:13px;">Basic Hybrid Retrieval</strong><p style="font-size:12px;margin-top:3px;">Set up BM25 + vector search + reranker baseline.</p></div>
+        </div>
+        <div class="roadmap-item">
+          <div class="roadmap-line"><div class="roadmap-dot" style="background:var(--accent)"></div></div>
+          <div><strong style="font-size:13px;">CRAG Evaluator</strong><p style="font-size:12px;margin-top:3px;">Build relevance scorer to classify retrieval quality.</p></div>
+        </div>
+      </div>
+    </div>
+    <div class="card yellow-border">
+      <h3 class="yellow">⚙️ Phase 2 — Reasoning <span style="font-weight:400;font-size:12px;color:var(--text2)">(Week 3–4)</span></h3>
+      <div class="roadmap">
+        <div class="roadmap-item">
+          <div class="roadmap-line"><div class="roadmap-dot" style="background:var(--yellow)"></div><div class="roadmap-bar"></div></div>
+          <div><strong style="font-size:13px;">Adaptive Query Router</strong><p style="font-size:12px;margin-top:3px;">LLM-based classifier to route Simple / Medium / Complex queries.</p></div>
+        </div>
+        <div class="roadmap-item">
+          <div class="roadmap-line"><div class="roadmap-dot" style="background:var(--yellow)"></div><div class="roadmap-bar"></div></div>
+          <div><strong style="font-size:13px;">Iterative RAG Loop</strong><p style="font-size:12px;margin-top:3px;">Multi-pass retrieval with query refinement. Max 3 iterations.</p></div>
+        </div>
+        <div class="roadmap-item">
+          <div class="roadmap-line"><div class="roadmap-dot" style="background:var(--yellow)"></div></div>
+          <div><strong style="font-size:13px;">Recursive Decomposer</strong><p style="font-size:12px;margin-top:3px;">Sub-question generator + parallel retrieval + synthesizer.</p></div>
+        </div>
+      </div>
+    </div>
+    <div class="card green-border">
+      <h3 class="green">🚀 Phase 3 — Production <span style="font-weight:400;font-size:12px;color:var(--text2)">(Week 5–6)</span></h3>
+      <div class="roadmap">
+        <div class="roadmap-item">
+          <div class="roadmap-line"><div class="roadmap-dot" style="background:var(--green)"></div><div class="roadmap-bar"></div></div>
+          <div><strong style="font-size:13px;">Self-RAG Verifier Layer</strong><p style="font-size:12px;margin-top:3px;">Output scoring — faithfulness, relevance, grounding check.</p></div>
+        </div>
+        <div class="roadmap-item">
+          <div class="roadmap-line"><div class="roadmap-dot" style="background:var(--green)"></div><div class="roadmap-bar"></div></div>
+          <div><strong style="font-size:13px;">Evaluation & Benchmarking</strong><p style="font-size:12px;margin-top:3px;">RAGAS evaluation suite. Latency / cost / accuracy profiling.</p></div>
+        </div>
+        <div class="roadmap-item">
+          <div class="roadmap-line"><div class="roadmap-dot" style="background:var(--green)"></div></div>
+          <div><strong style="font-size:13px;">Demo & Feedback Loop</strong><p style="font-size:12px;margin-top:3px;">Internal demo. Collect user feedback. Iterate on routing thresholds.</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="card cyan-border">
+    <h3 class="accent2" style="margin-bottom:10px;">🎯 POC Success Criteria</h3>
+    <div class="grid4">
+      <div class="stat-box"><div class="stat-num accent2">&gt;85%</div><div class="stat-lbl">Answer Faithfulness Score</div></div>
+      <div class="stat-box"><div class="stat-num" style="color:var(--green)">&lt;3s</div><div class="stat-lbl">P95 Latency (Medium query)</div></div>
+      <div class="stat-box"><div class="stat-num" style="color:var(--yellow)">&lt;$0.05</div><div class="stat-lbl">Avg Cost per Query</div></div>
+      <div class="stat-box"><div class="stat-num" style="color:var(--accent3)">&gt;90%</div><div class="stat-lbl">Retrieval Precision@5</div></div>
+    </div>
+  </div>
+  <div class="slide-footer"><span>RAG Reasoning Techniques</span><span>Slide 12 of 13</span></div>
+</div>
+
+<!-- SLIDE 13: SUMMARY -->
+<div class="slide" id="s13">
+  <div class="slide-tag">Key Takeaways</div>
+  <h2>Summary & <span class="accent">Next Steps</span></h2>
+  <div class="grid2" style="margin-bottom:14px;">
+    <div>
+      <div class="card accent-border" style="margin-bottom:12px;">
+        <h3>📋 Key Takeaways</h3>
+        <ul>
+          <li>Basic RAG is insufficient for enterprise-grade, complex queries</li>
+          <li><strong style="color:var(--text)">CRAG</strong> is the single best addition to any production RAG — always validate retrieval quality</li>
+          <li><strong style="color:var(--text)">Adaptive RAG</strong> is the right architecture for production — it orchestrates others</li>
+          <li><strong style="color:var(--text)">Iterative + Recursive</strong> handle the depth vs breadth split in complex queries</li>
+          <li><strong style="color:var(--text)">Self-RAG</strong> is best for high-stakes, citation-required applications</li>
+          <li><strong style="color:var(--text)">Agentic RAG</strong> is the north star — build toward it incrementally</li>
+          <li>No single technique wins — <strong style="color:var(--text)">the best systems combine multiple strategies</strong></li>
+        </ul>
+      </div>
+      <div class="card yellow-border">
+        <h3 class="yellow">⚡ Our Recommended Stack for POC</h3>
+        <div class="flow">
+          <div class="flow-box" style="border-color:var(--yellow)">Adaptive Router</div>
+          <div class="flow-arrow">+</div>
+          <div class="flow-box" style="border-color:var(--accent3)">CRAG</div>
+          <div class="flow-arrow">+</div>
+          <div class="flow-box" style="border-color:var(--accent)">Iterative</div>
+          <div class="flow-arrow">+</div>
+          <div class="flow-box" style="border-color:var(--green)">Self-RAG Verifier</div>
+        </div>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <div class="card green-border">
+        <h3 class="green">✅ Immediate Next Steps</h3>
+        <ul>
+          <li>📁 Identify and collect sample enterprise documents for POC</li>
+          <li>⚙️ Set up Qdrant instance + embedding pipeline</li>
+          <li>🔧 Implement CRAG evaluator as first milestone</li>
+          <li>🧭 Build query classifier for Adaptive routing</li>
+          <li>📊 Define evaluation dataset (50–100 Q&A pairs)</li>
+          <li>🔬 Run RAGAS benchmarks at each phase</li>
+        </ul>
+      </div>
+      <div class="card cyan-border">
+        <h3 class="accent2">🔗 Key Resources</h3>
+        <ul>
+          <li><strong style="color:var(--text)">Self-RAG Paper:</strong> Asai et al., 2023</li>
+          <li><strong style="color:var(--text)">CRAG Paper:</strong> Yan et al., 2024</li>
+          <li><strong style="color:var(--text)">Adaptive RAG Paper:</strong> Jeong et al., 2024</li>
+          <li><strong style="color:var(--text)">Framework:</strong> LangGraph for Agentic/Adaptive flows</li>
+          <li><strong style="color:var(--text)">Evaluation:</strong> RAGAS library</li>
+          <li><strong style="color:var(--text)">Observability:</strong> LangSmith / Arize Phoenix</li>
+        </ul>
+      </div>
+      <div class="card" style="border-color:var(--accent);text-align:center;padding:16px;">
+        <div style="font-size:28px;margin-bottom:8px;">🚀</div>
+        <h3 style="color:var(--accent);margin-bottom:6px;">Ready to Build?</h3>
+        <p style="font-size:13px;">Let's start with Phase 1 — document ingestion + CRAG baseline. We can have a working demo in 2 weeks.</p>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer"><span>RAG Reasoning Techniques</span><span>Slide 13 of 13</span></div>
+</div>
+
+</div><!-- /slides -->
+
+<script>
+  let cur = 0;
+  const total = 13;
+  function showSlide(n){
+    document.querySelectorAll('.slide').forEach((s,i)=>{
+      s.classList.toggle('active', i===n);
+    });
+    document.getElementById('counter').textContent = `${n+1} / ${total}`;
+    document.getElementById('progress').style.width = `${((n+1)/total)*100}%`;
+    cur = n;
+  }
+  function changeSlide(dir){
+    let next = cur + dir;
+    if(next < 0) next = 0;
+    if(next >= total) next = total-1;
+    showSlide(next);
+  }
+  document.addEventListener('keydown', e=>{
+    if(e.key==='ArrowRight'||e.key==='ArrowDown') changeSlide(1);
+    if(e.key==='ArrowLeft'||e.key==='ArrowUp') changeSlide(-1);
+  });
+  showSlide(0);
+</script>
+</body>
+</html>
