@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Building Secure Agentic AI Applications</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ===== DZSLIDES CORE RESET ===== */
+* { margin:0; padding:0; box-sizing:border-box; }
+[role="note"] { display:none; }
+
+html, body {
+  width:100%; height:100%;
+  overflow:hidden;
+  background:#0f172a;
+  font-family:'Inter',sans-serif;
+}
+
+/* ===== SLIDE CONTAINER ===== */
+.slideshow {
+  width:100%; height:100%;
+  position:relative;
+}
+
+section {
+  display:none;
+  width:100%; height:100%;
+  position:absolute; top:0; left:0;
+  background:#0f172a;
+  color:#e2e8f0;
+  overflow:hidden;
+}
+section.active { display:flex; flex-direction:column; }
+
+/* ===== PROGRESS BAR ===== */
+#progress-bar {
+  position:fixed; bottom:0; left:0;
+  height:3px; width:0;
+  background:linear-gradient(90deg,#6C63FF,#06b6d4);
+  z-index:9999;
+  transition:width 0.3s ease;
+}
+
+/* ===== SLIDE COUNTER ===== */
+#slide-counter {
+  position:fixed; bottom:10px; right:16px;
+  font-size:11px; color:#334155;
+  z-index:9999; font-family:'Inter',sans-serif;
+}
+
+/* ===== NAVIGATION HINT ===== */
+#nav-hint {
+  position:fixed; bottom:10px; left:16px;
+  font-size:11px; color:#1e293b;
+  z-index:9999;
+}
+
+/* ===== SHARED SLIDE INNER ===== */
+.slide-body {
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  padding:32px 48px 24px;
+  overflow:hidden;
+}
+
+/* ===== TYPOGRAPHY ===== */
+.section-label {
+  font-size:10px; font-weight:700; letter-spacing:0.15em;
+  color:#6C63FF; text-transform:uppercase; margin-bottom:6px;
+}
+h1 { font-size:clamp(20px,3.5vw,36px); font-weight:800; line-height:1.2; }
+h2 { font-size:clamp(16px,2.5vw,26px); font-weight:700; line-height:1.2; }
+h3 { font-size:13px; font-weight:600; }
+p, li { font-size:12px; line-height:1.55; }
+code {
+  font-family:'Fira Code',monospace;
+  font-size:11px;
+  background:#1e293b;
+  padding:1px 5px; border-radius:3px;
+  color:#a5f3fc;
+}
+pre {
+  font-family:'Fira Code',monospace;
+  font-size:10.5px;
+  background:#1e293b;
+  border-left:3px solid #6C63FF;
+  border-radius:6px;
+  padding:12px 14px;
+  color:#a5f3fc;
+  line-height:1.6;
+  overflow:hidden;
+  white-space:pre;
+}
+
+.divider {
+  width:48px; height:3px;
+  background:linear-gradient(90deg,#6C63FF,#06b6d4);
+  border-radius:2px; margin:8px 0 16px;
+  flex-shrink:0;
+}
+
+/* ===== TAG / PILL ===== */
+.tag {
+  display:inline-block; padding:3px 10px;
+  border-radius:20px; font-size:10px; font-weight:600;
+  background:rgba(108,99,255,0.15); color:#a5b4fc;
+  border:1px solid rgba(108,99,255,0.35); margin:3px 2px;
+}
+
+/* =============================
+   SLIDE 1 — COVER
+============================= */
+.cover {
+  justify-content:center; align-items:center;
+  text-align:center;
+  background:radial-gradient(ellipse at 30% 40%, #1e1b4b 0%, #0f172a 65%);
+  position:relative;
+}
+.cover::before {
+  content:''; position:absolute;
+  width:420px; height:420px; border-radius:50%;
+  background:radial-gradient(circle, rgba(108,99,255,0.1), transparent 70%);
+  top:-80px; right:-80px; pointer-events:none;
+}
+.cover h1 span { color:#6C63FF; }
+.cover .subtitle {
+  font-size:13px; color:#94a3b8;
+  margin:12px auto 0; max-width:500px; line-height:1.6;
+}
+.cover .tags { margin-top:20px; }
+.cover-footer {
+  position:absolute; bottom:18px; right:24px;
+  font-size:10px; color:#334155;
+}
+
+/* =============================
+   SLIDE 2 — AGENDA
+============================= */
+.agenda-grid {
+  display:grid; grid-template-columns:1fr 1fr;
+  gap:8px; flex:1;
+}
+.agenda-item {
+  display:flex; align-items:center; gap:10px;
+  background:#1e293b; border-radius:8px;
+  padding:10px 12px;
+  border-left:3px solid #6C63FF;
+}
+.agenda-num { font-size:18px; font-weight:800; color:#6C63FF; min-width:28px; }
+.agenda-text strong { display:block; font-size:11px; color:#e2e8f0; }
+.agenda-text span { font-size:10px; color:#64748b; }
+
+/* =============================
+   SLIDE 3 — AGENTIC AI
+============================= */
+.two-col { display:flex; gap:14px; flex:1; }
+.col-card {
+  flex:1; background:#1e293b; border-radius:10px;
+  padding:14px 16px;
+}
+.col-card.hl { border:1px solid rgba(108,99,255,0.4); }
+.col-card h3 { font-size:11px; margin-bottom:10px; }
+.col-card ul { list-style:none; }
+.col-card ul li {
+  padding:5px 0; font-size:11px; color:#94a3b8;
+  border-bottom:1px solid #0f172a;
+  display:flex; gap:7px; align-items:flex-start;
+}
+.col-card ul li::before { content:'›'; color:#6C63FF; font-weight:700; flex-shrink:0; }
+.col-card.hl ul li { color:#c7d2fe; }
+.bottom-note {
+  margin-top:10px; background:#1e1b4b;
+  border-radius:7px; padding:8px 14px;
+  font-size:11px; color:#a5b4fc; text-align:center;
+  border:1px solid rgba(108,99,255,0.3);
+  flex-shrink:0;
+}
+
+/* =============================
+   SLIDE 4 — REACT LOOP
+============================= */
+.react-loop {
+  display:flex; align-items:center; justify-content:center;
+  gap:0; flex-shrink:0; margin:10px 0;
+}
+.loop-step {
+  background:#1e293b; border-radius:8px;
+  padding:10px 10px; text-align:center;
+  flex:1; border-top:3px solid;
+}
+.loop-arrow { font-size:16px; color:#334155; padding:0 4px; }
+.loop-label { font-size:11px; font-weight:700; color:#e2e8f0; }
+.loop-sub { font-size:9px; color:#64748b; margin-top:2px; line-height:1.4; }
+
+.code-note {
+  background:#1e293b; border-radius:8px;
+  padding:10px 14px; flex-shrink:0; margin-top:8px;
+}
+.code-note p { font-size:11px; color:#64748b; margin-bottom:4px; }
+
+/* =============================
+   SLIDE 5 — THREATS
+============================= */
+.threat-grid {
+  display:grid; grid-template-columns:1fr 1fr 1fr;
+  gap:10px; flex:1;
+}
+.threat-card {
+  background:#1e293b; border-radius:8px;
+  padding:12px 14px; display:flex; flex-direction:column;
+}
+.threat-icon { font-size:20px; margin-bottom:5px; }
+.threat-card h3 { font-size:11px; color:#f87171; margin-bottom:4px; }
+.threat-card p { font-size:10px; color:#94a3b8; line-height:1.5; }
+
+/* =============================
+   SLIDE 6 — DEFENSE IN DEPTH
+============================= */
+.layers { display:flex; flex-direction:column; gap:7px; flex:1; }
+.layer {
+  display:flex; align-items:center; gap:12px;
+  background:#1e293b; border-radius:7px;
+  padding:9px 14px; flex:1;
+}
+.layer-num {
+  width:26px; height:26px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  font-size:10px; font-weight:700; flex-shrink:0;
+}
+.layer-content strong { display:block; font-size:11px; color:#e2e8f0; }
+.layer-content span { font-size:10px; color:#64748b; }
+
+/* =============================
+   SLIDE 7 — CLOUD vs LOCAL
+============================= */
+.compare-table {
+  width:100%; border-collapse:collapse;
+  font-size:10.5px; flex:1;
+}
+.compare-table th {
+  background:#1e293b; padding:9px 12px;
+  text-align:left; color:#a5b4fc;
+  font-weight:600; border-bottom:2px solid #334155;
+}
+.compare-table td {
+  padding:8px 12px; border-bottom:1px solid #1a2233;
+  color:#94a3b8; vertical-align:middle;
+}
+.compare-table tr:nth-child(even) td { background:#141e2d; }
+.good { color:#4ade80; }
+.bad  { color:#f87171; }
+.med  { color:#fbbf24; }
+
+/* =============================
+   SLIDE 8 — ARCH DIAGRAM
+============================= */
+.arch-row {
+  display:flex; align-items:center;
+  justify-content:space-between; gap:4px;
+  flex-shrink:0; margin:10px 0;
+}
+.arch-box {
+  background:#1e293b; border-radius:8px;
+  padding:10px 8px; text-align:center; flex:1;
+}
+.arch-box .icon { font-size:18px; }
+.arch-box strong { display:block; font-size:10px; color:#e2e8f0; margin-top:2px; }
+.arch-box span { font-size:9px; color:#64748b; }
+.arch-arrow { font-size:14px; color:#334155; flex-shrink:0; }
+
+.info-row { display:flex; gap:8px; flex-shrink:0; margin-top:8px; }
+.info-box {
+  flex:1; background:#1e293b; border-radius:7px;
+  padding:8px 10px;
+}
+.info-box p { font-size:9px; color:#64748b; margin-bottom:3px; }
+.info-box code { font-size:9px; }
+
+/* =============================
+   SLIDE 9-12 — CODE SLIDES
+============================= */
+.code-slide .slide-body { padding:24px 40px 16px; }
+.code-slide pre {
+  flex:1;
+  font-size:10px;
+  line-height:1.55;
+  overflow:hidden;
+}
+
+/* =============================
+   SLIDE 13 — COMPLIANCE
+============================= */
+.compliance-row { display:flex; gap:12px; flex:1; }
+.comp-card {
+  flex:1; border-radius:10px; padding:14px;
+  display:flex; flex-direction:column; gap:6px;
+}
+.gdpr  { background:#0f1c30; border-top:3px solid #3b82f6; }
+.hipaa { background:#0f1e14; border-top:3px solid #22c55e; }
+.iso   { background:#170f28; border-top:3px solid #a855f7; }
+.comp-card .comp-title { font-size:12px; font-weight:700; }
+.comp-card ul { list-style:none; }
+.comp-card ul li { font-size:10px; color:#94a3b8; padding:3px 0; display:flex; gap:5px; line-height:1.4; }
+.comp-card ul li::before { content:'•'; flex-shrink:0; }
+
+/* =============================
+   SLIDE 14 — POC LIST
+============================= */
+.poc-list { display:flex; flex-direction:column; gap:8px; flex:1; }
+.poc-item {
+  display:flex; align-items:center; gap:12px;
+  background:#1e293b; border-radius:8px;
+  padding:10px 14px; flex:1;
+}
+.poc-num {
+  background:linear-gradient(135deg,#6C63FF,#06b6d4);
+  color:#fff; font-weight:800; font-size:11px;
+  width:28px; height:28px; border-radius:7px;
+  display:flex; align-items:center; justify-content:center;
+  flex-shrink:0;
+}
+.poc-content strong { display:block; font-size:11px; color:#e2e8f0; }
+.poc-content span { font-size:10px; color:#64748b; }
+
+/* =============================
+   SLIDE 15 — CLOSING
+============================= */
+.closing {
+  justify-content:center; align-items:center; text-align:center;
+  background:radial-gradient(ellipse at 70% 30%, #1e1b4b 0%, #0f172a 70%);
+}
+.closing h2 { font-size:28px; color:#fff; }
+.closing h2 span { color:#6C63FF; }
+.closing .sub { color:#64748b; font-size:12px; margin-top:10px; max-width:460px; }
+.key-pills { display:flex; flex-wrap:wrap; justify-content:center; gap:7px; margin-top:18px; }
+.key-pill {
+  background:#1e293b; border-radius:20px;
+  padding:5px 14px; font-size:10px; color:#a5b4fc;
+  border:1px solid rgba(108,99,255,0.3);
+}
+</style>
+</head>
+<body>
+<div class="slideshow">
+
+<!-- ============ SLIDE 1: COVER ============ -->
+<section class="cover active">
+  <div class="slide-body" style="justify-content:center;align-items:center;text-align:center;">
+    <div class="section-label">Enterprise AI Security</div>
+    <h1 style="margin-top:6px;">Building <span style="color:#6C63FF">Secure</span> Agentic AI<br>Applications</h1>
+    <p class="subtitle">Security Architecture · Threat Models · Defense-in-Depth<br>Implemented with LangChain JS / Node.js</p>
+    <div class="tags" style="margin-top:16px;">
+      <span class="tag">Agentic AI</span>
+      <span class="tag">LangChain JS</span>
+      <span class="tag">LangGraph</span>
+      <span class="tag">GDPR · HIPAA · ISO 27001</span>
+    </div>
+  </div>
+  <div class="cover-footer">2025 &nbsp;·&nbsp; Internal Tech Talk</div>
+</section>
+
+<!-- ============ SLIDE 2: AGENDA ============ -->
+<section>
+  <div class="slide-body">
+    <div class="section-label">Overview</div>
+    <h2>Agenda</h2>
+    <div class="divider"></div>
+    <div class="agenda-grid">
+      <div class="agenda-item"><span class="agenda-num">01</span><div class="agenda-text"><strong>What is Agentic AI?</strong><span>Beyond LLMs — reasoning, tools, autonomy</span></div></div>
+      <div class="agenda-item"><span class="agenda-num">02</span><div class="agenda-text"><strong>Threat Landscape</strong><span>Leakage, injection, privilege escalation</span></div></div>
+      <div class="agenda-item"><span class="agenda-num">03</span><div class="agenda-text"><strong>Defense-in-Depth</strong><span>Five layered security controls</span></div></div>
+      <div class="agenda-item"><span class="agenda-num">04</span><div class="agenda-text"><strong>Cloud vs Local LLMs</strong><span>Trade-offs for enterprise data</span></div></div>
+      <div class="agenda-item"><span class="agenda-num">05</span><div class="agenda-text"><strong>LangChain JS Architecture</strong><span>Agents, guardrails, middleware</span></div></div>
+      <div class="agenda-item"><span class="agenda-num">06</span><div class="agenda-text"><strong>Compliance Mapping</strong><span>GDPR · HIPAA · ISO/IEC 27001</span></div></div>
+      <div class="agenda-item"><span class="agenda-num">07</span><div class="agenda-text"><strong>POC Walkthrough</strong><span>5 live demo scenarios</span></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SLIDE 3: WHAT IS AGENTIC AI ============ -->
+<section>
+  <div class="slide-body">
+    <div class="section-label">01 — Agentic AI</div>
+    <h2>What is Agentic AI?</h2>
+    <div class="divider"></div>
+    <div class="two-col">
+      <div class="col-card">
+        <h3 style="color:#64748b">📄 Traditional LLM App</h3>
+        <ul>
+          <li>Single-turn or simple chat</li>
+          <li>No tool invocation</li>
+          <li>Static context window</li>
+          <li>Human-driven every step</li>
+          <li>Passive — waits for prompts</li>
+        </ul>
+      </div>
+      <div class="col-card hl">
+        <h3 style="color:#a5b4fc">🤖 Agentic AI System</h3>
+        <ul>
+          <li>Multi-step autonomous reasoning</li>
+          <li>Invokes tools (DB, APIs, files)</li>
+          <li>Maintains state across actions</li>
+          <li>Decides WHAT to do &amp; WHEN</li>
+          <li>Active — pursues a goal</li>
+        </ul>
+      </div>
+    </div>
+    <div class="bottom-note">🔁 &nbsp;<strong>Agent = LLM + Tools + Memory + ReAct Reasoning Loop</strong></div>
+  </div>
+</section>
+
+<!-- ============ SLIDE 4: REACT LOOP ============ -->
+<section>
+  <div class="slide-body">
+    <div class="section-label">01 — Agentic AI</div>
+    <h2>The ReAct Loop — How Agents Think</h2>
+    <div class="divider"></div>
+    <div class="react-loop">
+      <div class="loop-step" style="border-color:#6C63FF"><div class="loop-label">🧠 Think</div><div class="loop-sub">LLM reasons<br>about goal</div></div>
+      <div class="loop-arrow">→</div>
+      <div class="loop-step" style="border-color:#f59e0b"><div class="loop-label">⚙️ Act</div><div class="loop-sub">Selects &amp;<br>calls tool</div></div>
+      <div class="loop-arrow">→</div>
+      <div class="loop-step" style="border-color:#06b6d4"><div class="loop-label">👁 Observe</div><div class="loop-sub">Receives<br>tool output</div></div>
+      <div class="loop-arrow">→</div>
+      <div class="loop-step" style="border-color:#10b981"><div class="loop-label">📋 Reflect</div><div class="loop-sub">Updates state,<br>plans next</div></div>
+      <div class="loop-arrow">→</div>
+      <div class="loop-step" style="border-color:#ef4444"><div class="loop-label">✅ Stop</div><div class="loop-sub">Goal reached<br>or limit hit</div></div>
+    </div>
+    <div class="code-note">
+      <p><strong style="color:#a5b4fc">LangChain JS</strong> — <code>createAgent()</code> builds a LangGraph-based runtime graph</p>
+      <pre style="margin-top:6px;font-size:10px;padding:8px 12px;">const agent = createAgent({
+  model: "openai:gpt-4.1",
+  tools: [searchTool, dbQueryTool, fileTool],
+  checkpointer: new MemorySaver(),  // state across steps
+});</pre>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SLIDE 5: THREAT LANDSCAPE ============ -->
+<section>
+  <div class="slide-body">
+    <div class="section-label">02 — Threat Landscape</div>
+    <h2>Security Risks in Agentic AI</h2>
+    <div class="divider"></div>
+    <div class="threat-grid">
+      <div class="threat-card"><div class="threat-icon">💧</div><h3>Data Leakage</h3><p>Sensitive org data sent to external LLM providers via tool outputs or prompt context windows</p></div>
+      <div class="threat-card"><div class="threat-icon">💉</div><h3>Prompt Injection</h3><p>Malicious instructions in documents or tool results hijack agent goal and behaviour</p></div>
+      <div class="threat-card"><div class="threat-icon">🔑</div><h3>Privilege Escalation</h3><p>Agent inherits excessive permissions; lateral movement across internal resources</p></div>
+      <div class="threat-card"><div class="threat-icon">🛠️</div><h3>Insecure Tool Calls</h3><p>No input validation on tool params allows SQLi, path traversal, SSRF attacks</p></div>
+      <div class="threat-card"><div class="threat-icon">📜</div><h3>Audit Gap</h3><p>No decision traceability violates GDPR Art.22 and HIPAA §164.312 requirements</p></div>
+      <div class="threat-card"><div class="threat-icon">🌐</div><h3>Supply Chain Risk</h3><p>Compromised tool libraries, malicious MCP server responses, poisoned RAG sources</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SLIDE 6: DEFENSE IN DEPTH ============ -->
+<section>
+  <div class="slide-body">
+    <div class="section-label">03 — Security Architecture</div>
+    <h2>Defense-in-Depth — Five Layers</h2>
+    <div class="divider"></div>
+    <div class="layers">
+      <div class="layer"><div class="layer-num" style="background:#6C63FF20;color:#a5b4fc;border:1px solid #6C63FF40">L1</div><div class="layer-content"><strong>Input Guardrails</strong><span>Prompt validation, PII detection, injection pattern filtering — before LLM sees any input</span></div></div>
+      <div class="layer"><div class="layer-num" style="background:#06b6d420;color:#67e8f9;border:1px solid #06b6d440">L2</div><div class="layer-content"><strong>Tool Access Control (Least Privilege)</strong><span>Role-based tool filtering via LangChain Middleware — tools scoped per user role &amp; session</span></div></div>
+      <div class="layer"><div class="layer-num" style="background:#f59e0b20;color:#fcd34d;border:1px solid #f59e0b40">L3</div><div class="layer-content"><strong>Output Sanitisation &amp; DLP</strong><span>Scan agent responses before delivery; block exfiltration of classified or PII data patterns</span></div></div>
+      <div class="layer"><div class="layer-num" style="background:#10b98120;color:#6ee7b7;border:1px solid #10b98140">L4</div><div class="layer-content"><strong>Auditability &amp; Observability</strong><span>LangSmith traces every reasoning step, tool call, and graph decision node end-to-end</span></div></div>
+      <div class="layer"><div class="layer-num" style="background:#ef444420;color:#fca5a5;border:1px solid #ef444440">L5</div><div class="layer-content"><strong>Human-in-the-Loop (HITL)</strong><span>Interrupt agent before sensitive or destructive actions — LangChain <code>config.interrupt()</code> pattern</span></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SLIDE 7: CLOUD vs LOCAL ============ -->
+<section>
+  <div class="slide-body">
+    <div class="section-label">04 — LLM Deployment</div>
+    <h2>Cloud vs Local LLMs — Enterprise Trade-offs</h2>
+    <div class="divider"></div>
+    <table class="compare-table">
+      <tr>
+        <th>Dimension</th>
+        <th>☁️ Cloud LLM &nbsp;<small style="font-weight:400;color:#64748b">(OpenAI / Anthropic / Gemini)</small></th>
+        <th>🖥️ Local LLM &nbsp;<small style="font-weight:400;color:#64748b">(Ollama / vLLM)</small></th>
+      </tr>
+      <tr><td><strong>Data Privacy</strong></td><td class="bad">❌ Data leaves org perimeter</td><td class="good">✅ Fully on-premise</td></tr>
+      <tr><td><strong>Model Quality</strong></td><td class="good">✅ State-of-the-art</td><td class="med">⚠️ Smaller, less capable</td></tr>
+      <tr><td><strong>Compliance</strong></td><td class="med">⚠️ BAA / DPA required</td><td class="good">✅ Full org control</td></tr>
+      <tr><td><strong>Cost</strong></td><td class="med">⚠️ API cost scales with usage</td><td class="med">⚠️ GPU infrastructure cost</td></tr>
+      <tr><td><strong>LangChain JS</strong></td><td class="good">✅ <code>@langchain/openai</code></td><td class="good">✅ <code>@langchain/ollama</code></td></tr>
+      <tr><td><strong>Best For</strong></td><td>Public / anonymised data</td><td>PII · PHI · Confidential docs</td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- ============ SLIDE 8: ARCHITECTURE ============ -->
+<section>
+  <div class="slide-body">
+    <div class="section-label">05 — LangChain JS</div>
+    <h2>Secure Agent Pipeline</h2>
+    <div class="divider"></div>
+    <div class="arch-row">
+      <div class="arch-box" style="border-top:3px solid #10b981"><div class="icon">👤</div><strong>User / App</strong><span>Request +<br>Runtime Context</span></div>
+      <div class="arch-arrow">→</div>
+      <div class="arch-box" style="border-top:3px solid #ef4444"><div class="icon">🛡️</div><strong>Input Guard</strong><span>PII Filter<br>Injection Check</span></div>
+      <div class="arch-arrow">→</div>
+      <div class="arch-box" style="border-top:3px solid #6C63FF"><div class="icon">🤖</div><strong>createAgent()</strong><span>ReAct Loop<br>LangGraph</span></div>
+      <div class="arch-arrow">⇅</div>
+      <div class="arch-box" style="border-top:3px solid #f59e0b"><div class="icon">⚙️</div><strong>Scoped Tools</strong><span>RBAC Middleware<br>Validated I/O</span></div>
+      <div class="arch-arrow">→</div>
+      <div class="arch-box" style="border-top:3px solid #06b6d4"><div class="icon">🔍</div><strong>Output Guard</strong><span>DLP Scan<br>Audit Log</span></div>
+    </div>
+    <div class="info-row">
+      <div class="info-box"><p>Middleware (RBAC)</p><code>createMiddleware({ wrapModelCall })</code></div>
+      <div class="info-box"><p>Guardrails</p><code>createGuardrail({ type: "input"|"output" })</code></div>
+      <div class="info-box"><p>Observability</p><code>LANGCHAIN_TRACING_V2=true</code></div>
+      <div class="info-box"><p>HITL</p><code>config.interrupt({ approval })</code></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SLIDE 9: CODE — INPUT GUARDRAIL ============ -->
+<section class="code-slide">
+  <div class="slide-body">
+    <div class="section-label">POC 1 — Input Security</div>
+    <h2>Input Guardrail — PII &amp; Prompt Injection Filter</h2>
+    <div class="divider"></div>
+    <pre>import { createAgent, createGuardrail } from "langchain";
+
+const inputGuardrail = createGuardrail({
+  name: "InputSafetyGuardrail",
+  type: "input",
+  handler: async ({ input }) => {
+    const piiPattern  = /\b\d{3}-\d{2}-\d{4}\b/;          // SSN
+    const emailPat    = /[A-Z0-9._%+-]+@\w+\.\w+/i;        // Email
+    const injectPat   = /ignore (previous|all) instructions/i;
+
+    if (piiPattern.test(input) || emailPat.test(input))
+      return { safe: false, reason: "PII detected in input" };
+    if (injectPat.test(input))
+      return { safe: false, reason: "Prompt injection detected" };
+
+    return { safe: true };
+  }
+});
+
+const agent = createAgent({
+  model: "openai:gpt-4.1",
+  tools: [dbQueryTool],
+  guardrails: [inputGuardrail],    // ← attached at agent level
+});</pre>
+  </div>
+</section>
+
+<!-- ============ SLIDE 10: CODE — RBAC ============ -->
+<section class="code-slide">
+  <div class="slide-body">
+    <div class="section-label">POC 2 — Access Control</div>
+    <h2>RBAC Middleware — Role-Based Tool Filtering</h2>
+    <div class="divider"></div>
+    <pre>import { createMiddleware, createAgent } from "langchain";
+import * as z from "zod";
+
+const rbacMiddleware = createMiddleware({
+  name: "RBACToolFilter",
+  contextSchema: z.object({ userRole: z.string() }),
+
+  wrapModelCall: (request, handler) => {
+    const { userRole } = request.runtime.context;
+
+    const roleToolMap = {
+      viewer:  (t) => t.name.startsWith("read_"),   // read-only
+      editor:  (t) => t.name !== "delete_data",     // no deletes
+      admin:   ()  => true,                         // full access
+    };
+
+    const permit = roleToolMap[userRole] ?? (() => false);
+    const filteredTools = request.tools.filter(permit);
+
+    return handler({ ...request, tools: filteredTools });
+  }
+});
+
+const agent = createAgent({
+  model: "openai:gpt-4.1",
+  tools: [readDocsTool, editDocsTool, deleteDataTool],
+  middleware: [rbacMiddleware],     // ← least-privilege enforced
+});</pre>
+  </div>
+</section>
+
+<!-- ============ SLIDE 11: CODE — OUTPUT DLP ============ -->
+<section class="code-slide">
+  <div class="slide-body">
+    <div class="section-label">POC 3 — Data Loss Prevention</div>
+    <h2>Output DLP — Redaction &amp; Audit Logging</h2>
+    <div class="divider"></div>
+    <pre>import { createGuardrail, createAgent } from "langchain";
+
+const outputDLP = createGuardrail({
+  name: "OutputDLPGuardrail",
+  type: "output",
+  handler: async ({ output }) => {
+    const classifiedPat = /CONFIDENTIAL|SECRET|PHI/gi;
+    const ssnPat        = /\b\d{3}-\d{2}-\d{4}\b/g;
+    const cardPat       = /\b\d{4}[- ]?\d{4}[- ]?\d{4}[- ]?\d{4}\b/g;
+
+    const sanitised = output
+      .replace(classifiedPat, "[REDACTED]")
+      .replace(ssnPat,        "[SSN-REDACTED]")
+      .replace(cardPat,       "[CARD-REDACTED]");
+
+    // Emit immutable audit event
+    await auditLogger.log({
+      timestamp: new Date().toISOString(),
+      event: "OUTPUT_DLP_SCAN",
+      sanitised,
+    });
+
+    return { safe: true, output: sanitised };
+  }
+});
+
+const agent = createAgent({
+  model: "openai:gpt-4.1",
+  tools: [internalSearchTool],
+  guardrails: [outputDLP],
+});</pre>
+  </div>
+</section>
+
+<!-- ============ SLIDE 12: CODE — HITL ============ -->
+<section class="code-slide">
+  <div class="slide-body">
+    <div class="section-label">POC 4 — Human-in-the-Loop</div>
+    <h2>HITL — Agent Pauses for Human Approval</h2>
+    <div class="divider"></div>
+    <pre>import { createAgent, tool } from "langchain";
+import { MemorySaver } from "@langchain/langgraph";
+import * as z from "zod";
+
+const deleteRecordTool = tool(
+  async ({ recordId }, config) => {
+    // Interrupt the graph — pause until human responds
+    const approval = await config.interrupt({
+      message: `⚠️ Agent wants to DELETE record: ${recordId}`,
+      approvalRequired: true,
+    });
+
+    if (!approval.approved) {
+      return "Action rejected by human reviewer.";
+    }
+    return await db.deleteRecord(recordId);  // proceeds only if approved
+  },
+  {
+    name: "delete_record",
+    description: "Delete a DB record — requires human approval",
+    schema: z.object({ recordId: z.string() }),
+  }
+);
+
+const agent = createAgent({
+  model: "openai:gpt-4.1",
+  tools: [deleteRecordTool],
+  checkpointer: new MemorySaver(),  // persists interrupted state
+});</pre>
+  </div>
+</section>
+
+<!-- ============ SLIDE 13: COMPLIANCE ============ -->
+<section>
+  <div class="slide-body">
+    <div class="section-label">06 — Compliance</div>
+    <h2>Regulatory Alignment</h2>
+    <div class="divider"></div>
+    <div class="compliance-row">
+      <div class="comp-card gdpr">
+        <div class="comp-title" style="color:#60a5fa">🇪🇺 GDPR</div>
+        <ul>
+          <li style="color:#93c5fd">Art. 22 — no automated decisions on personal data without HITL oversight</li>
+          <li style="color:#93c5fd">Data minimisation → PII filter guardrail blocks excess data</li>
+          <li style="color:#93c5fd">Right to explanation → LangSmith full audit trail</li>
+          <li style="color:#93c5fd">Data residency → Local LLM or EU-region API endpoint</li>
+        </ul>
+      </div>
+      <div class="comp-card hipaa">
+        <div class="comp-title" style="color:#4ade80">🏥 HIPAA</div>
+        <ul>
+          <li style="color:#86efac">§164.312 — Audit controls: log every agent access to PHI records</li>
+          <li style="color:#86efac">Minimum necessary → RBAC middleware limits tool scope</li>
+          <li style="color:#86efac">PHI redaction enforced in output DLP guardrail</li>
+          <li style="color:#86efac">BAA required when using cloud-hosted LLMs with PHI</li>
+        </ul>
+      </div>
+      <div class="comp-card iso">
+        <div class="comp-title" style="color:#c084fc">🔒 ISO 27001</div>
+        <ul>
+          <li style="color:#d8b4fe">A.9 — Access control: least privilege enforced per role</li>
+          <li style="color:#d8b4fe">A.12 — Operations security: tool input validation</li>
+          <li style="color:#d8b4fe">A.16 — Incident management: anomaly detection hooks</li>
+          <li style="color:#d8b4fe">A.18 — Compliance: data processing activity records</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SLIDE 14: POC OVERVIEW ============ -->
+<section>
+  <div class="slide-body">
+    <div class="section-label">07 — POC Walkthrough</div>
+    <h2>Demonstration Scenarios</h2>
+    <div class="divider"></div>
+    <div class="poc-list">
+      <div class="poc-item"><div class="poc-num">1</div><div class="poc-content"><strong>Input Guardrail — PII &amp; Prompt Injection Detection</strong><span>Agent blocks malicious prompts and PII before reaching the LLM &nbsp;·&nbsp; <code>createGuardrail({ type:"input" })</code></span></div></div>
+      <div class="poc-item"><div class="poc-num">2</div><div class="poc-content"><strong>RBAC Middleware — Role-Based Tool Access</strong><span>Viewer / Editor / Admin roles each see a different toolset &nbsp;·&nbsp; <code>createMiddleware({ wrapModelCall })</code></span></div></div>
+      <div class="poc-item"><div class="poc-num">3</div><div class="poc-content"><strong>Output DLP — Redaction &amp; Immutable Audit Log</strong><span>Classified content stripped before response is returned &nbsp;·&nbsp; <code>createGuardrail({ type:"output" })</code></span></div></div>
+      <div class="poc-item"><div class="poc-num">4</div><div class="poc-content"><strong>Human-in-the-Loop — Sensitive Action Approval</strong><span>Agent pauses and awaits human approval for destructive ops &nbsp;·&nbsp; <code>config.interrupt()</code></span></div></div>
+      <div class="poc-item"><div class="poc-num">5</div><div class="poc-content"><strong>Local LLM Swap — Ollama for Private / PHI Data</strong><span>Replace cloud model with on-premise Ollama for sensitive workloads &nbsp;·&nbsp; <code>@langchain/ollama</code></span></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SLIDE 15: CLOSING ============ -->
+<section class="closing">
+  <div class="slide-body" style="justify-content:center;align-items:center;text-align:center;">
+    <div class="section-label">Summary</div>
+    <h2>Build <span style="color:#6C63FF">Secure</span> by Default</h2>
+    <p class="sub">Security in Agentic AI must be woven into every layer of the pipeline — from input to output, tool to model.</p>
+    <div class="key-pills">
+      <span class="key-pill">🛡️ Input Guardrails</span>
+      <span class="key-pill">🔑 RBAC Middleware</span>
+      <span class="key-pill">🔍 Output DLP</span>
+      <span class="key-pill">👤 Human-in-the-Loop</span>
+      <span class="key-pill">🖥️ Local LLM for PHI</span>
+      <span class="key-pill">📋 Audit Trail</span>
+      <span class="key-pill">📜 GDPR · HIPAA · ISO 27001</span>
+    </div>
+    <p style="margin-top:20px;font-size:10px;color:#334155;">LangChain JS &nbsp;·&nbsp; LangGraph &nbsp;·&nbsp; Node.js</p>
+  </div>
+</section>
+
+</div><!-- /slideshow -->
+
+<div id="progress-bar"></div>
+<div id="slide-counter">1 / 15</div>
+<div id="nav-hint">← → to navigate &nbsp;·&nbsp; F fullscreen</div>
+
+<!-- ===== ENGINE ===== -->
+<script>
+(function(){
+  var slides = Array.from(document.querySelectorAll("section"));
+  var bar    = document.getElementById("progress-bar");
+  var ctr    = document.getElementById("slide-counter");
+  var idx    = 0;
+  var total  = slides.length;
+
+  function show(n){
+    slides[idx].classList.remove("active");
+    idx = Math.max(0, Math.min(n, total-1));
+    slides[idx].classList.add("active");
+    bar.style.width = ((idx+1)/total*100) + "%";
+    ctr.textContent = (idx+1) + " / " + total;
+    window.location.hash = "#" + (idx+1);
+  }
+
+  document.addEventListener("keydown", function(e){
+    if([39,40,32,34].includes(e.keyCode)){ e.preventDefault(); show(idx+1); }
+    if([37,38,33,8].includes(e.keyCode)){ e.preventDefault(); show(idx-1); }
+    if(e.keyCode===70){
+      var el = document.documentElement;
+      (el.requestFullscreen||el.webkitRequestFullscreen||el.mozRequestFullScreen).call(el);
+    }
+  });
+
+  // Click to advance
+  document.querySelector(".slideshow").addEventListener("click", function(e){
+    if(e.target.closest("a,button,code")) return;
+    show(idx+1);
+  });
+
+  // Touch swipe
+  var sx;
+  document.addEventListener("touchstart", function(e){ sx = e.touches[0].clientX; });
+  document.addEventListener("touchend",   function(e){
+    var dx = e.changedTouches[0].clientX - sx;
+    if(Math.abs(dx) > 40){ dx < 0 ? show(idx+1) : show(idx-1); }
+  });
+
+  // Hash on load
+  var h = parseInt(window.location.hash.substr(1));
+  if(h >= 1 && h <= total) show(h-1); else show(0);
+})();
+</script>
+</body>
+</html>
